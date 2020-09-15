@@ -15,5 +15,9 @@ var (
 	ErrNotSystemAccount    = sdkerrors.Register(ModuleName, 9, "operate account is not  system account")
 	ErrSingerAlreadyActive = sdkerrors.Register(ModuleName, 10, "singer already active")
 	ErrInsufficientAccessAsset = sdkerrors.Register(ModuleName, 11, "singer Access Asset is insufficient")
+	ErrMortgageNotEnough = sdkerrors.Register(ModuleName, 12, "singer mortgage is not enough")
+	ErrAccessIsZero = sdkerrors.Register(ModuleName, 13, "singer access is zero")
+	ErrSingerStatusLock = sdkerrors.Register(ModuleName, 14, "singer type is lock")
 
+	
 )

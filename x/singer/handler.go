@@ -23,6 +23,12 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgActiveSinger(ctx, k, msg)
 		case types.KuMsgBTCMortgage:
 			return handleKuMsgBTCMortgage(ctx, k, msg)
+		case types.KuMsgClaimBTCMortgate:
+			return handleKuMsgClaimBTCMortgate(ctx, k, msg)
+		case types.KuMsgClaimAccess:
+			return handleKuMsgClaimAccess(ctx, k, msg)
+		case types.KuMsgLogoutSinger:
+			return handleKuMsgLogoutSinger(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -32,7 +38,7 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 func handleKuMsgRegisterSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgRegisterSinger) (*sdk.Result, error) {
 	msgData := types.MsgRegisterSinger{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg CreateValidator data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.SingerAccount)
@@ -57,7 +63,7 @@ func handleKuMsgRegisterSinger(ctx chainTypes.Context, k keeper.Keeper, msg type
 func handleKuMsgPayAccess(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgPayAccess) (*sdk.Result, error) {
 	msgData := types.MsgPayAccess{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg CreateValidator data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgPayAccess data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.SingerAccount)
@@ -83,7 +89,7 @@ func handleKuMsgPayAccess(ctx chainTypes.Context, k keeper.Keeper, msg types.KuM
 func handleKuMsgActiveSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgActiveSinger) (*sdk.Result, error) {
 	msgData := types.MsgActiveSinger{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg CreateValidator data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgActiveSinger data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.SystemAccount)
@@ -107,9 +113,9 @@ func handleKuMsgActiveSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.
 }
 
 func handleKuMsgBTCMortgage(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgBTCMortgage) (*sdk.Result, error) {
-	msgData := types.MsgPayAccess{}
+	msgData := types.MsgPayBTCMortgate{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg CreateValidator data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgPayBTCMortgate data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.SingerAccount)
@@ -127,6 +133,77 @@ func handleKuMsgBTCMortgage(ctx chainTypes.Context, k keeper.Keeper, msg types.K
 	_, err := k.SingerAddBTCMortgate(sdkCtx, msgData.SingerAccount, msgData.Amount)
 	if err != nil {
 		return nil, err
+	}
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+
+func handleKuMsgClaimBTCMortgate(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgClaimBTCMortgate) (*sdk.Result, error) {
+	msgData := types.MsgClaimBTCMortgate{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgClaimBTCMortgate data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SingerAccount)
+
+	sdkCtx := ctx.Context()
+
+	if _, found := k.GetSingerInfo(sdkCtx, msgData.SingerAccount); !found {
+		return nil, types.ErrSingerNotExists
+	}
+
+	if msgData.Amount.Denom != external.DefaultBondDenom {
+		return nil, types.ErrBadDenom
+	}
+
+	_, err := k.SingerClaimBTCMortgate(sdkCtx, msgData.SingerAccount, msgData.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgClaimAccess(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgClaimAccess) (*sdk.Result, error) {
+	msgData := types.MsgClaimAccess{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SingerAccount)
+
+	sdkCtx := ctx.Context()
+
+	if _, found := k.GetSingerInfo(sdkCtx, msgData.SingerAccount); !found {
+		return nil, types.ErrSingerNotExists
+	}
+
+	_,err := k.SingerClaimAccess(sdkCtx,msgData.SingerAccount)
+	if  err != nil {
+		return nil,err
+	}
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgLogoutSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgLogoutSinger) (*sdk.Result, error) {
+	msgData := types.MsgLogoutSinger{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SingerAccount)
+
+	sdkCtx := ctx.Context()
+
+	if _, found := k.GetSingerInfo(sdkCtx, msgData.SingerAccount); !found {
+		return nil, types.ErrSingerNotExists
+	}
+
+	err := k.SingerLogoutAccess(sdkCtx,msgData.SingerAccount)
+	if  err != nil {
+		return nil,err
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil

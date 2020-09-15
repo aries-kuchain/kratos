@@ -34,6 +34,7 @@ type SupplyKeeper interface {
 	// TODO remove with genesis 2-phases refactor https://github.com/cosmos/cosmos-sdk/issues/2862
 	SetModuleAccount(sdk.Context, supplyexported.ModuleAccountI)
 	ModuleCoinsToPower(ctx sdk.Context, recipientModule string, amt Coins) error
+	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr AccountID, amt Coins) error
 
 	BurnCoins(ctx sdk.Context, name chainTypes.AccountID, amt Coins) error
 }

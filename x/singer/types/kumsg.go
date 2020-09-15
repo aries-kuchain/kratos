@@ -127,3 +127,86 @@ func (msg KuMsgBTCMortgage) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//--------------------------------------------------------------------------------------------------------------------------
+type KuMsgClaimBTCMortgate struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgClaimBTCMortgate(auth sdk.AccAddress, singerAccount AccountID, amount Coin) KuMsgClaimBTCMortgate {
+	return KuMsgClaimBTCMortgate{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithTransfer(singerAccount, ModuleAccountID, chainTypes.Coins{amount}),
+			msg.WithData(Cdc(), &MsgClaimBTCMortgate{
+				SingerAccount: singerAccount,
+				Amount:        amount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgClaimBTCMortgate) ValidateBasic() error {
+	if err := msg.KuMsg.ValidateTransfer(); err != nil {
+		return err
+	}
+
+	msgData := MsgClaimBTCMortgate{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	if err := msg.KuMsg.ValidateTransferRequire(ModuleAccountID, chainTypes.NewCoins(msgData.Amount)); err != nil {
+		return chainTypes.ErrKuMsgInconsistentAmount
+	}
+	return msgData.ValidateBasic()
+}
+//--------------------------------------------------------------------------------------------------------------------------
+
+type KuMsgClaimAccess struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgClaimAccess(auth sdk.AccAddress, singerAccount AccountID) KuMsgClaimAccess {
+	return KuMsgClaimAccess{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgClaimAccess{
+				SingerAccount: singerAccount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgClaimAccess) ValidateBasic() error {
+	msgData := MsgClaimAccess{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	return msgData.ValidateBasic()
+}
+//--------------------------------------------------------------------------------------------------------------------------
+
+type KuMsgLogoutSinger struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgLogoutSinger(auth sdk.AccAddress, singerAccount AccountID) KuMsgLogoutSinger {
+	return KuMsgLogoutSinger{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgLogoutSinger{
+				SingerAccount: singerAccount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgLogoutSinger) ValidateBasic() error {
+	msgData := MsgLogoutSinger{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	return msgData.ValidateBasic()
+}

@@ -17,9 +17,6 @@ func NewRegisterSinger(singerAccount AccountID) MsgRegisterSinger {
 // Route should return the name of the module
 func (msg MsgRegisterSinger) Route() string { return RouterKey }
 
-// Type should return the action
-//func (msg MsgRegisterSinger) Type() string { return "register_singer" }
-
 func (msg MsgRegisterSinger) Type() chainTypes.Name { return chainTypes.MustName("registersinger") }
 
 func (msg MsgRegisterSinger) Sender() AccountID {
@@ -45,9 +42,6 @@ func NewMsgPayAccess(singerAccount AccountID, amount Coin) MsgPayAccess {
 
 // Route should return the name of the module
 func (msg MsgPayAccess) Route() string { return RouterKey }
-
-// Type should return the action
-//func (msg MsgRegisterSinger) Type() string { return "register_singer" }
 
 func (msg MsgPayAccess) Type() chainTypes.Name { return chainTypes.MustName("payaccess") }
 
@@ -79,9 +73,6 @@ func NewMsgActiveSinger(systemAccount, singerAccount AccountID) MsgActiveSinger 
 // Route should return the name of the module
 func (msg MsgActiveSinger) Route() string { return RouterKey }
 
-// Type should return the action
-//func (msg MsgRegisterSinger) Type() string { return "register_singer" }
-
 func (msg MsgActiveSinger) Type() chainTypes.Name { return chainTypes.MustName("activesinger") }
 
 func (msg MsgActiveSinger) Sender() AccountID {
@@ -111,9 +102,6 @@ func NewMsgPayBTCMortgate(singerAccount AccountID, amount Coin) MsgPayBTCMortgat
 // Route should return the name of the module
 func (msg MsgPayBTCMortgate) Route() string { return RouterKey }
 
-// Type should return the action
-//func (msg MsgRegisterSinger) Type() string { return "register_singer" }
-
 func (msg MsgPayBTCMortgate) Type() chainTypes.Name { return chainTypes.MustName("paybtcmortgage") }
 
 func (msg MsgPayBTCMortgate) Sender() AccountID {
@@ -128,6 +116,87 @@ func (msg MsgPayBTCMortgate) ValidateBasic() error {
 
 	if !msg.Amount.Amount.IsPositive() {
 		return ErrBadAccessAmount
+	}
+	return nil
+}
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgClaimBTCMortgate struct {
+	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
+	Amount        Coin      `json:"amount" yaml:"amount"`
+}
+
+func NewMsgClaimBTCMortgate(singerAccount AccountID, amount Coin) MsgClaimBTCMortgate {
+	return MsgClaimBTCMortgate{SingerAccount: singerAccount, Amount: amount}
+}
+
+// Route should return the name of the module
+func (msg MsgClaimBTCMortgate) Route() string { return RouterKey }
+
+func (msg MsgClaimBTCMortgate) Type() chainTypes.Name { return chainTypes.MustName("claimbtcmortgage") }
+
+func (msg MsgClaimBTCMortgate) Sender() AccountID {
+	return msg.SingerAccount
+}
+
+func (msg MsgClaimBTCMortgate) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SingerAccount.Empty() {
+		return ErrEmptySingerAccount
+	}
+
+	if !msg.Amount.Amount.IsPositive() {
+		return ErrBadAccessAmount
+	}
+	return nil
+}
+//----------------------------------------------------------------------------------------------------------------------------
+
+type MsgClaimAccess struct {
+	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
+}
+
+func NewMsgClaimAccess(singerAccount AccountID) MsgClaimAccess {
+	return MsgClaimAccess{SingerAccount: singerAccount}
+}
+
+// Route should return the name of the module
+func (msg MsgClaimAccess) Route() string { return RouterKey }
+
+func (msg MsgClaimAccess) Type() chainTypes.Name { return chainTypes.MustName("claimaccess") }
+
+func (msg MsgClaimAccess) Sender() AccountID {
+	return msg.SingerAccount
+}
+
+func (msg MsgClaimAccess) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SingerAccount.Empty() {
+		return ErrEmptySingerAccount
+	}
+	return nil
+}
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgLogoutSinger struct {
+	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
+}
+
+func NewMsgLogoutSinger(singerAccount AccountID) MsgLogoutSinger {
+	return MsgLogoutSinger{SingerAccount: singerAccount}
+}
+
+// Route should return the name of the module
+func (msg MsgLogoutSinger) Route() string { return RouterKey }
+
+func (msg MsgLogoutSinger) Type() chainTypes.Name { return chainTypes.MustName("logoutsinger") }
+
+func (msg MsgLogoutSinger) Sender() AccountID {
+	return msg.SingerAccount
+}
+
+func (msg MsgLogoutSinger) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SingerAccount.Empty() {
+		return ErrEmptySingerAccount
 	}
 	return nil
 }

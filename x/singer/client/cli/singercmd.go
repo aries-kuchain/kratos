@@ -29,6 +29,9 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdPayAccess(cdc),
 		GetCmdActiveSinger(cdc),
 		GetCmdPayMortgage(cdc),
+		GetCmdClaimMortgage(cdc),
+		GetCmdClaimAccess(cdc),
+		GetCmdLogoutSinger(cdc),
 	)...)
 
 	return singerTxCmd
@@ -167,6 +170,110 @@ func GetCmdPayMortgage(cdc *codec.Codec) *cobra.Command {
 			}
 
 			msg := types.NewKuMsgBTCMortgage(authAccAddress, singerAccount, amount)
+			cliCtx = cliCtx.WithFromAccount(singerAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[0])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
+
+func GetCmdClaimMortgage(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "claim-mortgage [singer-account] [amount]",
+		Short: "register to be a new singer",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			singerAccount, err := chainTypes.NewAccountIDFromStr(args[0])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+			amount, err := chainTypes.ParseCoin(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "amount parse error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, singerAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
+			}
+
+			msg := types.NewKuMsgClaimBTCMortgate(authAccAddress, singerAccount, amount)
+			cliCtx = cliCtx.WithFromAccount(singerAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[0])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
+
+func GetCmdClaimAccess(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "claim-access [singer-account]",
+		Short: "register to be a new singer",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			singerAccount, err := chainTypes.NewAccountIDFromStr(args[0])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, singerAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
+			}
+
+			msg := types.NewKuMsgClaimAccess(authAccAddress, singerAccount)
+			cliCtx = cliCtx.WithFromAccount(singerAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[0])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
+
+func GetCmdLogoutSinger(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "logout-singer [singer-account]",
+		Short: "register to be a new singer",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			singerAccount, err := chainTypes.NewAccountIDFromStr(args[0])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, singerAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
+			}
+
+			msg := types.NewKuMsgLogoutSinger(authAccAddress, singerAccount)
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[0])
