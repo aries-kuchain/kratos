@@ -1,10 +1,9 @@
 package types
 
 import (
-//	"encoding/json"
-//	sdk "github.com/cosmos/cosmos-sdk/types"
+	//	"encoding/json"
+	//	sdk "github.com/cosmos/cosmos-sdk/types"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-
 )
 
 type MsgRegisterSinger struct {
@@ -12,7 +11,7 @@ type MsgRegisterSinger struct {
 }
 
 func NewRegisterSinger(singerAccount AccountID) MsgRegisterSinger {
-	return MsgRegisterSinger{SingerAccount:singerAccount}
+	return MsgRegisterSinger{SingerAccount: singerAccount}
 }
 
 // Route should return the name of the module
@@ -37,13 +36,12 @@ func (msg MsgRegisterSinger) ValidateBasic() error {
 
 type MsgPayAccess struct {
 	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
-	Amount           Coin      `json:"amount" yaml:"amount"`
+	Amount        Coin      `json:"amount" yaml:"amount"`
 }
 
-func NewMsgPayAccess(singerAccount AccountID,amount Coin) MsgPayAccess {
-	return MsgPayAccess{SingerAccount:singerAccount,Amount:amount}
+func NewMsgPayAccess(singerAccount AccountID, amount Coin) MsgPayAccess {
+	return MsgPayAccess{SingerAccount: singerAccount, Amount: amount}
 }
-
 
 // Route should return the name of the module
 func (msg MsgPayAccess) Route() string { return RouterKey }
@@ -65,6 +63,38 @@ func (msg MsgPayAccess) ValidateBasic() error {
 
 	if !msg.Amount.Amount.IsPositive() {
 		return ErrBadAccessAmount
+	}
+	return nil
+}
+
+type MsgActiveSinger struct {
+	SystemAccount AccountID `json:"system_account" yaml:"system_account"`
+	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
+}
+
+func NewMsgActiveSinger(systemAccount, singerAccount AccountID) MsgActiveSinger {
+	return MsgActiveSinger{SystemAccount: systemAccount, SingerAccount: singerAccount}
+}
+
+// Route should return the name of the module
+func (msg MsgActiveSinger) Route() string { return RouterKey }
+
+// Type should return the action
+//func (msg MsgRegisterSinger) Type() string { return "register_singer" }
+
+func (msg MsgActiveSinger) Type() chainTypes.Name { return chainTypes.MustName("activesinger") }
+
+func (msg MsgActiveSinger) Sender() AccountID {
+	return msg.SystemAccount
+}
+
+func (msg MsgActiveSinger) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SystemAccount.Empty() {
+		return ErrEmptySystemAccount
+	}
+	if msg.SingerAccount.Empty() {
+		return ErrEmptySingerAccount
 	}
 	return nil
 }

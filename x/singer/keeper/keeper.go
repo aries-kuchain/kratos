@@ -3,9 +3,9 @@ package keeper
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"fmt"
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -14,22 +14,22 @@ import (
 type Keeper struct {
 	storeKey sdk.StoreKey // Unexposed key to access store from sdk.Context
 
-	cdc *codec.Codec // The wire codec for binary encoding/decoding.
-	bankKeeper         types.BankKeeper
-	accountKeeper      types.AccountKeeper
-	supplyKeeper types.SupplyKeeper
+	cdc           *codec.Codec // The wire codec for binary encoding/decoding.
+	bankKeeper    types.BankKeeper
+	accountKeeper types.AccountKeeper
+	supplyKeeper  types.SupplyKeeper
 }
 
 // NewKeeper creates new instances of the nameservice Keeper
-func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec,bk types.BankKeeper, ak types.AccountKeeper,
-	sk types.SupplyKeeper, 
-	) Keeper {
+func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
+	sk types.SupplyKeeper,
+) Keeper {
 	return Keeper{
-		storeKey: storeKey,
-		cdc:      cdc,
-		bankKeeper:bk,
-		accountKeeper:ak,
-		supplyKeeper:sk,
+		storeKey:      storeKey,
+		cdc:           cdc,
+		bankKeeper:    bk,
+		accountKeeper: ak,
+		supplyKeeper:  sk,
 	}
 }
 

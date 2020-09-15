@@ -1,25 +1,24 @@
 package types
 
 import (
-//	"encoding/json"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	//	"encoding/json"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	yaml "gopkg.in/yaml.v2"
-//	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-
+	//	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 )
 
 type SingerStatus int32
 
 // staking constants
 const (
-	InActive  SingerStatus = 1
-	Active SingerStatus = 2
-	Lock    SingerStatus = 3
+	InActive SingerStatus = 1
+	Active   SingerStatus = 2
+	Lock     SingerStatus = 3
 
-	SingerTypeInActive  = "InActive"
-	SingerTypeActive = "Active"
-	SingerTypeLock    = "Lock"
+	SingerTypeInActive = "InActive"
+	SingerTypeActive   = "Active"
+	SingerTypeLock     = "Lock"
 )
 
 // Equal compares two BondStatus instances
@@ -45,18 +44,18 @@ func (b SingerStatus) String() string {
 }
 
 type SingerInfo struct {
-	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
-	AccessAsset sdk.Int `json:"access_asset" yaml:"access_asset"`
-	Status SingerStatus `json:"status" yaml:"status"`
-	SignatureMortgage sdk.Int  `json:"signature_mortgage" yaml:"signature_mortgage"`
+	SingerAccount     AccountID    `json:"singer_account" yaml:"singer_account"`
+	AccessAsset       sdk.Int      `json:"access_asset" yaml:"access_asset"`
+	Status            SingerStatus `json:"status" yaml:"status"`
+	SignatureMortgage sdk.Int      `json:"signature_mortgage" yaml:"signature_mortgage"`
 }
 
 func NewSingerInfo(singerName AccountID) SingerInfo {
 	return SingerInfo{
-		SingerAccount:singerName,
-		AccessAsset:sdk.ZeroInt(),
-		Status:InActive,
-		SignatureMortgage:sdk.ZeroInt(),
+		SingerAccount:     singerName,
+		AccessAsset:       sdk.ZeroInt(),
+		Status:            InActive,
+		SignatureMortgage: sdk.ZeroInt(),
 	}
 }
 

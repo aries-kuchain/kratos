@@ -23,7 +23,6 @@ type BankKeeper interface {
 	SpendableCoins(ctx sdk.Context, addr chainTypes.AccountID) chainTypes.Coins
 }
 
-
 // SupplyKeeper defines the expected supply Keeper (noalias)
 type SupplyKeeper interface {
 	GetSupply(ctx sdk.Context) supplyexported.SupplyI

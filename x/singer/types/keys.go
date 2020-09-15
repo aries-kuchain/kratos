@@ -1,10 +1,9 @@
 package types
 
 import (
-//	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	//	"fmt"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (

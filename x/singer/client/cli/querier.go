@@ -2,17 +2,15 @@ package cli
 
 import (
 	"fmt"
+	"github.com/KuChainNetwork/kuchain/chain/client/flags"
+	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/spf13/cobra"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/version"
-		"strings"
-			"github.com/KuChainNetwork/kuchain/chain/client/flags"
-				chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-
-
+	"github.com/spf13/cobra"
+	"strings"
 )
 
 // GetCmdResolveName queries information about a name
@@ -26,15 +24,14 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	
+
 	singerQueryCmd.AddCommand(flags.GetCommands(
 		GetCmdQuerySinger(queryRoute, cdc),
-		)...)
+	)...)
 
 	return singerQueryCmd
 
 }
-
 
 // GetCmdQueryValidator implements the validator query command.
 func GetCmdQuerySinger(storeName string, cdc *codec.Codec) *cobra.Command {

@@ -1,13 +1,12 @@
 package keeper
 
 import (
+	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-
 )
 
-func (k Keeper) GetSingerInfo(ctx sdk.Context, singerAccount AccountID) (singerInfo types.SingerInfo,found bool) {
+func (k Keeper) GetSingerInfo(ctx sdk.Context, singerAccount AccountID) (singerInfo types.SingerInfo, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetSingerInfoKey(singerAccount)
 	value := store.Get(key)
@@ -25,20 +24,36 @@ func (k Keeper) SetSingerInfo(ctx sdk.Context, singerInfo types.SingerInfo) {
 	store.Set(types.GetSingerInfoKey(singerInfo.SingerAccount), b)
 }
 
-func (k Keeper) SingerAddAccess(ctx sdk.Context,singerAccount AccountID,amount Coin) (totalAccess sdk.Int,err error) {
-	singer,found := k.GetSingerInfo(ctx,singerAccount)
+func (k Keeper) SingerAddAccess(ctx sdk.Context, singerAccount AccountID, amount Coin) (totalAccess sdk.Int, err error) {
+	singer, found := k.GetSingerInfo(ctx, singerAccount)
 
 	if !found {
-		return sdk.ZeroInt(),types.ErrSingerNotExists
+		return sdk.ZeroInt(), types.ErrSingerNotExists
 	}
 
-		//将coin转换成coinpower
+	//将coin转换成coinpower
 	err = k.supplyKeeper.ModuleCoinsToPower(ctx, types.ModuleName, chainTypes.NewCoins(amount))
 	if err != nil {
 		return sdk.ZeroInt(), err
 	}
 
 	singer.AccessAsset = singer.AccessAsset.Add(amount.Amount)
-	k.SetSingerInfo(ctx,singer)
-	return singer.AccessAsset,nil
+	k.SetSingerInfo(ctx, singer)
+	return singer.AccessAsset, nil
+}
+
+func (k Keeper) ActiveSingerInfo(ctx sdk.Context, singerAccount AccountID) error {
+	singer, found := k.GetSingerInfo(ctx, singerAccount)
+
+	if !found {
+		return types.ErrSingerNotExists
+	}
+
+	if singer.Status != types.InActive {
+		return types.ErrSingerAlreadyActive
+	}
+
+	singer.Status = types.Active
+	k.SetSingerInfo(ctx, singer)
+	return nil
 }
