@@ -94,3 +94,36 @@ func (msg KuMsgActiveSinger) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//--------------------------------------------------------------------------------------------------------------------------
+type KuMsgBTCMortgage struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgBTCMortgage(auth sdk.AccAddress, singerAccount AccountID, amount Coin) KuMsgBTCMortgage {
+	return KuMsgBTCMortgage{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithTransfer(singerAccount, ModuleAccountID, chainTypes.Coins{amount}),
+			msg.WithData(Cdc(), &MsgPayBTCMortgate{
+				SingerAccount: singerAccount,
+				Amount:        amount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgBTCMortgage) ValidateBasic() error {
+	if err := msg.KuMsg.ValidateTransfer(); err != nil {
+		return err
+	}
+
+	msgData := MsgPayBTCMortgate{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	if err := msg.KuMsg.ValidateTransferRequire(ModuleAccountID, chainTypes.NewCoins(msgData.Amount)); err != nil {
+		return chainTypes.ErrKuMsgInconsistentAmount
+	}
+	return msgData.ValidateBasic()
+}

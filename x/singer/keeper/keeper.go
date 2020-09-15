@@ -5,6 +5,8 @@ import (
 
 	"fmt"
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
+	"github.com/KuChainNetwork/kuchain/x/singer/external"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -18,11 +20,12 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	accountKeeper types.AccountKeeper
 	supplyKeeper  types.SupplyKeeper
+	paramstore         external.ParamsSubspace
 }
 
 // NewKeeper creates new instances of the nameservice Keeper
 func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
-	sk types.SupplyKeeper,
+	sk types.SupplyKeeper, ps external.ParamsSubspace,
 ) Keeper {
 	return Keeper{
 		storeKey:      storeKey,
@@ -30,6 +33,8 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak 
 		bankKeeper:    bk,
 		accountKeeper: ak,
 		supplyKeeper:  sk,
+		paramstore: ps.WithKeyTable(types.ParamKeyTable()),
+
 	}
 }
 

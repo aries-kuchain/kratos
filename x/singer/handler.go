@@ -21,6 +21,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgPayAccess(ctx, k, msg)
 		case types.KuMsgActiveSinger:
 			return handleKuMsgActiveSinger(ctx, k, msg)
+		case types.KuMsgBTCMortgage:
+			return handleKuMsgBTCMortgage(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -98,6 +100,32 @@ func handleKuMsgActiveSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.
 	}
 
 	if err := k.ActiveSingerInfo(sdkCtx, msgData.SingerAccount); err != nil {
+		return nil, err
+	}
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgBTCMortgage(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgBTCMortgage) (*sdk.Result, error) {
+	msgData := types.MsgPayAccess{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg CreateValidator data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SingerAccount)
+
+	sdkCtx := ctx.Context()
+
+	if _, found := k.GetSingerInfo(sdkCtx, msgData.SingerAccount); !found {
+		return nil, types.ErrSingerNotExists
+	}
+
+	if msgData.Amount.Denom != external.DefaultBondDenom {
+		return nil, types.ErrBadDenom
+	}
+
+	_, err := k.SingerAddBTCMortgate(sdkCtx, msgData.SingerAccount, msgData.Amount)
+	if err != nil {
 		return nil, err
 	}
 

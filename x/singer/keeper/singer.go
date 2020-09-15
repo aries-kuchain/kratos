@@ -31,7 +31,6 @@ func (k Keeper) SingerAddAccess(ctx sdk.Context, singerAccount AccountID, amount
 		return sdk.ZeroInt(), types.ErrSingerNotExists
 	}
 
-	//将coin转换成coinpower
 	err = k.supplyKeeper.ModuleCoinsToPower(ctx, types.ModuleName, chainTypes.NewCoins(amount))
 	if err != nil {
 		return sdk.ZeroInt(), err
@@ -52,8 +51,27 @@ func (k Keeper) ActiveSingerInfo(ctx sdk.Context, singerAccount AccountID) error
 	if singer.Status != types.InActive {
 		return types.ErrSingerAlreadyActive
 	}
-
+	if singer.AccessAsset.LT(k.MinAccessAmount(ctx)) {
+		return types.ErrInsufficientAccessAsset
+	}
 	singer.Status = types.Active
 	k.SetSingerInfo(ctx, singer)
 	return nil
+}
+
+func (k Keeper) SingerAddBTCMortgate(ctx sdk.Context, singerAccount AccountID, amount Coin) (totalAccess sdk.Int, err error) {
+	singer, found := k.GetSingerInfo(ctx, singerAccount)
+
+	if !found {
+		return sdk.ZeroInt(), types.ErrSingerNotExists
+	}
+
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx, types.ModuleName, chainTypes.NewCoins(amount))
+	if err != nil {
+		return sdk.ZeroInt(), err
+	}
+
+	singer.SignatureMortgage = singer.SignatureMortgage.Add(amount.Amount)
+	k.SetSingerInfo(ctx, singer)
+	return singer.SignatureMortgage, nil
 }
