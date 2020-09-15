@@ -9,6 +9,7 @@ type (
 	KuMsg     = types.KuMsg
 	Name      = types.Name
 	Coins     = types.Coins
+	Coin     = types.Coin
 )
 
 var (

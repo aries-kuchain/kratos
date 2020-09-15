@@ -5,7 +5,7 @@ package types
 import (
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/account/exported"
-	//"github.com/KuChainNetwork/kuchain/x/slashing/external"
+	supplyexported "github.com/KuChainNetwork/kuchain/x/supply/exported"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -21,4 +21,20 @@ type BankKeeper interface {
 	chainTypes.AssetTransfer
 
 	SpendableCoins(ctx sdk.Context, addr chainTypes.AccountID) chainTypes.Coins
+}
+
+
+// SupplyKeeper defines the expected supply Keeper (noalias)
+type SupplyKeeper interface {
+	GetSupply(ctx sdk.Context) supplyexported.SupplyI
+
+	InitModuleAccount(ctx sdk.Context, moduleName string) error
+	GetModuleAddress(name string) sdk.AccAddress
+	GetModuleAccount(ctx sdk.Context, moduleName string) supplyexported.ModuleAccountI
+
+	// TODO remove with genesis 2-phases refactor https://github.com/cosmos/cosmos-sdk/issues/2862
+	SetModuleAccount(sdk.Context, supplyexported.ModuleAccountI)
+	ModuleCoinsToPower(ctx sdk.Context, recipientModule string, amt Coins) error
+
+	BurnCoins(ctx sdk.Context, name chainTypes.AccountID, amt Coins) error
 }

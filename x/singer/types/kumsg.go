@@ -27,11 +27,43 @@ func NewKuMsgRegisterSinger(auth sdk.AccAddress,singerAccount AccountID) KuMsgRe
 	}
 }
 
-
 func (msg KuMsgRegisterSinger) ValidateBasic() error {
 	msgData := MsgRegisterSinger{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
 		return err
+	}
+	return msgData.ValidateBasic()
+}
+
+type KuMsgPayAccess struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgPayAccess(auth sdk.AccAddress,singerAccount AccountID,amount Coin) KuMsgPayAccess{
+		return KuMsgPayAccess{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithTransfer(singerAccount, ModuleAccountID, chainTypes.Coins{amount}),
+			msg.WithData(Cdc(), &MsgPayAccess{
+				SingerAccount:      singerAccount,
+				Amount:amount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgPayAccess) ValidateBasic() error {
+	if err := msg.KuMsg.ValidateTransfer(); err != nil {
+		return err
+	}
+
+	msgData := MsgPayAccess{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	if err := msg.KuMsg.ValidateTransferRequire(ModuleAccountID, chainTypes.NewCoins(msgData.Amount)); err != nil {
+		return chainTypes.ErrKuMsgInconsistentAmount
 	}
 	return msgData.ValidateBasic()
 }

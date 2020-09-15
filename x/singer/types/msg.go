@@ -1,18 +1,14 @@
 package types
 
 import (
-	"encoding/json"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+//	"encoding/json"
+//	sdk "github.com/cosmos/cosmos-sdk/types"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 
 )
 
-var (
-	_ sdk.Msg = &MsgSetStore{}
-)
-
 type MsgRegisterSinger struct {
-	SingerAccount AccountID
+	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
 }
 
 func NewRegisterSinger(singerAccount AccountID) MsgRegisterSinger {
@@ -39,57 +35,36 @@ func (msg MsgRegisterSinger) ValidateBasic() error {
 	return nil
 }
 
-// MsgSetName defines a SetName message
-type MsgSetStore struct {
-	Name  string
-	Value string
-	Owner sdk.AccAddress
+type MsgPayAccess struct {
+	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
+	Amount           Coin      `json:"amount" yaml:"amount"`
 }
 
-// NewMsgSetName is a constructor function for MsgSetName
-func NewMsgSetStore(name string, value string, owner sdk.AccAddress) MsgSetStore {
-	return MsgSetStore{
-		Name:  name,
-		Value: value,
-		Owner: owner,
-	}
+func NewMsgPayAccess(singerAccount AccountID,amount Coin) MsgPayAccess {
+	return MsgPayAccess{SingerAccount:singerAccount,Amount:amount}
 }
+
 
 // Route should return the name of the module
-func (msg MsgSetStore) Route() string { return "easystore" }
+func (msg MsgPayAccess) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgSetStore) Type() string { return "set_store" }
+//func (msg MsgRegisterSinger) Type() string { return "register_singer" }
 
+func (msg MsgPayAccess) Type() chainTypes.Name { return chainTypes.MustName("payaccess") }
 
+func (msg MsgPayAccess) Sender() AccountID {
+	return msg.SingerAccount
+}
 
-// ValidateBasic runs stateless checks on the message
-func (msg MsgSetStore) ValidateBasic() error {
-	if msg.Owner.Empty() {
-		// return fmt.Errorf(
-		// 	"Owner is empty",
-		// )
-		return nil //sdkerrors.ErrInvalidAddress(msg.Owner.String())
+func (msg MsgPayAccess) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SingerAccount.Empty() {
+		return ErrEmptySingerAccount
 	}
-	if len(msg.Name) == 0 || len(msg.Value) == 0 {
-		// return fmt.Errorf(
-		// 	"name or value is empty",
-		// )
-		return nil //sdkerrors.ErrUnknownRequest("Name and/or Value cannot be empty")
+
+	if !msg.Amount.Amount.IsPositive() {
+		return ErrBadAccessAmount
 	}
 	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg MsgSetStore) GetSignBytes() []byte {
-	b, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	return sdk.MustSortJSON(b)
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgSetStore) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Owner}
 }
