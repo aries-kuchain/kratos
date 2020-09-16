@@ -8,6 +8,8 @@ import (
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(KuMsgOpenFee{}, "kuchain/KuMsgOpenFee", nil)
 	cdc.RegisterConcrete(KuMsgPrestoreFee{}, "kuchain/KuMsgPrestoreFee", nil)
+	cdc.RegisterConcrete(KuMsgClaimFee{}, "kuchain/KuMsgClaimFee", nil)
+
 }
 
 var (

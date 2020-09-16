@@ -66,3 +66,28 @@ func (msg KuMsgPrestoreFee) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgClaimFee struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgClaimFee(auth sdk.AccAddress, owner AccountID, amount Coin) KuMsgClaimFee {
+	return KuMsgClaimFee{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgClaimFee{
+				Owner: owner,
+				Amount:        amount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgClaimFee) ValidateBasic() error {
+	msgData := MsgClaimFee{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	return msgData.ValidateBasic()
+}

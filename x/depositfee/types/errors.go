@@ -10,5 +10,7 @@ var (
 	ErrUnKnowAccount       = sdkerrors.Register(ModuleName, 4, "singer is not a known account")
 	ErrBadAmount        = sdkerrors.Register(ModuleName, 5, "amount is inValid")
 	ErrFeeInfoNotExist  = sdkerrors.Register(ModuleName, 6, "fee does not exist")
+	ErrFeeNotEnough = sdkerrors.Register(ModuleName, 7, "prestore fee is less then claim fee ")
+	ErrBadDenom            = sdkerrors.Register(ModuleName, 8, "invalid coin denomination")
 
 )

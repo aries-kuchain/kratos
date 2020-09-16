@@ -3,7 +3,8 @@ package types
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	yaml "gopkg.in/yaml.v2")
+	yaml "gopkg.in/yaml.v2"
+)
 
 type FeeInfo struct {
 	Owner AccountID
