@@ -10,6 +10,9 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(KuMsgPayAccess{}, "kuchain/KuMsgPayAccess", nil)
 	cdc.RegisterConcrete(KuMsgActiveSinger{}, "kuchain/KuMsgActiveSinger", nil)
 	cdc.RegisterConcrete(KuMsgBTCMortgage{}, "kuchain/KuMsgBTCMortgage", nil)
+	cdc.RegisterConcrete(KuMsgClaimBTCMortgate{}, "kuchain/KuMsgClaimBTCMortgate", nil)
+	cdc.RegisterConcrete(KuMsgClaimAccess{}, "kuchain/KuMsgClaimAccess", nil)
+	cdc.RegisterConcrete(KuMsgLogoutSinger{}, "kuchain/KuMsgLogoutSinger", nil)
 }
 
 var (
