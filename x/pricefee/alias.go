@@ -1,10 +1,10 @@
-package depositfee
+package pricefee
 
 // nolint
 
 import (
-	"github.com/KuChainNetwork/kuchain/x/depositfee/keeper"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/keeper"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
 )
 
 const (

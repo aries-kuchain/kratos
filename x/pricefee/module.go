@@ -1,4 +1,4 @@
-package depositfee
+package pricefee
 
 import (
 	"encoding/json"
@@ -11,11 +11,11 @@ import (
 
 	"github.com/KuChainNetwork/kuchain/chain/genesis"
 	"github.com/KuChainNetwork/kuchain/chain/msg"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/client/cli"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/client/rest"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/keeper"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/simulation"
-	types "github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/client/cli"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/client/rest"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/keeper"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/simulation"
+	types "github.com/KuChainNetwork/kuchain/x/pricefee/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -104,7 +104,7 @@ func NewAppModule(keeper keeper.Keeper, ak types.AccountKeeper, bk types.BankKee
 // Name returns the bank module's name.
 func (AppModule) Name() string { return types.ModuleName }
 
-// RegisterInvariants registers the depositfee module invariants.
+// RegisterInvariants registers the pricefee module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	keeper.RegisterInvariants(ir, am.keeper)
 }

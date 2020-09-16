@@ -6,11 +6,11 @@ import (
 )
 
 // const (
-// 	ModuleName      = "depositfee"
+// 	ModuleName      = "pricefee"
 // 	StoreKey        = ModuleName
 // 	RouterKey       = ModuleName
 // 	keyCommunityTax = "just for test"
-// 	QueryValue      = "depositfee"
+// 	QueryValue      = "pricefee"
 // )
 
 type QueryResResolve struct {

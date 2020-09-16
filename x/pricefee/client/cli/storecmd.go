@@ -3,7 +3,7 @@ package cli
 import (
 	"bufio"
 	"github.com/KuChainNetwork/kuchain/chain/client/txutil"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
 //	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"

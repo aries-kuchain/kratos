@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 //	"github.com/xuyp1991/cosaccount/x/easystore/types"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
 	"fmt"
 	abci "github.com/tendermint/tendermint/abci/types"
 )

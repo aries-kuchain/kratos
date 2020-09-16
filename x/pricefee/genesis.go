@@ -1,9 +1,9 @@
-package depositfee
+package pricefee
 
 import (
 	"encoding/json"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/keeper"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/keeper"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

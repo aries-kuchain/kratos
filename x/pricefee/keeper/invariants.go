@@ -18,7 +18,7 @@ func AllInvariants(keeper Keeper, bk types.BankKeeper) sdk.Invariant {
 }
 
 // ModuleAccountInvariant checks that the module account coins reflects the sum of
-// depositfee amounts held on store
+// pricefee amounts held on store
 func ModuleAccountInvariant(keeper Keeper, bk types.BankKeeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 //		var expectedDeposits Coins

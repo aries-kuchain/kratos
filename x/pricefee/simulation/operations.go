@@ -1,8 +1,8 @@
 package simulation
 
 import (
-	"github.com/KuChainNetwork/kuchain/x/depositfee/keeper"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/keeper"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 )

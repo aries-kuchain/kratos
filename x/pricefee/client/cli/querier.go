@@ -4,7 +4,7 @@ import (
 	"fmt"
 	//"github.com/KuChainNetwork/kuchain/chain/client/flags"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
 //	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -22,7 +22,7 @@ func GetCmdQueryFeeInfo(storeName string, cdc *codec.Codec) *cobra.Command {
 			fmt.Sprintf(`Query details about an individual fee.
 
 Example:
-$ %s query depositfee fee jack
+$ %s query pricefee fee jack
 `,
 				version.ClientName,
 			),

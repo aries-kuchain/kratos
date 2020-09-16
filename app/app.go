@@ -35,7 +35,7 @@ import (
 	"github.com/KuChainNetwork/kuchain/x/staking"
 	"github.com/KuChainNetwork/kuchain/x/supply"
 	"github.com/KuChainNetwork/kuchain/x/deposit"
-	"github.com/KuChainNetwork/kuchain/x/depositfee"
+	"github.com/KuChainNetwork/kuchain/x/pricefee"
 
 )
 
@@ -59,7 +59,7 @@ var (
 		plugin.NewAppModuleBasic(),
 		singer.NewAppModuleBasic(),
 		deposit.NewAppModuleBasic(),
-		depositfee.NewAppModuleBasic(),	
+		pricefee.NewAppModuleBasic(),	
 	)
 
 	// maccPerms module account permissions
@@ -73,7 +73,7 @@ var (
 		mint.ModuleName:           {supply.Minter},
 		singer.ModuleName:         nil,
 		deposit.ModuleName:         nil,
-		depositfee.ModuleName:         nil,
+		pricefee.ModuleName:         nil,
 
 	}
 	allowedReceivingModAcc = map[string]bool{
@@ -111,7 +111,7 @@ type KuchainApp struct {
 	govKeeper      gov.Keeper
 	singerKeeper   singer.Keeper
 	depositKeeper   deposit.Keeper
-	depositfeeKeeper   depositfee.Keeper
+	pricefeeKeeper   pricefee.Keeper
 
 
 	// the module manager
@@ -152,7 +152,7 @@ func NewKuchainApp(
 
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, staking.StoreKey, slashing.StoreKey, evidence.StoreKey, gov.StoreKey,
-		account.StoreKey, asset.StoreKey, supply.StoreKey, params.StoreKey, mint.StoreKey, distr.StoreKey, params.StoreKey, singer.StoreKey,deposit.StoreKey,depositfee.StoreKey,
+		account.StoreKey, asset.StoreKey, supply.StoreKey, params.StoreKey, mint.StoreKey, distr.StoreKey, params.StoreKey, singer.StoreKey,deposit.StoreKey,pricefee.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(params.TStoreKey, staking.TStoreKey, params.TStoreKey)
 
@@ -176,7 +176,7 @@ func NewKuchainApp(
 	app.subspaces[gov.ModuleName] = app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
 	app.subspaces[singer.ModuleName] = app.paramsKeeper.Subspace(singer.DefaultParamspace)
 	app.subspaces[deposit.ModuleName] = app.paramsKeeper.Subspace(deposit.DefaultParamspace)
-	app.subspaces[depositfee.ModuleName] = app.paramsKeeper.Subspace(depositfee.DefaultParamspace)
+	app.subspaces[pricefee.ModuleName] = app.paramsKeeper.Subspace(pricefee.DefaultParamspace)
 
 
 	// add keepers
@@ -236,7 +236,7 @@ func NewKuchainApp(
 
 	app.singerKeeper = singer.NewKeeper(keys[singer.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper, app.subspaces[singer.ModuleName])
 	app.depositKeeper = deposit.NewKeeper(keys[deposit.StoreKey], cdc)
-	app.depositfeeKeeper = depositfee.NewKeeper(keys[depositfee.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper)
+	app.pricefeeKeeper = pricefee.NewKeeper(keys[pricefee.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper)
 
 
 
@@ -256,7 +256,7 @@ func NewKuchainApp(
 		plugin.NewAppModule(),
 		singer.NewAppModule(app.singerKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper),
-		depositfee.NewAppModule(app.depositfeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
+		pricefee.NewAppModule(app.pricefeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 	)
 
 	// plugin.ModuleName MUST be the last
@@ -276,7 +276,7 @@ func NewKuchainApp(
 		mint.ModuleName,
 		singer.ModuleName,
 		deposit.ModuleName,
-		depositfee.ModuleName,
+		pricefee.ModuleName,
 
 	)
 
@@ -296,7 +296,7 @@ func NewKuchainApp(
 		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		singer.NewAppModule(app.singerKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper),
-		depositfee.NewAppModule(app.depositfeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
+		pricefee.NewAppModule(app.pricefeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 
 	)
 

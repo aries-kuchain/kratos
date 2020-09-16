@@ -1,4 +1,4 @@
-package depositfee
+package pricefee
 
 import (
 	//	"fmt"
@@ -7,8 +7,8 @@ import (
 	//sdk "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/KuChainNetwork/kuchain/chain/msg"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/keeper"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/keeper"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 

@@ -1,10 +1,8 @@
 package deposit
 
 import (
-	//	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	//sdk "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/KuChainNetwork/kuchain/chain/msg"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/keeper"

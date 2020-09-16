@@ -1,10 +1,10 @@
 package keeper
 
 import (
-	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-	"github.com/KuChainNetwork/kuchain/x/depositfee/external"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/external"
 
 )
 

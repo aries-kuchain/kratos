@@ -3,7 +3,7 @@ package cli
 import (
 	"github.com/spf13/cobra"
 
-	types "github.com/KuChainNetwork/kuchain/x/depositfee/types"
+	types "github.com/KuChainNetwork/kuchain/x/pricefee/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 )

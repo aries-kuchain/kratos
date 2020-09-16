@@ -21,10 +21,12 @@ var (
 )
 
 var (
-//	FeeInfoKey = []byte{0x11} // prefix for each key to a singerInfo index
+	PriceInfoKey = []byte{0x11} // prefix for each key to a singerInfo index
 )
 
 const (
 	AccountIDlen = sdk.AddrLen + 1
 )
+
+
 
