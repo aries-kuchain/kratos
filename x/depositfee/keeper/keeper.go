@@ -16,72 +16,29 @@ type Keeper struct {
 	storeKey  sdk.StoreKey // Unexposed key to access store from sdk.Context
 
 	cdc  *codec.Codec // The wire codec for binary encoding/decoding.
-}
 
-// Sets the entire Whois metadata struct for a name
-func (k Keeper) SetStoredata(ctx sdk.Context, name string, storedata types.Storedata) {
-	if storedata.Owner.Empty() {
-		return
-	}
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(name), k.cdc.MustMarshalBinaryBare(&storedata))
-}
+	bankKeeper    types.BankKeeper
+	accountKeeper types.AccountKeeper
+	supplyKeeper  types.SupplyKeeper
 
-// Gets the entire Whois metadata struct for a name
-func (k Keeper) GetStoreData(ctx sdk.Context, name string) types.Storedata {
-	store := ctx.KVStore(k.storeKey)
-	if !store.Has([]byte(name)) {
-		return types.NewStoredata()
-	}
-	bz := store.Get([]byte(name))
-	var storedata types.Storedata
-	k.cdc.MustUnmarshalBinaryBare(bz, &storedata)
-	return storedata
-}
-
-// ResolveName - returns the string that the name resolves to
-func (k Keeper) ResolveName(ctx sdk.Context, name string) string {
-	return k.GetStoreData(ctx, name).Value
-}
-
-// HasOwner - returns whether or not the name already has an owner
-func (k Keeper) HasOwner(ctx sdk.Context, name string) bool {
-	return !k.GetStoreData(ctx, name).Owner.Empty()
-}
-
-// GetOwner - get the current owner of a name
-func (k Keeper) GetOwner(ctx sdk.Context, name string) sdk.AccAddress {
-	return k.GetStoreData(ctx, name).Owner
-}
-
-// SetOwner - sets the current owner of a name
-func (k Keeper) SetOwner(ctx sdk.Context, name string, owner sdk.AccAddress) {
-	storedata := k.GetStoreData(ctx, name)
-	storedata.Owner = owner
-	k.SetStoredata(ctx, name, storedata)
-}
-
-// SetOwner - sets the current owner of a name
-func (k Keeper) Setvalue(ctx sdk.Context, name string, value string,owner sdk.AccAddress) {
-	storedata := k.GetStoreData(ctx, name)
-	storedata.Owner = owner
-	storedata.Value = value
-	k.SetStoredata(ctx, name, storedata)
-}
-
-// Get an iterator over all names in which the keys are the names and the values are the whois
-func (k Keeper) GetNamesIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.storeKey)
-	return sdk.KVStorePrefixIterator(store, []byte{})
 }
 
 // NewKeeper creates new instances of the nameservice Keeper
-func NewKeeper( storeKey sdk.StoreKey, cdc  *codec.Codec) Keeper {
+func NewKeeper( storeKey sdk.StoreKey, cdc  *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
+	sk types.SupplyKeeper,
+	) Keeper {
 	return Keeper{
 	//	coinKeeper: coinKeeper,
 		storeKey:   storeKey,
 		cdc:        cdc,
+		bankKeeper: bk,
+		accountKeeper:ak,
+		supplyKeeper:sk,
 	}
+}
+
+func (k Keeper) ValidatorAccount(ctx sdk.Context, id AccountID) bool {
+	return k.accountKeeper.GetAccount(ctx, id) != nil
 }
 
 // RegisterInvariants registers the bank module invariants
@@ -149,4 +106,62 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return nil, nil//sdk.ErrUnknownRequest("unknown bank query endpoint")
 		}
 	}
+}
+
+
+// Sets the entire Whois metadata struct for a name
+func (k Keeper) SetStoredata(ctx sdk.Context, name string, storedata types.Storedata) {
+	if storedata.Owner.Empty() {
+		return
+	}
+	store := ctx.KVStore(k.storeKey)
+	store.Set([]byte(name), k.cdc.MustMarshalBinaryBare(&storedata))
+}
+
+// Gets the entire Whois metadata struct for a name
+func (k Keeper) GetStoreData(ctx sdk.Context, name string) types.Storedata {
+	store := ctx.KVStore(k.storeKey)
+	if !store.Has([]byte(name)) {
+		return types.NewStoredata()
+	}
+	bz := store.Get([]byte(name))
+	var storedata types.Storedata
+	k.cdc.MustUnmarshalBinaryBare(bz, &storedata)
+	return storedata
+}
+
+// ResolveName - returns the string that the name resolves to
+func (k Keeper) ResolveName(ctx sdk.Context, name string) string {
+	return k.GetStoreData(ctx, name).Value
+}
+
+// HasOwner - returns whether or not the name already has an owner
+func (k Keeper) HasOwner(ctx sdk.Context, name string) bool {
+	return !k.GetStoreData(ctx, name).Owner.Empty()
+}
+
+// GetOwner - get the current owner of a name
+func (k Keeper) GetOwner(ctx sdk.Context, name string) sdk.AccAddress {
+	return k.GetStoreData(ctx, name).Owner
+}
+
+// SetOwner - sets the current owner of a name
+func (k Keeper) SetOwner(ctx sdk.Context, name string, owner sdk.AccAddress) {
+	storedata := k.GetStoreData(ctx, name)
+	storedata.Owner = owner
+	k.SetStoredata(ctx, name, storedata)
+}
+
+// SetOwner - sets the current owner of a name
+func (k Keeper) Setvalue(ctx sdk.Context, name string, value string,owner sdk.AccAddress) {
+	storedata := k.GetStoreData(ctx, name)
+	storedata.Owner = owner
+	storedata.Value = value
+	k.SetStoredata(ctx, name, storedata)
+}
+
+// Get an iterator over all names in which the keys are the names and the values are the whois
+func (k Keeper) GetNamesIterator(ctx sdk.Context) sdk.Iterator {
+	store := ctx.KVStore(k.storeKey)
+	return sdk.KVStorePrefixIterator(store, []byte{})
 }

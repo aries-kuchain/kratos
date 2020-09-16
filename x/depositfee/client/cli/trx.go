@@ -18,8 +18,8 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GeteasystoreCmd(cdc),
-		// GetSignCommand(cdc),
+		GetCmdOpenFee(cdc),
+		GetCmdPreStoreFee(cdc),
 	)
 	return txCmd
 }
@@ -34,8 +34,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GetCmdValue(queryRoute, cdc),
-		// GetSignCommand(cdc),
+		GetCmdQueryFeeInfo(queryRoute, cdc),
 	)
 	return txCmd
 }

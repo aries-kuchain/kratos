@@ -152,7 +152,7 @@ func NewKuchainApp(
 
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, staking.StoreKey, slashing.StoreKey, evidence.StoreKey, gov.StoreKey,
-		account.StoreKey, asset.StoreKey, supply.StoreKey, params.StoreKey, mint.StoreKey, distr.StoreKey, params.StoreKey, singer.StoreKey,deposit.StoreKey,
+		account.StoreKey, asset.StoreKey, supply.StoreKey, params.StoreKey, mint.StoreKey, distr.StoreKey, params.StoreKey, singer.StoreKey,deposit.StoreKey,depositfee.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(params.TStoreKey, staking.TStoreKey, params.TStoreKey)
 
@@ -236,7 +236,7 @@ func NewKuchainApp(
 
 	app.singerKeeper = singer.NewKeeper(keys[singer.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper, app.subspaces[singer.ModuleName])
 	app.depositKeeper = deposit.NewKeeper(keys[deposit.StoreKey], cdc)
-	app.depositfeeKeeper = depositfee.NewKeeper(keys[depositfee.StoreKey], cdc)
+	app.depositfeeKeeper = depositfee.NewKeeper(keys[depositfee.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper)
 
 
 
@@ -256,7 +256,7 @@ func NewKuchainApp(
 		plugin.NewAppModule(),
 		singer.NewAppModule(app.singerKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper),
-		depositfee.NewAppModule(app.depositfeeKeeper, app.accountKeeper, app.assetKeeper),
+		depositfee.NewAppModule(app.depositfeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 	)
 
 	// plugin.ModuleName MUST be the last
@@ -296,7 +296,7 @@ func NewKuchainApp(
 		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		singer.NewAppModule(app.singerKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper),
-		depositfee.NewAppModule(app.depositfeeKeeper, app.accountKeeper, app.assetKeeper),
+		depositfee.NewAppModule(app.depositfeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 
 	)
 

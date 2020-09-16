@@ -3,6 +3,8 @@ package depositfee
 import (
 	"encoding/json"
 	"github.com/KuChainNetwork/kuchain/x/depositfee/keeper"
+	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -47,8 +49,10 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) GenesisState {
 }
 
 // InitGenesis - store genesis parameters
-func InitGenesis(ctx sdk.Context, k keeper.Keeper, data GenesisState) {
-
+func InitGenesis(ctx sdk.Context, k keeper.Keeper, data GenesisState,supplyKeeper types.SupplyKeeper) {
+	if err := supplyKeeper.InitModuleAccount(ctx, types.ModuleName); err != nil {
+		panic(err)
+	}
 }
 
 const (

@@ -14,6 +14,8 @@ type FeeInfo struct {
 func NewFeeInfo (owner AccountID) FeeInfo {
 	return FeeInfo {
 		Owner:owner,
+		PrestoreFee:sdk.ZeroInt(),
+		LockedFee:sdk.ZeroInt(),
 	}
 }
 

@@ -137,7 +137,6 @@ func NewKuMsgClaimBTCMortgate(auth sdk.AccAddress, singerAccount AccountID, amou
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
-			msg.WithTransfer(singerAccount, ModuleAccountID, chainTypes.Coins{amount}),
 			msg.WithData(Cdc(), &MsgClaimBTCMortgate{
 				SingerAccount: singerAccount,
 				Amount:        amount,
@@ -147,16 +146,9 @@ func NewKuMsgClaimBTCMortgate(auth sdk.AccAddress, singerAccount AccountID, amou
 }
 
 func (msg KuMsgClaimBTCMortgate) ValidateBasic() error {
-	if err := msg.KuMsg.ValidateTransfer(); err != nil {
-		return err
-	}
-
 	msgData := MsgClaimBTCMortgate{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
 		return err
-	}
-	if err := msg.KuMsg.ValidateTransferRequire(ModuleAccountID, chainTypes.NewCoins(msgData.Amount)); err != nil {
-		return chainTypes.ErrKuMsgInconsistentAmount
 	}
 	return msgData.ValidateBasic()
 }

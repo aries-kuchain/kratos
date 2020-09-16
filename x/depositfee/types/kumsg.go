@@ -34,3 +34,35 @@ func (msg KuMsgOpenFee) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgPrestoreFee struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgPrestoreFee(auth sdk.AccAddress, owner AccountID,amount Coin) KuMsgPrestoreFee {
+	return KuMsgPrestoreFee{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithTransfer(owner, ModuleAccountID, chainTypes.Coins{amount}),
+			msg.WithData(Cdc(), &MsgPrestoreFee{
+				Owner: owner,
+				Amount:amount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgPrestoreFee) ValidateBasic() error {
+	if err := msg.KuMsg.ValidateTransfer(); err != nil {
+		return err
+	}
+	msgData := MsgPrestoreFee{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	if err := msg.KuMsg.ValidateTransferRequire(ModuleAccountID, chainTypes.NewCoins(msgData.Amount)); err != nil {
+		return chainTypes.ErrKuMsgInconsistentAmount
+	}
+	return msgData.ValidateBasic()
+}

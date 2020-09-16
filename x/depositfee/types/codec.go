@@ -6,8 +6,8 @@ import (
 
 // RegisterCodec registers concrete types on codec
 func RegisterCodec(cdc *codec.Codec) {
-	// cdc.RegisterConcrete(&MsgUnjail{}, "kuchain/MsgUnjail", nil)
-	// cdc.RegisterConcrete(KuMsgUnjail{}, "kuchain/KuMsgUnjail", nil)
+	cdc.RegisterConcrete(KuMsgOpenFee{}, "kuchain/KuMsgOpenFee", nil)
+	cdc.RegisterConcrete(KuMsgPrestoreFee{}, "kuchain/KuMsgPrestoreFee", nil)
 }
 
 var (
