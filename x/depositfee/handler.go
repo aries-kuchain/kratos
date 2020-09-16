@@ -22,8 +22,4 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 	}
 }
 
-// Handle a message to buy name
-func handleMsgSetStore(ctx sdk.Context, keeper keeper.Keeper, msg types.MsgSetStore) sdk.Result {
-	keeper.Setvalue(ctx, msg.Name, msg.Value, msg.Owner)
-	return sdk.Result{}
-}
+

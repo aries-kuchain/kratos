@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
+//	"github.com/KuChainNetwork/kuchain/x/depositfee/types"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -29,8 +29,8 @@ func GeteasystoreCmd(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			txBldr := authtxb.NewTxBuilderFromCLI(inBuf).WithTxEncoder(client.GetTxEncoder(cdc))
 
-			msgStoreData := types.NewMsgSetStore(args[0], args[1], cliCtx.GetFromAddress())
-			return authclient.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msgStoreData})
+//			msgStoreData := types.NewMsgSetStore(args[0], args[1], cliCtx.GetFromAddress())
+			return authclient.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{})
 		},
 	}
 
