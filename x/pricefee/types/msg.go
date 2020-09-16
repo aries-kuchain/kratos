@@ -90,3 +90,44 @@ func (msg MsgClaimFee) ValidateBasic() error {
 	}
 	return nil
 }
+//---------------------------------------------------------------------------------------------------------------------------------------
+type MsgSetPrice struct {
+	SystemAccount AccountID `json:"system_account" yaml:"system_account"`
+	Base Coin`json:"base" yaml:"base"`
+	Quote Coin`json:"quote" yaml:"quote"`
+	Remark string`json:"remark" yaml:"remark"`
+}
+
+func NewMsgSetPrice(systemAccount AccountID,base,quote Coin,remark string) MsgSetPrice {
+	return MsgSetPrice{SystemAccount: systemAccount,Base:base,Quote:quote,Remark:remark}
+}
+
+// Route should return the name of the module
+func (msg MsgSetPrice) Route() string { return RouterKey }
+
+func (msg MsgSetPrice) Type() chainTypes.Name { return chainTypes.MustName("setprice") }
+
+func (msg MsgSetPrice) Sender() AccountID {
+	return msg.SystemAccount
+}
+
+func (msg MsgSetPrice) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SystemAccount.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	if !msg.Base.Amount.IsPositive() {
+		return ErrBadAmount
+	}
+
+	if !msg.Quote.Amount.IsPositive() {
+		return ErrBadAmount
+	}
+
+	if msg.Quote.Denom == msg.Base.Denom {
+		return ErrSameDenom
+	}
+
+	return nil
+}

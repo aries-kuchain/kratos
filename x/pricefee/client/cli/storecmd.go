@@ -124,3 +124,46 @@ func GetCmdClaimFee(cdc *codec.Codec) *cobra.Command {
 	return flags.PostCommands(cmd)[0]
 
 }
+
+
+func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-price [system-account] [base] [quote] [remark]",
+		Short: "claim some fee",
+		Args:  cobra.ExactArgs(4),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			systemAccount, err := chainTypes.NewAccountIDFromStr(args[0])
+			if err != nil {
+				return sdkerrors.Wrap(err, "systemAccount account id error")
+			}
+
+			base, err := chainTypes.ParseCoin(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "base parse error")
+			}
+
+			quote, err := chainTypes.ParseCoin(args[2])
+			if err != nil {
+				return sdkerrors.Wrap(err, "quote parse error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, systemAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", systemAccount)
+			}
+
+			msg := types.NewKuMsgSetPrice(authAccAddress, systemAccount, base,quote,args[3])
+			cliCtx = cliCtx.WithFromAccount(systemAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[0])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+	return flags.PostCommands(cmd)[0]
+
+}

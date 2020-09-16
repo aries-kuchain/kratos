@@ -21,6 +21,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgPrestoreFee(ctx, k, msg)
 		case types.KuMsgClaimFee:
 			return handleKuMsgClaimFee(ctx, k, msg)
+		case types.KuMsgSetPrice:
+			return handleKuMsgSetPrice(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -80,6 +82,24 @@ func handleKuMsgClaimFee(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMs
 	sdkCtx := ctx.Context()
 
 	_,err := k.ClaimFee(sdkCtx,msgData.Owner,msgData.Amount)
+	if err != nil {
+		return nil,err
+	} 
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgSetPrice(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgSetPrice) (*sdk.Result, error) {
+	msgData := types.MsgSetPrice{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SystemAccount)
+
+	sdkCtx := ctx.Context()
+
+	err := k.SetPrice(sdkCtx,msgData)
 	if err != nil {
 		return nil,err
 	} 

@@ -91,3 +91,30 @@ func (msg KuMsgClaimFee) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgSetPrice struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgSetPrice(auth sdk.AccAddress, systemAccount AccountID, base,quote Coin,remark string) KuMsgSetPrice {
+	return KuMsgSetPrice{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgSetPrice{
+				SystemAccount: systemAccount,
+				Base:        base,
+				Quote:        quote,
+				Remark:        remark,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgSetPrice) ValidateBasic() error {
+	msgData := MsgSetPrice{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	return msgData.ValidateBasic()
+}

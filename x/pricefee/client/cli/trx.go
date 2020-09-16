@@ -21,6 +21,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdOpenFee(cdc),
 		GetCmdPreStoreFee(cdc),
 		GetCmdClaimFee(cdc),
+		GetCmdSetPrice(cdc),
 	)
 	return txCmd
 }
