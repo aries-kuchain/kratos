@@ -36,7 +36,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GetCmdValue(queryRoute, cdc),
+		GetCmdQuerySinger(queryRoute, cdc),
 		// GetSignCommand(cdc),
 	)
 	return txCmd
