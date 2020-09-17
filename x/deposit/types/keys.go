@@ -21,12 +21,20 @@ var (
 )
 
 var (
-	PriceInfoKey = []byte{0x11} // prefix for each key to a singerInfo index
+	DepositInfoKey = []byte{0x11} // prefix for each key to a singerInfo index
+	legalDepositCoinKey = []byte{0x21}
 )
 
 const (
 	AccountIDlen = sdk.AddrLen + 1
 )
 
+func GetDepositInfoKey(depositID string) []byte {
+	return append(DepositInfoKey, []byte(depositID)...)
+}
+
+func GetLegalCoinKey(asset Coin) []byte{
+	return append(legalDepositCoinKey, []byte(asset.Denom)...)
+} 
 
 

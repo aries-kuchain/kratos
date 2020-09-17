@@ -1,11 +1,9 @@
 package types
 
 import (
-	//	"encoding/json"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	yaml "gopkg.in/yaml.v2"
-	//	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 )
 
 type SingerStatus int32

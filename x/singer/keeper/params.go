@@ -8,7 +8,7 @@ import (
 
 func (k Keeper) MinAccessAmount(ctx sdk.Context) (res sdk.Int) {
 	k.paramstore.Get(ctx, types.KeyMinAccessAmount, &res)
-	return
+	return res
 }
 
 // Get all parameteras as types.Params

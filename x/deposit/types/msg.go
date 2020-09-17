@@ -1,66 +1,130 @@
 package types
 
 import (
-	"encoding/json"
-	//"fmt"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	//sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 )
 
-var (
-	_ sdk.Msg = &MsgSetStore{}
-)
-
-// MsgSetName defines a SetName message
-type MsgSetStore struct {
-	Name  string
-	Value string
-	Owner sdk.AccAddress
+//--------------------------------------------------------------------------------------------------------------
+type MsgCreateDeposit struct {
+	OwnerAccount AccountID `json:"owner_account" yaml:"owner_account"`
+	Amount        Coin      `json:"amount" yaml:"amount"`
 }
 
-// NewMsgSetName is a constructor function for MsgSetName
-func NewMsgSetStore(name string, value string, owner sdk.AccAddress) MsgSetStore {
-	return MsgSetStore{
-		Name:  name,
-		Value: value,
-		Owner: owner,
-	}
+func NewMsgCreateDeposit(ownerAccount AccountID, amount Coin) MsgCreateDeposit {
+	return MsgCreateDeposit{OwnerAccount: ownerAccount, Amount: amount}
 }
 
 // Route should return the name of the module
-func (msg MsgSetStore) Route() string { return "easystore" }
+func (msg MsgCreateDeposit) Route() string { return RouterKey }
 
-// Type should return the action
-func (msg MsgSetStore) Type() string { return "set_store" }
+func (msg MsgCreateDeposit) Type() chainTypes.Name { return chainTypes.MustName("createdeposit") }
 
-// ValidateBasic runs stateless checks on the message
-func (msg MsgSetStore) ValidateBasic() error {
-	if msg.Owner.Empty() {
-		// return fmt.Errorf(
-		// 	"Owner is empty",
-		// )
-		return nil //sdkerrors.ErrInvalidAddress(msg.Owner.String())
+func (msg MsgCreateDeposit) Sender() AccountID {
+	return msg.OwnerAccount
+}
+
+func (msg MsgCreateDeposit) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.OwnerAccount.Empty() {
+		return ErrEmptyOwnerAccount
 	}
-	if len(msg.Name) == 0 || len(msg.Value) == 0 {
-		// return fmt.Errorf(
-		// 	"name or value is empty",
-		// )
-		return nil //sdkerrors.ErrUnknownRequest("Name and/or Value cannot be empty")
+
+	if !msg.Amount.Amount.IsPositive() {
+		return ErrBadAmount
 	}
 	return nil
 }
 
-// GetSignBytes encodes the message for signing
-func (msg MsgSetStore) GetSignBytes() []byte {
-	b, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
-	return sdk.MustSortJSON(b)
+//--------------------------------------------------------------------------------------------------------------
+type MsgCreateLegalCoin struct {
+	SystemAccount AccountID `json:"owner_account" yaml:"owner_account"`
+	Amount Coin`json:"amount" yaml:"amount"`
 }
 
-// GetSigners defines whose signature is required
-func (msg MsgSetStore) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Owner}
+
+func NewMsgCreateLegalCoin(systemAccount AccountID, amount Coin) MsgCreateLegalCoin {
+	return MsgCreateLegalCoin{SystemAccount: systemAccount, Amount: amount}
+}
+
+// Route should return the name of the module
+func (msg MsgCreateLegalCoin) Route() string { return RouterKey }
+
+func (msg MsgCreateLegalCoin) Type() chainTypes.Name { return chainTypes.MustName("createlegalcoin") }
+
+func (msg MsgCreateLegalCoin) Sender() AccountID {
+	return msg.SystemAccount
+}
+
+func (msg MsgCreateLegalCoin) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SystemAccount.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	if !msg.Amount.Amount.IsPositive() {
+		return ErrBadAmount
+	}
+	return nil
+}
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgProhibitLegalCoin struct {
+	SystemAccount AccountID `json:"owner_account" yaml:"owner_account"`
+	Amount Coin`json:"amount" yaml:"amount"`
+}
+
+
+func NewMsgProhibitLegalCoin(systemAccount AccountID, amount Coin) MsgProhibitLegalCoin {
+	return MsgProhibitLegalCoin{SystemAccount: systemAccount, Amount: amount}
+}
+
+// Route should return the name of the module
+func (msg MsgProhibitLegalCoin) Route() string { return RouterKey }
+
+func (msg MsgProhibitLegalCoin) Type() chainTypes.Name { return chainTypes.MustName("prohibitlegalcoin") }
+
+func (msg MsgProhibitLegalCoin) Sender() AccountID {
+	return msg.SystemAccount
+}
+
+func (msg MsgProhibitLegalCoin) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SystemAccount.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	if !msg.Amount.Amount.IsPositive() {
+		return ErrBadAmount
+	}
+	return nil
+}
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgPermintLegalCoin struct {
+	SystemAccount AccountID `json:"owner_account" yaml:"owner_account"`
+	Amount Coin`json:"amount" yaml:"amount"`
+}
+
+
+func NewMsgPermintLegalCoin(systemAccount AccountID, amount Coin) MsgPermintLegalCoin {
+	return MsgPermintLegalCoin{SystemAccount: systemAccount, Amount: amount}
+}
+
+// Route should return the name of the module
+func (msg MsgPermintLegalCoin) Route() string { return RouterKey }
+
+func (msg MsgPermintLegalCoin) Type() chainTypes.Name { return chainTypes.MustName("permintlegalcoin") }
+
+func (msg MsgPermintLegalCoin) Sender() AccountID {
+	return msg.SystemAccount
+}
+
+func (msg MsgPermintLegalCoin) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SystemAccount.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	if !msg.Amount.Amount.IsPositive() {
+		return ErrBadAmount
+	}
+	return nil
 }
