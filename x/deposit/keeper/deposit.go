@@ -26,15 +26,37 @@ func (k Keeper) SetDepositInfo(ctx sdk.Context, depositInfo types.DepositInfo) {
 	store.Set(types.GetDepositInfoKey(depositInfo.DepositID), b)
 }
 
-func (k Keeper) NewDepositInfo(ctx sdk.Context,ownerAccount AccountID,asset Coin) (err error){
-	depositId := fmt.Sprintf("%s-%s-%s",ownerAccount.String(),asset.String(),ctx.BlockHeader().Time.Format("2006-01-02 15:04:05") )
+func (k Keeper) NewDepositInfo(ctx sdk.Context,ownerAccount AccountID,asset Coin) (depositID string,err error){
+	depositId := fmt.Sprintf("%s-%s-%s",ownerAccount.String(),asset.String(),ctx.BlockHeader().Time.Format("2006-01-02-15:04:05") )
 
 	_,found := k.GetDepositInfo(ctx,depositId)
 	if  found {
-		return types.ErrDepositAlreadyExist
+		return depositId,types.ErrDepositAlreadyExist
 	}
-//判断代币，收取费用
+
+	legalCoin,found := k.GetLegalCoin(ctx,asset)
+	if !found {
+		return depositId,types.ErrLegalCoinNotExist
+	}
+
+	if legalCoin.Status != types.Permint {
+		return  depositId,types.ErrLegalCoinNotExist
+	}
+
 	depositInfo := types.NewDepositInfo(depositId,ownerAccount,asset)
 	k.SetDepositInfo(ctx,depositInfo)
-	return nil
+	return depositId,nil
+}
+
+func (k Keeper) GetAllDepositInfo(ctx sdk.Context) (depositInfos []types.DepositInfo) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.DepositInfoKey)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		depositInfo := types.MustUnmarshalDepositInfo(k.cdc, iterator.Value())
+		depositInfos = append(depositInfos, depositInfo)
+	}
+
+	return depositInfos
 }

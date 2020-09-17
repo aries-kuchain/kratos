@@ -125,3 +125,41 @@ func GetCmdProhibitLegalCoin(cdc *codec.Codec) *cobra.Command {
 
 	return flags.PostCommands(cmd)[0]
 }
+
+// GetCmdCreateLegalCoin returns the tx broadcast command.
+func GetCmdCreateDeposit(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create-deposit [owner] [amount]",
+		Short: "create a deposit ",
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			owner, err := chainTypes.NewAccountIDFromStr(args[0])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+			amount, err := chainTypes.ParseCoin(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "amount parse error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, owner)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", owner)
+			}
+
+			msg := types.NewKuMsgCreateDeposit(authAccAddress, owner, amount)
+			cliCtx = cliCtx.WithFromAccount(owner)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[0])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return flags.PostCommands(cmd)[0]
+}

@@ -21,6 +21,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdCreateLegalCoin(cdc),
 		GetCmdPermintLegalCoin(cdc),
 		GetCmdProhibitLegalCoin(cdc),
+		GetCmdCreateDeposit(cdc),
 		// GetSignCommand(cdc),
 	)
 	return txCmd
@@ -36,8 +37,9 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GetCmdQuerySinger(queryRoute, cdc),
-		// GetSignCommand(cdc),
+		GetCmdQueryLegalCoin(queryRoute, cdc),
+		GetCmdQueryDeposit(queryRoute, cdc),
+		GetCmdQueryAllDeposit(queryRoute, cdc),
 	)
 	return txCmd
 }

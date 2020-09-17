@@ -36,10 +36,13 @@ func handleKuKuMsgCreateDeposit(ctx chainTypes.Context, keeper keeper.Keeper, ms
 
 	ctx.RequireAuth(msgData.OwnerAccount)
 
-	// sdkCtx := ctx.Context()
+	sdkCtx := ctx.Context()
+
+	_,err := keeper.NewDepositInfo(sdkCtx,msgData.OwnerAccount,msgData.Amount)
+	if err != nil {
+		return nil,err
+	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
-
-
 }
 
 
