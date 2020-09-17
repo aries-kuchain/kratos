@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 	"strings"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // GetCmdQueryValidator implements the validator query command.
@@ -51,6 +52,54 @@ $ %s query pricefee fee jack
 			}
 
 			return cliCtx.PrintOutput(singer)
+		},
+	}
+}
+
+// GetCmdQueryValidator implements the validator query command.
+func GetCmdQueryPriceInfo(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "price [base] [quote ]",
+		Short: "Query a fee info",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query details about an individual fee.
+
+Example:
+$ %s query pricefee fee jack
+`,
+				version.ClientName,
+			),
+		),
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			base, err := chainTypes.ParseCoin(args[0])
+			if err != nil {
+				return sdkerrors.Wrap(err, "base parse error")
+			}
+
+			quote, err := chainTypes.ParseCoin(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "quote parse error")
+			}
+
+			res, _, err := cliCtx.QueryStore(types.GetPriceInfoKey(base,quote), storeName)
+			if err != nil {
+				return err
+			}
+
+			if len(res) == 0 {
+				return fmt.Errorf("no price found with base %s,quote %s", base,quote)
+
+			}
+
+			priceInfo, err := types.UnmarshalPriceInfo(types.Cdc(), res)
+			if err != nil {
+				return err
+			}
+
+			return cliCtx.PrintOutput(priceInfo)
 		},
 	}
 }

@@ -37,6 +37,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	}
 	txCmd.AddCommand(
 		GetCmdQueryFeeInfo(queryRoute, cdc),
+		GetCmdQueryPriceInfo(queryRoute, cdc),
 	)
 	return txCmd
 }
