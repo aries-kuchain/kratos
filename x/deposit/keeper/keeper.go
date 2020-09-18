@@ -16,6 +16,9 @@ type Keeper struct {
 	storeKey  sdk.StoreKey // Unexposed key to access store from sdk.Context
 
 	cdc  *codec.Codec // The wire codec for binary encoding/decoding.
+	bankKeeper    types.BankKeeper
+	accountKeeper types.AccountKeeper
+	supplyKeeper  types.SupplyKeeper
 }
 
 // Sets the entire Whois metadata struct for a name
@@ -76,11 +79,16 @@ func (k Keeper) GetNamesIterator(ctx sdk.Context) sdk.Iterator {
 }
 
 // NewKeeper creates new instances of the nameservice Keeper
-func NewKeeper( storeKey sdk.StoreKey, cdc  *codec.Codec) Keeper {
+func NewKeeper( storeKey sdk.StoreKey, cdc  *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
+	sk types.SupplyKeeper,
+	) Keeper {
 	return Keeper{
 	//	coinKeeper: coinKeeper,
 		storeKey:   storeKey,
 		cdc:        cdc,
+		bankKeeper:    bk,
+		accountKeeper: ak,
+		supplyKeeper:  sk,
 	}
 }
 

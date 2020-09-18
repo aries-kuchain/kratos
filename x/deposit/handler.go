@@ -76,7 +76,7 @@ func handleKuMsgCreateLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, ms
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.CreateLegalCoin(sdkCtx,msgData.SystemAccount,msgData.Amount); err != nil {
+	if err := keeper.CreateLegalCoin(sdkCtx,msgData.SystemAccount,msgData.MaxSupply,msgData.Symbol); err != nil {
 		return nil,err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil

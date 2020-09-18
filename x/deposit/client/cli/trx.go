@@ -18,11 +18,10 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GetCmdCreateLegalCoin(cdc),
 		GetCmdPermintLegalCoin(cdc),
 		GetCmdProhibitLegalCoin(cdc),
 		GetCmdCreateDeposit(cdc),
-		// GetSignCommand(cdc),
+		GetCmdCreateCoin(cdc),
 	)
 	return txCmd
 }

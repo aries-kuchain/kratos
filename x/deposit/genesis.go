@@ -3,6 +3,7 @@ package deposit
 import (
 	"encoding/json"
 	"github.com/KuChainNetwork/kuchain/x/deposit/keeper"
+	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -26,10 +27,6 @@ func DefaultGenesisState() GenesisState {
 // ValidateGenesis performs basic validation of bank genesis data returning an
 // error for any failed validation criteria.
 func (g GenesisState) ValidateGenesis(bz json.RawMessage) error {
-	// gs := DefaultGenesisState()
-	// if err := Cdc().UnmarshalJSON(bz, &gs); err != nil {
-	// 	return fmt.Errorf("failed to unmarshal %s genesis state: %w", ModuleName, err)
-	// }
 
 	return nil
 }
@@ -47,8 +44,11 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) GenesisState {
 }
 
 // InitGenesis - store genesis parameters
-func InitGenesis(ctx sdk.Context, k keeper.Keeper, data GenesisState) {
-
+func InitGenesis(ctx sdk.Context, k keeper.Keeper, data GenesisState,supplyKeeper types.SupplyKeeper,
+	) {
+	if err := supplyKeeper.InitModuleAccount(ctx, types.ModuleName); err != nil {
+		panic(err)
+	}
 }
 
 const (

@@ -235,7 +235,7 @@ func NewKuchainApp(
 	)
 
 	app.singerKeeper = singer.NewKeeper(keys[singer.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper, app.subspaces[singer.ModuleName])
-	app.depositKeeper = deposit.NewKeeper(keys[deposit.StoreKey], cdc)
+	app.depositKeeper = deposit.NewKeeper(keys[deposit.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper)
 	app.pricefeeKeeper = pricefee.NewKeeper(keys[pricefee.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper)
 
 
@@ -255,7 +255,7 @@ func NewKuchainApp(
 		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		plugin.NewAppModule(),
 		singer.NewAppModule(app.singerKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
-		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper),
+		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		pricefee.NewAppModule(app.pricefeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 	)
 
@@ -295,7 +295,7 @@ func NewKuchainApp(
 		mint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		singer.NewAppModule(app.singerKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
-		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper),
+		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		pricefee.NewAppModule(app.pricefeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 
 	)

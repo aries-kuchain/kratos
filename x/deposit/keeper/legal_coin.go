@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	// chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
+	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/KuChainNetwork/kuchain/chain/constants"
@@ -25,19 +25,6 @@ func (k Keeper) SetLegalCoin(ctx sdk.Context,legalCoin types.LegalCoin) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalLegalCoin(k.cdc, legalCoin)
 	store.Set(types.GetLegalCoinKey(legalCoin.Asset), b)
-}
-
-func (k Keeper) CreateLegalCoin(ctx sdk.Context,systemAccount AccountID,asset Coin) (err error) {
-	if _,found := k.GetLegalCoin(ctx,asset);found {
-		return types.ErrLegalCoinAlreadyExist
-	}
-	name, ok := systemAccount.ToName()
-	if ok && constants.IsSystemAccount(name) {
-		return types.ErrNotSystemAccount
-	}
-	legalCoin := types.NewLegalCoin(asset)
-	k.SetLegalCoin(ctx,legalCoin)
-	return nil
 }
 
 func (k Keeper) ProhibitLegalCoin(ctx sdk.Context,systemAccount AccountID,asset Coin) (err error) {
@@ -66,6 +53,27 @@ func (k Keeper) PermintLegalCoin(ctx sdk.Context,systemAccount AccountID,asset C
 		return types.ErrNotSystemAccount
 	}
 	legalCoin.Status = types.Permint
+	k.SetLegalCoin(ctx,legalCoin)
+	return nil
+}
+
+func (k Keeper) CreateLegalCoin(ctx sdk.Context,systemAccount AccountID,asset Coin,symbol chainTypes.Name) (err error) {
+	name, ok := systemAccount.ToName()
+	if ok && constants.IsSystemAccount(name) {
+		return types.ErrNotSystemAccount
+	}
+
+	zeroCoin := chainTypes.Coin{Denom:asset.Denom,Amount:sdk.ZeroInt()}
+	denom := chainTypes.CoinDenom(types.ModuleAccountName, symbol)
+	if denom !=asset.Denom {
+		return types.ErrAssetSymbolError
+	}
+
+	err = k.bankKeeper.Create(ctx, types.ModuleAccountName, symbol, asset, true, false, true, 0, zeroCoin, []byte{}) 
+	if err != nil {
+		return err
+	}
+	legalCoin := types.NewLegalCoin(asset)
 	k.SetLegalCoin(ctx,legalCoin)
 	return nil
 }

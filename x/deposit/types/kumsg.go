@@ -43,14 +43,15 @@ type KuMsgCreateLegalCoin struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgCreateLegalCoin(auth sdk.AccAddress, systemAccountID AccountID, amount Coin) KuMsgCreateLegalCoin {
+func NewKuMsgCreateLegalCoin(auth sdk.AccAddress, systemAccountID AccountID, amount Coin,symbol chainTypes.Name) KuMsgCreateLegalCoin {
 	return KuMsgCreateLegalCoin{
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgCreateLegalCoin{
 				SystemAccount: systemAccountID,
-				Amount:        amount,
+				MaxSupply:        amount,
+				Symbol:symbol,
 			}),
 		),
 	}
