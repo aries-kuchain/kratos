@@ -88,7 +88,6 @@ type AppModule struct {
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	supplyKeeper  types.SupplyKeeper
-
 }
 
 // NewAppModule creates a new AppModule object
@@ -98,7 +97,7 @@ func NewAppModule(keeper keeper.Keeper, ak types.AccountKeeper, bk types.BankKee
 		keeper:         keeper,
 		accountKeeper:  ak,
 		bankKeeper:     bk,
-		supplyKeeper:sk,
+		supplyKeeper:   sk,
 	}
 }
 
@@ -131,7 +130,7 @@ func (am AppModule) NewQuerierHandler() sdk.Querier {
 func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
 	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
-	InitGenesis(ctx, am.keeper, genesisState,am.supplyKeeper)
+	InitGenesis(ctx, am.keeper, genesisState, am.supplyKeeper)
 	return []abci.ValidatorUpdate{}
 }
 

@@ -23,7 +23,7 @@ func NewKuMsgCreateDeposit(auth sdk.AccAddress, ownerAccountID AccountID, amount
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgCreateDeposit{
 				OwnerAccount: ownerAccountID,
-				Amount:        amount,
+				Amount:       amount,
 			}),
 		),
 	}
@@ -43,15 +43,15 @@ type KuMsgCreateLegalCoin struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgCreateLegalCoin(auth sdk.AccAddress, systemAccountID AccountID, amount Coin,symbol chainTypes.Name) KuMsgCreateLegalCoin {
+func NewKuMsgCreateLegalCoin(auth sdk.AccAddress, systemAccountID AccountID, amount Coin, symbol chainTypes.Name) KuMsgCreateLegalCoin {
 	return KuMsgCreateLegalCoin{
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgCreateLegalCoin{
 				SystemAccount: systemAccountID,
-				MaxSupply:        amount,
-				Symbol:symbol,
+				MaxSupply:     amount,
+				Symbol:        symbol,
 			}),
 		),
 	}
@@ -92,6 +92,7 @@ func (msg KuMsgProhibitLegalCoin) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+
 //---------------------------------------------------------------------------------------------------------------------------------------------
 type KuMsgPermintLegalCoin struct {
 	chainTypes.KuMsg

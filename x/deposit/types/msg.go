@@ -7,7 +7,7 @@ import (
 //--------------------------------------------------------------------------------------------------------------
 type MsgCreateDeposit struct {
 	OwnerAccount AccountID `json:"owner_account" yaml:"owner_account"`
-	Amount        Coin      `json:"amount" yaml:"amount"`
+	Amount       Coin      `json:"amount" yaml:"amount"`
 }
 
 func NewMsgCreateDeposit(ownerAccount AccountID, amount Coin) MsgCreateDeposit {
@@ -38,9 +38,8 @@ func (msg MsgCreateDeposit) ValidateBasic() error {
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgProhibitLegalCoin struct {
 	SystemAccount AccountID `json:"owner_account" yaml:"owner_account"`
-	Amount Coin`json:"amount" yaml:"amount"`
+	Amount        Coin      `json:"amount" yaml:"amount"`
 }
-
 
 func NewMsgProhibitLegalCoin(systemAccount AccountID, amount Coin) MsgProhibitLegalCoin {
 	return MsgProhibitLegalCoin{SystemAccount: systemAccount, Amount: amount}
@@ -49,7 +48,9 @@ func NewMsgProhibitLegalCoin(systemAccount AccountID, amount Coin) MsgProhibitLe
 // Route should return the name of the module
 func (msg MsgProhibitLegalCoin) Route() string { return RouterKey }
 
-func (msg MsgProhibitLegalCoin) Type() chainTypes.Name { return chainTypes.MustName("prohibitlegalcoin") }
+func (msg MsgProhibitLegalCoin) Type() chainTypes.Name {
+	return chainTypes.MustName("prohibitlegalcoin")
+}
 
 func (msg MsgProhibitLegalCoin) Sender() AccountID {
 	return msg.SystemAccount
@@ -66,12 +67,12 @@ func (msg MsgProhibitLegalCoin) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgPermintLegalCoin struct {
 	SystemAccount AccountID `json:"owner_account" yaml:"owner_account"`
-	Amount Coin`json:"amount" yaml:"amount"`
+	Amount        Coin      `json:"amount" yaml:"amount"`
 }
-
 
 func NewMsgPermintLegalCoin(systemAccount AccountID, amount Coin) MsgPermintLegalCoin {
 	return MsgPermintLegalCoin{SystemAccount: systemAccount, Amount: amount}
@@ -97,13 +98,13 @@ func (msg MsgPermintLegalCoin) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgCreateLegalCoin struct {
-	SystemAccount AccountID `json:"owner_account" yaml:"owner_account"`
-	MaxSupply Coin`json:"amount" yaml:"amount"`
-	Symbol chainTypes.Name`json:"symbol" yaml:"symbol"`
+	SystemAccount AccountID       `json:"owner_account" yaml:"owner_account"`
+	MaxSupply     Coin            `json:"amount" yaml:"amount"`
+	Symbol        chainTypes.Name `json:"symbol" yaml:"symbol"`
 }
-
 
 func NewMsgCreateLegalCoin(systemAccount AccountID, amount Coin) MsgCreateLegalCoin {
 	return MsgCreateLegalCoin{SystemAccount: systemAccount, MaxSupply: amount}

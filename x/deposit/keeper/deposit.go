@@ -26,26 +26,26 @@ func (k Keeper) SetDepositInfo(ctx sdk.Context, depositInfo types.DepositInfo) {
 	store.Set(types.GetDepositInfoKey(depositInfo.DepositID), b)
 }
 
-func (k Keeper) NewDepositInfo(ctx sdk.Context,ownerAccount AccountID,asset Coin) (depositID string,err error){
-	depositId := fmt.Sprintf("%s-%s-%s",ownerAccount.String(),asset.String(),ctx.BlockHeader().Time.Format("2006-01-02-15:04:05") )
+func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Coin) (depositID string, err error) {
+	depositId := fmt.Sprintf("%s-%s-%s", ownerAccount.String(), asset.String(), ctx.BlockHeader().Time.Format("2006-01-02-15:04:05"))
 
-	_,found := k.GetDepositInfo(ctx,depositId)
-	if  found {
-		return depositId,types.ErrDepositAlreadyExist
+	_, found := k.GetDepositInfo(ctx, depositId)
+	if found {
+		return depositId, types.ErrDepositAlreadyExist
 	}
 
-	legalCoin,found := k.GetLegalCoin(ctx,asset)
+	legalCoin, found := k.GetLegalCoin(ctx, asset)
 	if !found {
-		return depositId,types.ErrLegalCoinNotExist
+		return depositId, types.ErrLegalCoinNotExist
 	}
 
 	if legalCoin.Status != types.Permint {
-		return  depositId,types.ErrLegalCoinNotExist
+		return depositId, types.ErrLegalCoinNotExist
 	}
 
-	depositInfo := types.NewDepositInfo(depositId,ownerAccount,asset)
-	k.SetDepositInfo(ctx,depositInfo)
-	return depositId,nil
+	depositInfo := types.NewDepositInfo(depositId, ownerAccount, asset)
+	k.SetDepositInfo(ctx, depositInfo)
+	return depositId, nil
 }
 
 func (k Keeper) GetAllDepositInfo(ctx sdk.Context) (depositInfos []types.DepositInfo) {

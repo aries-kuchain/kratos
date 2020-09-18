@@ -1,12 +1,11 @@
 package deposit
 
 import (
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/KuChainNetwork/kuchain/chain/msg"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/keeper"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
@@ -38,16 +37,15 @@ func handleKuKuMsgCreateDeposit(ctx chainTypes.Context, keeper keeper.Keeper, ms
 
 	sdkCtx := ctx.Context()
 
-	_,err := keeper.NewDepositInfo(sdkCtx,msgData.OwnerAccount,msgData.Amount)
+	_, err := keeper.NewDepositInfo(sdkCtx, msgData.OwnerAccount, msgData.Amount)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
-
 // Handle a message to buy name
-func handleKuMsgProhibitLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgProhibitLegalCoin) (*sdk.Result, error)  {
+func handleKuMsgProhibitLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgProhibitLegalCoin) (*sdk.Result, error) {
 	msgData := types.MsgProhibitLegalCoin{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
 		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
@@ -57,13 +55,12 @@ func handleKuMsgProhibitLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, 
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.ProhibitLegalCoin(sdkCtx,msgData.SystemAccount,msgData.Amount); err != nil {
-		return nil,err
+	if err := keeper.ProhibitLegalCoin(sdkCtx, msgData.SystemAccount, msgData.Amount); err != nil {
+		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 
 }
-
 
 // Handle a message to buy name
 func handleKuMsgCreateLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgCreateLegalCoin) (*sdk.Result, error) {
@@ -76,13 +73,13 @@ func handleKuMsgCreateLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, ms
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.CreateLegalCoin(sdkCtx,msgData.SystemAccount,msgData.MaxSupply,msgData.Symbol); err != nil {
-		return nil,err
+	if err := keeper.CreateLegalCoin(sdkCtx, msgData.SystemAccount, msgData.MaxSupply, msgData.Symbol); err != nil {
+		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
-func handleKuMsgPermintLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgPermintLegalCoin) (*sdk.Result, error)  {
+func handleKuMsgPermintLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgPermintLegalCoin) (*sdk.Result, error) {
 	msgData := types.MsgProhibitLegalCoin{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
 		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
@@ -92,8 +89,8 @@ func handleKuMsgPermintLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, m
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.PermintLegalCoin(sdkCtx,msgData.SystemAccount,msgData.Amount); err != nil {
-		return nil,err
+	if err := keeper.PermintLegalCoin(sdkCtx, msgData.SystemAccount, msgData.Amount); err != nil {
+		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }

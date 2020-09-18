@@ -17,7 +17,7 @@ func GetCmdPermintLegalCoin(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "permint-legalcoin [systemAccount] [asset]",
 		Short: "Permint a legal coin ",
-		Args: cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
@@ -54,7 +54,7 @@ func GetCmdProhibitLegalCoin(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "prohibit-legalcoin [systemAccount] [asset]",
 		Short: "prohibit a legal coin ",
-		Args: cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
@@ -92,7 +92,7 @@ func GetCmdCreateDeposit(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-deposit [owner] [amount]",
 		Short: "create a deposit ",
-		Args: cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
@@ -129,7 +129,7 @@ func GetCmdCreateCoin(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-legalcoin [systemAccount] [asset] [symbol]",
 		Short: "create a legal coin ",
-		Args: cobra.ExactArgs(3),
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
@@ -152,7 +152,7 @@ func GetCmdCreateCoin(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", systemAccount)
 			}
 
-			msg := types.NewKuMsgCreateLegalCoin(authAccAddress, systemAccount, asset,symbol)
+			msg := types.NewKuMsgCreateLegalCoin(authAccAddress, systemAccount, asset, symbol)
 			cliCtx = cliCtx.WithFromAccount(systemAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[0])

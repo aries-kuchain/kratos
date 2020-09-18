@@ -1,7 +1,7 @@
 package cli
 
 import (
-//	"fmt"
+	//	"fmt"
 	//"github.com/KuChainNetwork/kuchain/chain/client/flags"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
@@ -12,7 +12,6 @@ import (
 	"github.com/spf13/cobra"
 	//"strings"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 )
 
 // GetCmdResolveName queries information about a name
@@ -20,7 +19,7 @@ func GetCmdQueryLegalCoin(storeName string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "legal-coin [asset]",
 		Short: "Query a legal coin information",
-		Args: cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
@@ -48,7 +47,7 @@ func GetCmdQueryDeposit(storeName string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "deposit [depositID]",
 		Short: "Query a deposit information",
-		Args: cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
@@ -76,7 +75,7 @@ func GetCmdQueryAllDeposit(storeName string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "all-deposit",
 		Short: "Query all deposit ",
-		Args: cobra.NoArgs,
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 

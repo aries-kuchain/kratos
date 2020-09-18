@@ -44,8 +44,8 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) GenesisState {
 }
 
 // InitGenesis - store genesis parameters
-func InitGenesis(ctx sdk.Context, k keeper.Keeper, data GenesisState,supplyKeeper types.SupplyKeeper,
-	) {
+func InitGenesis(ctx sdk.Context, k keeper.Keeper, data GenesisState, supplyKeeper types.SupplyKeeper,
+) {
 	if err := supplyKeeper.InitModuleAccount(ctx, types.ModuleName); err != nil {
 		panic(err)
 	}
