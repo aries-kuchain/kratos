@@ -19,17 +19,16 @@ const (
 type DepositInfo struct {
 	DepositID string
 	Threshold int
-	Singers SingerInfos
+	Singers []AccountID
 	minStake sdk.Int
 	Status DepositStatus
 }
 
 
-func NewDepositInfo(depositID string,threshold int,singer SingerInfos,minStake sdk.Int) DepositInfo {
+func NewDepositInfo(depositID string,threshold int,minStake sdk.Int) DepositInfo {
 	return DepositInfo{
 		DepositID:     depositID,
 		Threshold:       threshold,
-		Singers:            singer,
 		minStake: minStake,
 		Status:Open,
 	}
@@ -60,3 +59,9 @@ func (v DepositInfo) String() string {
 	out, _ := yaml.Marshal(v)
 	return string(out)
 }
+
+func (v *DepositInfo) SetSingers(singers SingerInfos) {
+		for _,singerInfo := range singers {
+		v.Singers = append(v.Singers ,singerInfo.SingerAccount)
+	}
+} 

@@ -29,7 +29,8 @@ func (k Keeper) NewDepositInfo(ctx sdk.Context, depositID string,threshold int,s
 		return types.ErrDepositAlreadyExist
 	}
 
-	depositInfo := types.NewDepositInfo(depositID,threshold,singer,minStake)
+	depositInfo := types.NewDepositInfo(depositID,threshold,minStake)
+	depositInfo.SetSingers(singer)
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
 }

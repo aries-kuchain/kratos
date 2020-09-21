@@ -21,7 +21,7 @@ var (
 
 var (
 	SingerInfoKey = []byte{0x11} // prefix for each key to a singerInfo index
-	DepositInfoKey = []byte{0x11} 
+	DepositInfoKey = []byte{0x21} 
 )
 
 const (
