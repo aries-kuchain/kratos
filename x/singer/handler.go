@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"fmt"
 )
 
 func NewHandler(k keeper.Keeper) msg.Handler {
@@ -29,6 +30,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgClaimAccess(ctx, k, msg)
 		case types.KuMsgLogoutSinger:
 			return handleKuMsgLogoutSinger(ctx, k, msg)
+		case types.KuMsgMsgSetBtcAddress:
+			return handleKuMsgMsgSetBtcAddress(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -202,6 +205,33 @@ func handleKuMsgLogoutSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.
 	err := k.SingerLogoutAccess(sdkCtx,msgData.SingerAccount)
 	if  err != nil {
 		return nil,err
+	}
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgMsgSetBtcAddress(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgMsgSetBtcAddress) (*sdk.Result, error) {
+	msgData := types.MsgSetBtcAddress{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SingerAccount)
+
+	sdkCtx := ctx.Context()
+
+	if _, found := k.GetSingerInfo(sdkCtx, msgData.SingerAccount); !found {
+		return nil, types.ErrSingerNotExists
+	}
+
+	err := k.NewDepositBtcAddress(sdkCtx,msgData.DepoistID,msgData.SingerAccount,msgData.BtcAddress)
+	if  err != nil {
+		return nil,err
+	}
+
+	//判断是否所有的Address都一样
+	if k.CheckBtcAddressReady(sdkCtx,msgData.DepoistID) {
+		fmt.Println("all address ready")
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil

@@ -178,7 +178,6 @@ func (msg KuMsgClaimAccess) ValidateBasic() error {
 	return msgData.ValidateBasic()
 }
 //--------------------------------------------------------------------------------------------------------------------------
-
 type KuMsgLogoutSinger struct {
 	chainTypes.KuMsg
 }
@@ -196,6 +195,32 @@ func NewKuMsgLogoutSinger(auth sdk.AccAddress, singerAccount AccountID) KuMsgLog
 }
 
 func (msg KuMsgLogoutSinger) ValidateBasic() error {
+	msgData := MsgLogoutSinger{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	return msgData.ValidateBasic()
+}
+//--------------------------------------------------------------------------------------------------------------------------
+type KuMsgMsgSetBtcAddress struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgMsgSetBtcAddress(auth sdk.AccAddress, singerAccount AccountID,depositID string,btcAddress []byte) KuMsgMsgSetBtcAddress {
+	return KuMsgMsgSetBtcAddress{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgSetBtcAddress{
+				SingerAccount: singerAccount,
+				DepoistID:depositID,
+				BtcAddress:btcAddress,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgMsgSetBtcAddress) ValidateBasic() error {
 	msgData := MsgLogoutSinger{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
 		return err

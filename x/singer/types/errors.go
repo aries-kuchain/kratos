@@ -21,5 +21,8 @@ var (
 	ErrDepositAlreadyExist = sdkerrors.Register(ModuleName, 15, "deposit already exist")
 	ErrSingerStatusNotActive = sdkerrors.Register(ModuleName, 16, "deposit status is not active")
 	ErrNotEnoughSingers = sdkerrors.Register(ModuleName, 17, "Singer is not enough")
-	
+	ErrNotDepositSInger = sdkerrors.Register(ModuleName, 18, "Singer is not in the deposit singer group")
+	ErrDepositNotExist = sdkerrors.Register(ModuleName, 19, "deposit not exist")
+	ErrDepositStatusNotOpen = sdkerrors.Register(ModuleName, 20, "deposit status is not open")
+
 )

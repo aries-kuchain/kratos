@@ -200,3 +200,35 @@ func (msg MsgLogoutSinger) ValidateBasic() error {
 	}
 	return nil
 }
+
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgSetBtcAddress struct {
+	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
+	DepoistID string `json:"deposit_id" yaml:"deposit_id"`
+	BtcAddress []byte `json:"btc_address" yaml:"btc_address"`
+}
+
+func NewMsgSetBtcAddress(singerAccount AccountID,depositID string,btcAddress []byte) MsgSetBtcAddress {
+	return MsgSetBtcAddress{
+		SingerAccount: singerAccount,
+		DepoistID:depositID,
+		BtcAddress:btcAddress,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgSetBtcAddress) Route() string { return RouterKey }
+
+func (msg MsgSetBtcAddress) Type() chainTypes.Name { return chainTypes.MustName("setbtcaddress") }
+
+func (msg MsgSetBtcAddress) Sender() AccountID {
+	return msg.SingerAccount
+}
+
+func (msg MsgSetBtcAddress) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SingerAccount.Empty() {
+		return ErrEmptySingerAccount
+	}
+	return nil
+}

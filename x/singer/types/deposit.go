@@ -10,9 +10,11 @@ type DepositStatus uint32
 
 const (
 	Open DepositStatus = 1
-	Close DepositStatus = 2
+	AddressReady DepositStatus = 2
+	Close DepositStatus = 3
 
 	DepositStatusOpen = "open"
+	DepositStatusAddressReady = "addressReady"
 	DepositStatusClose = "close"
 )
 
@@ -65,3 +67,53 @@ func (v *DepositInfo) SetSingers(singers SingerInfos) {
 		v.Singers = append(v.Singers ,singerInfo.SingerAccount)
 	}
 } 
+
+func (v DepositInfo) CheckSinger(singerAccount AccountID) bool {
+	for _,depositSinger := range v.Singers {
+		if depositSinger.Eq(singerAccount) {
+			return true
+		}
+	}
+	return false
+}
+
+//--------------------------------------------------------------------------------------------------
+type DepositBtcAddress struct {
+	DepositID string
+	Singer AccountID
+	BtcAddress []byte
+}
+
+func NewDepositBtcAddress(depositID string,singer AccountID,btcAddress []byte) DepositBtcAddress {
+	return DepositBtcAddress{
+		DepositID:     depositID,
+		Singer:       singer,
+		BtcAddress: btcAddress,
+	}
+}
+
+// return the redelegation
+func MustMarshalDepositBtcAddress(cdc *codec.Codec, depositBtcAddress DepositBtcAddress) []byte {
+	return cdc.MustMarshalBinaryBare(&depositBtcAddress)
+}
+
+// unmarshal a redelegation from a store value
+func MustUnmarshalDepositBtcAddress(cdc *codec.Codec, value []byte) DepositBtcAddress {
+	depositBtcAddress, err := UnmarshalDepositBtcAddress(cdc, value)
+	if err != nil {
+		panic(err)
+	}
+	return depositBtcAddress
+}
+
+// unmarshal a redelegation from a store value
+func UnmarshalDepositBtcAddress(cdc *codec.Codec, value []byte) (v DepositBtcAddress, err error) {
+	err = cdc.UnmarshalBinaryBare(value, &v)
+	return v, err
+}
+
+// String implements the Stringer interface for a SingerInfo object.
+func (v DepositBtcAddress) String() string {
+	out, _ := yaml.Marshal(v)
+	return string(out)
+}

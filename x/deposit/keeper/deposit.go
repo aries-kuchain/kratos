@@ -71,3 +71,18 @@ func (k Keeper) GetAllDepositInfo(ctx sdk.Context) (depositInfos []types.Deposit
 
 	return depositInfos
 }
+
+func (k Keeper) SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress []byte)(err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositAlreadyExist
+	}
+
+	if depositInfo.Status != types.SingerReady {
+		return types.ErrStatusNotSingerReady
+	}
+
+	depositInfo.DepositAddress = append(depositInfo.DepositAddress,btcAddress...)
+	k.SetDepositInfo(ctx,depositInfo)
+	return nil
+}

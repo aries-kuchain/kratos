@@ -12,4 +12,7 @@ var (
 	ErrNotSystemAccount      = sdkerrors.Register(ModuleName, 6, "operate account is not  system account")
 	ErrLegalCoinNotExist     = sdkerrors.Register(ModuleName, 7, "Legal Coin does not exist")
 	ErrAssetSymbolError      = sdkerrors.Register(ModuleName, 8, "coin denom should be equal")
+	ErrDepositNotExist   = sdkerrors.Register(ModuleName, 9, "Deposit does not exist")
+	ErrStatusNotSingerReady   = sdkerrors.Register(ModuleName, 1, "Deposit status is not SingerReady")
+
 )

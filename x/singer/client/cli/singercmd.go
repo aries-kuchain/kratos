@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
+	"encoding/hex"
 
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -32,6 +33,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdClaimMortgage(cdc),
 		GetCmdClaimAccess(cdc),
 		GetCmdLogoutSinger(cdc),
+		GetCmdSetAddress(cdc),
 	)...)
 
 	return singerTxCmd
@@ -169,6 +171,7 @@ func GetCmdPayMortgage(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
 			}
 
+
 			msg := types.NewKuMsgBTCMortgage(authAccAddress, singerAccount, amount)
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
@@ -277,6 +280,43 @@ func GetCmdLogoutSinger(cdc *codec.Codec) *cobra.Command {
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[0])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
+
+func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-address [deposit-id] [singer-account] [btc-address]",
+		Short: "register to be a new singer",
+		Args:  cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			singerAccount, err := chainTypes.NewAccountIDFromStr(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, singerAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
+			}
+
+			btcAddress,err := hex.DecodeString(args[2])
+			if err != nil {
+				return sdkerrors.Wrapf(err, "Decode hex String %s error", args[2])
+			}
+			msg := types.NewKuMsgMsgSetBtcAddress(authAccAddress, singerAccount,args[0],btcAddress)
+			cliCtx = cliCtx.WithFromAccount(singerAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[1])
 			}
 			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
 		},

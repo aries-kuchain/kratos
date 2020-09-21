@@ -13,6 +13,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(KuMsgClaimBTCMortgate{}, "kuchain/KuMsgClaimBTCMortgate", nil)
 	cdc.RegisterConcrete(KuMsgClaimAccess{}, "kuchain/KuMsgClaimAccess", nil)
 	cdc.RegisterConcrete(KuMsgLogoutSinger{}, "kuchain/KuMsgLogoutSinger", nil)
+	cdc.RegisterConcrete(KuMsgMsgSetBtcAddress{}, "kuchain/KuMsgMsgSetBtcAddress", nil)
 }
 
 var (
