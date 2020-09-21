@@ -21,7 +21,7 @@ var (
 
 var (
 	DepositInfoKey      = []byte{0x11} // prefix for each key to a singerInfo index
-	legalDepositCoinKey = []byte{0x21}
+	LegalDepositCoinKey = []byte{0x21}
 )
 
 const (
@@ -33,5 +33,5 @@ func GetDepositInfoKey(depositID string) []byte {
 }
 
 func GetLegalCoinKey(asset Coin) []byte {
-	return append(legalDepositCoinKey, []byte(asset.Denom)...)
+	return append(LegalDepositCoinKey, []byte(asset.Denom)...)
 }

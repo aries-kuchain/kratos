@@ -18,6 +18,8 @@ var (
 	ErrMortgageNotEnough = sdkerrors.Register(ModuleName, 12, "singer mortgage is not enough")
 	ErrAccessIsZero = sdkerrors.Register(ModuleName, 13, "singer access is zero")
 	ErrSingerStatusLock = sdkerrors.Register(ModuleName, 14, "singer type is lock")
-
+	ErrDepositAlreadyExist = sdkerrors.Register(ModuleName, 15, "deposit already exist")
+	ErrSingerStatusNotActive = sdkerrors.Register(ModuleName, 16, "deposit status is not active")
+	ErrNotEnoughSingers = sdkerrors.Register(ModuleName, 17, "Singer is not enough")
 	
 )

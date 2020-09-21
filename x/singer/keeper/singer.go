@@ -5,7 +5,7 @@ import (
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/KuChainNetwork/kuchain/x/singer/external"
-
+	"sort"
 )
 
 func (k Keeper) GetSingerInfo(ctx sdk.Context, singerAccount AccountID) (singerInfo types.SingerInfo, found bool) {
@@ -20,10 +20,30 @@ func (k Keeper) GetSingerInfo(ctx sdk.Context, singerAccount AccountID) (singerI
 	return singerInfo, true
 }
 
+func (k Keeper) GetAllSingerInfo(ctx sdk.Context, singerAccount AccountID) (singerInfos []types.SingerInfo) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.SingerInfoKey)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		singerInfo := types.MustUnmarshalSingerInfo(k.cdc, iterator.Value())
+		singerInfos = append(singerInfos, singerInfo)
+	}
+
+	return singerInfos
+}
+
 func (k Keeper) SetSingerInfo(ctx sdk.Context, singerInfo types.SingerInfo) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalSingerInfo(k.cdc, singerInfo)
 	store.Set(types.GetSingerInfoKey(singerInfo.SingerAccount), b)
+}
+
+func (k Keeper) NewSingerInfo(ctx sdk.Context, singerAccount AccountID) (err error) {
+	newSingerInfo := types.NewSingerInfo(singerAccount)
+	k.SetSingerInfo(ctx, newSingerInfo)
+	err = k.pricefeeKeeper.NewFeeInfo(ctx,singerAccount)
+	return err
 }
 
 func (k Keeper) SingerAddAccess(ctx sdk.Context, singerAccount AccountID, amount Coin) (totalAccess sdk.Int, err error) {
@@ -154,4 +174,47 @@ func (k Keeper) SingerLogoutAccess(ctx sdk.Context, singerAccount AccountID) ( e
 	singer.Status = types.InActive
 	k.SetSingerInfo(ctx, singer)
 	return nil
+}
+
+func (k Keeper) lockSinger(ctx sdk.Context,singerInfors types.SingerInfos) (err error) {
+	for _, singerInfo := range singerInfors {
+		if singerInfo.Status != types.Active {
+			return types.ErrSingerStatusNotActive
+		}
+		singerInfo.Status = types.Lock
+		k.SetSingerInfo(ctx,singerInfo)
+	}
+	return nil
+}
+
+func (k Keeper) PickSinger(ctx sdk.Context,depositID string,minStake sdk.Int,threshold int) (pickedSingerInfo  types.SingerInfos,err error) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.SingerInfoKey)
+	defer iterator.Close()
+	var singerInfos types.SingerInfos
+
+	for ; iterator.Valid(); iterator.Next() {
+		singerInfo := types.MustUnmarshalSingerInfo(k.cdc, iterator.Value())
+		if singerInfo.Status == types.Active && singerInfo.SignatureMortgage.GTE(minStake) {
+			singerInfos = append(singerInfos, singerInfo)
+		}
+	}
+
+	sort.Sort(singerInfos)
+
+	for i:=0;i<threshold; i=i+1 {
+		pickedSingerInfo = append(pickedSingerInfo,singerInfos[i])
+	}
+
+	if len(pickedSingerInfo) < threshold {
+		return nil,types.ErrNotEnoughSingers
+	}
+
+	k.NewDepositInfo(ctx,depositID,threshold,pickedSingerInfo,minStake)
+	err = k.lockSinger(ctx,pickedSingerInfo)
+	if err != nil {
+		return nil,err
+	}
+
+	return pickedSingerInfo,nil
 }

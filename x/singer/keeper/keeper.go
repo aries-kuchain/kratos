@@ -11,7 +11,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-//如何从无到有
 // Keeper maintains the link to data storage and exposes getter/setter methods for the various parts of the state machine
 type Keeper struct {
 	storeKey sdk.StoreKey // Unexposed key to access store from sdk.Context
@@ -20,12 +19,13 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	accountKeeper types.AccountKeeper
 	supplyKeeper  types.SupplyKeeper
+	pricefeeKeeper types.PriceFeeKeeper
 	paramstore         external.ParamsSubspace
 }
 
 // NewKeeper creates new instances of the nameservice Keeper
 func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
-	sk types.SupplyKeeper, ps external.ParamsSubspace,
+	sk types.SupplyKeeper, pfk types.PriceFeeKeeper,ps external.ParamsSubspace,
 ) Keeper {
 	return Keeper{
 		storeKey:      storeKey,
@@ -33,8 +33,8 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak 
 		bankKeeper:    bk,
 		accountKeeper: ak,
 		supplyKeeper:  sk,
+		pricefeeKeeper:pfk,
 		paramstore: ps.WithKeyTable(types.ParamKeyTable()),
-
 	}
 }
 

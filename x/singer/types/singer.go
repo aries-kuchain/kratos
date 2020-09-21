@@ -82,3 +82,10 @@ func (v SingerInfo) String() string {
 	out, _ := yaml.Marshal(v)
 	return string(out)
 }
+//---------------------------------------------------------------------------------
+type SingerInfos []SingerInfo
+
+func (s SingerInfos) Len() int           { return len(s) }
+func (s SingerInfos) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s SingerInfos) Less(i, j int) bool { return s[i].SignatureMortgage.LT(s[j].SignatureMortgage)}
+

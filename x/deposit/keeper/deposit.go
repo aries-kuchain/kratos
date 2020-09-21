@@ -1,10 +1,8 @@
 package keeper
 
 import (
-	// chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	// "github.com/KuChainNetwork/kuchain/x/singer/external"
 	"fmt"
 )
 
@@ -43,7 +41,20 @@ func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Co
 		return depositId, types.ErrLegalCoinNotExist
 	}
 
+	//扣除费用   计算费用稍后
+	_,err = k.pricefeeKeeper.LockFee(ctx,ownerAccount,asset.Amount)
+	if err != nil {
+		return depositId,err
+	}
+	//最低抵押以及签署人数
 	depositInfo := types.NewDepositInfo(depositId, ownerAccount, asset)
+	pickedSingers,err := k.singerKeeper.PickSinger(ctx,depositId,asset.Amount,3)
+
+	if err != nil {
+		return depositId,err
+	}
+
+	depositInfo.SetSingers(pickedSingers)
 	k.SetDepositInfo(ctx, depositInfo)
 	return depositId, nil
 }

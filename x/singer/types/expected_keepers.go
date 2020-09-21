@@ -38,3 +38,7 @@ type SupplyKeeper interface {
 
 	BurnCoins(ctx sdk.Context, name chainTypes.AccountID, amt Coins) error
 }
+
+type PriceFeeKeeper interface {
+	NewFeeInfo(ctx sdk.Context, owner AccountID) (err error)
+}

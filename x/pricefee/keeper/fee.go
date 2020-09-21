@@ -84,3 +84,58 @@ func (k Keeper) ClaimFee(ctx sdk.Context, owner AccountID,amount Coin) (totalPre
 	k.SetFeeInfo(ctx,feeInfo)
 	return feeInfo.PrestoreFee,nil
 }
+
+func (k Keeper)LockFee(ctx sdk.Context, owner AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error){
+	feeInfo,found := k.GetFeeInfo(ctx,owner)
+	if !found {
+		return sdk.ZeroInt(),types.ErrFeeInfoNotExist
+	}
+
+	if feeInfo.PrestoreFee.LT(amount) {
+		return feeInfo.PrestoreFee,types.ErrFeeNotEnough
+	}
+
+	feeInfo.PrestoreFee = feeInfo.PrestoreFee.Sub(amount)
+	feeInfo.LockedFee = feeInfo.LockedFee.Add(amount)
+	k.SetFeeInfo(ctx,feeInfo)
+	return feeInfo.PrestoreFee,nil
+}
+
+func (k Keeper)UnLockFee(ctx sdk.Context, owner AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error){
+	feeInfo,found := k.GetFeeInfo(ctx,owner)
+	if !found {
+		return sdk.ZeroInt(),types.ErrFeeInfoNotExist
+	}
+
+	if feeInfo.LockedFee.LT(amount) {
+		return feeInfo.PrestoreFee,types.ErrFeeNotEnough
+	}
+
+	feeInfo.PrestoreFee = feeInfo.PrestoreFee.Add(amount)
+	feeInfo.LockedFee = feeInfo.LockedFee.Sub(amount)
+	k.SetFeeInfo(ctx,feeInfo)
+	return feeInfo.PrestoreFee,nil
+}
+
+func (k Keeper)TransferFee(ctx sdk.Context, from,to AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error){
+	feeFrom,found := k.GetFeeInfo(ctx,from)
+	if !found {
+		return sdk.ZeroInt(),types.ErrFeeInfoNotExist
+	}
+
+	feeTo,found := k.GetFeeInfo(ctx,to)
+	if !found {
+		return sdk.ZeroInt(),types.ErrFeeInfoNotExist
+	}
+
+	if feeFrom.LockedFee.LT(amount) {
+		return feeFrom.LockedFee,types.ErrFeeNotEnough
+	}
+
+	feeFrom.LockedFee = feeFrom.LockedFee.Sub(amount)
+	feeTo.LockedFee = feeTo.LockedFee.Add(amount)
+
+	k.SetFeeInfo(ctx,feeFrom)
+	k.SetFeeInfo(ctx,feeTo)
+	return feeFrom.LockedFee,nil
+}

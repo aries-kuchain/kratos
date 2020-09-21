@@ -19,68 +19,14 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	accountKeeper types.AccountKeeper
 	supplyKeeper  types.SupplyKeeper
+	pricefeeKeeper types.PriceFeeKeeper
+	singerKeeper types.SingerKeeper
 }
 
-// Sets the entire Whois metadata struct for a name
-func (k Keeper) SetStoredata(ctx sdk.Context, name string, storedata types.Storedata) {
-	if storedata.Owner.Empty() {
-		return
-	}
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(name), k.cdc.MustMarshalBinaryBare(&storedata))
-}
-
-// Gets the entire Whois metadata struct for a name
-func (k Keeper) GetStoreData(ctx sdk.Context, name string) types.Storedata {
-	store := ctx.KVStore(k.storeKey)
-	if !store.Has([]byte(name)) {
-		return types.NewStoredata()
-	}
-	bz := store.Get([]byte(name))
-	var storedata types.Storedata
-	k.cdc.MustUnmarshalBinaryBare(bz, &storedata)
-	return storedata
-}
-
-// ResolveName - returns the string that the name resolves to
-func (k Keeper) ResolveName(ctx sdk.Context, name string) string {
-	return k.GetStoreData(ctx, name).Value
-}
-
-// HasOwner - returns whether or not the name already has an owner
-func (k Keeper) HasOwner(ctx sdk.Context, name string) bool {
-	return !k.GetStoreData(ctx, name).Owner.Empty()
-}
-
-// GetOwner - get the current owner of a name
-func (k Keeper) GetOwner(ctx sdk.Context, name string) sdk.AccAddress {
-	return k.GetStoreData(ctx, name).Owner
-}
-
-// SetOwner - sets the current owner of a name
-func (k Keeper) SetOwner(ctx sdk.Context, name string, owner sdk.AccAddress) {
-	storedata := k.GetStoreData(ctx, name)
-	storedata.Owner = owner
-	k.SetStoredata(ctx, name, storedata)
-}
-
-// SetOwner - sets the current owner of a name
-func (k Keeper) Setvalue(ctx sdk.Context, name string, value string, owner sdk.AccAddress) {
-	storedata := k.GetStoreData(ctx, name)
-	storedata.Owner = owner
-	storedata.Value = value
-	k.SetStoredata(ctx, name, storedata)
-}
-
-// Get an iterator over all names in which the keys are the names and the values are the whois
-func (k Keeper) GetNamesIterator(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.storeKey)
-	return sdk.KVStorePrefixIterator(store, []byte{})
-}
 
 // NewKeeper creates new instances of the nameservice Keeper
 func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
-	sk types.SupplyKeeper,
+	sk types.SupplyKeeper, pfk types.PriceFeeKeeper,srk  types.SingerKeeper,
 ) Keeper {
 	return Keeper{
 		storeKey:      storeKey,
@@ -88,6 +34,8 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak 
 		bankKeeper:    bk,
 		accountKeeper: ak,
 		supplyKeeper:  sk,
+		singerKeeper:srk,
+		pricefeeKeeper:pfk,
 	}
 }
 

@@ -52,10 +52,8 @@ func handleKuMsgRegisterSinger(ctx chainTypes.Context, k keeper.Keeper, msg type
 	if !k.ValidatorAccount(sdkCtx, msgData.SingerAccount) {
 		return nil, types.ErrUnKnowAccount
 	}
-
-	newSingerInfo := types.NewSingerInfo(msgData.SingerAccount)
-
-	k.SetSingerInfo(sdkCtx, newSingerInfo)
+	
+	k.NewSingerInfo(sdkCtx, msgData.SingerAccount)
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }

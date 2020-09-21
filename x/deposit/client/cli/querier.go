@@ -51,11 +51,6 @@ func GetCmdQueryDeposit(storeName string, cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			// asset, err := chainTypes.ParseCoin(args[0])
-			// if err != nil {
-			// 	return sdkerrors.Wrap(err, "amount parse error")
-			// }
-
 			res, _, err := cliCtx.QueryStore(types.GetDepositInfoKey(args[0]), storeName)
 			if err != nil {
 				return err
@@ -95,6 +90,34 @@ func GetCmdQueryAllDeposit(storeName string, cdc *codec.Codec) *cobra.Command {
 			}
 
 			return cliCtx.PrintOutput(depositInfos)
+		},
+	}
+}
+
+func GetCmdQueryAllLegalCoin(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "all-legalcoin",
+		Short: "Query all deposit ",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			resKVs, _, err := cliCtx.QuerySubspace(types.LegalDepositCoinKey, storeName)
+			if err != nil {
+				return err
+			}
+
+			var legalCoins []types.LegalCoin
+			for _, kv := range resKVs {
+				legalcoin, err := types.UnmarshalLegalCoin(types.Cdc(), kv.Value)
+				if err != nil {
+					return err
+				}
+
+				legalCoins = append(legalCoins, legalcoin)
+			}
+
+			return cliCtx.PrintOutput(legalCoins)
 		},
 	}
 }

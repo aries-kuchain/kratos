@@ -27,6 +27,9 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 
 	singerQueryCmd.AddCommand(flags.GetCommands(
 		GetCmdQuerySinger(queryRoute, cdc),
+		GetCmdQueryAllSinger(queryRoute, cdc),
+		GetCmdQueryAllDeposit(queryRoute, cdc),
+		GetCmdQueryDeposit(queryRoute, cdc),
 	)...)
 
 	return singerQueryCmd
@@ -71,6 +74,94 @@ $ %s query singer singer jack
 			}
 
 			return cliCtx.PrintOutput(singer)
+		},
+	}
+}
+
+func GetCmdQueryAllSinger(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "all-singer",
+		Short: "Query all singer",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query details about an individual singer.
+
+Example:
+$ %s query singer singer jack
+`,
+				version.ClientName,
+			),
+		),
+		Args: cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			resKVs, _, err := cliCtx.QuerySubspace(types.SingerInfoKey, storeName)
+			if err != nil {
+				return err
+			}
+
+			var singerInfos types.SingerInfos
+			for _, kv := range resKVs {
+				singerInfo, err := types.UnmarshalSingerInfo(types.Cdc(), kv.Value)
+				if err != nil {
+					return err
+				}
+
+				singerInfos = append(singerInfos, singerInfo)
+			}
+
+			return cliCtx.PrintOutput(singerInfos)
+		},
+	}
+}
+
+func GetCmdQueryAllDeposit(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "all-deposit",
+		Short: "Query all deposit ",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			resKVs, _, err := cliCtx.QuerySubspace(types.DepositInfoKey, storeName)
+			if err != nil {
+				return err
+			}
+
+			var depositInfos []types.DepositInfo
+			for _, kv := range resKVs {
+				depositInfo, err := types.UnmarshalDepositInfo(types.Cdc(), kv.Value)
+				if err != nil {
+					return err
+				}
+
+				depositInfos = append(depositInfos, depositInfo)
+			}
+
+			return cliCtx.PrintOutput(depositInfos)
+		},
+	}
+}
+
+func GetCmdQueryDeposit(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "deposit [depositID]",
+		Short: "Query a deposit information",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			res, _, err := cliCtx.QueryStore(types.GetDepositInfoKey(args[0]), storeName)
+			if err != nil {
+				return err
+			}
+
+			depositInfo, err := types.UnmarshalDepositInfo(types.Cdc(), res)
+			if err != nil {
+				return err
+			}
+
+			return cliCtx.PrintOutput(depositInfo)
 		},
 	}
 }

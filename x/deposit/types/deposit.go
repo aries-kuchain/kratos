@@ -4,6 +4,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	//sdk "github.com/cosmos/cosmos-sdk/types"
 	yaml "gopkg.in/yaml.v2"
+	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
+
 	// "time"
 	// "fmt"
 )
@@ -107,6 +109,13 @@ func UnmarshalDepositInfo(cdc *codec.Codec, value []byte) (v DepositInfo, err er
 func (v DepositInfo) String() string {
 	out, _ := yaml.Marshal(v)
 	return string(out)
+}
+
+func (v *DepositInfo) SetSingers(pickedSingers singerTypes.SingerInfos) {
+	for _,singerInfo := range pickedSingers {
+		v.Singers = append(v.Singers ,singerInfo.SingerAccount)
+	}
+	v.Status = SingerReady
 }
 
 //--------------------------------------------------------

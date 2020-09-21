@@ -4,6 +4,7 @@ package types
 
 import (
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
+	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
 	"github.com/KuChainNetwork/kuchain/x/account/exported"
 	supplyexported "github.com/KuChainNetwork/kuchain/x/supply/exported"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -37,4 +38,15 @@ type SupplyKeeper interface {
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr AccountID, amt Coins) error
 
 	BurnCoins(ctx sdk.Context, name chainTypes.AccountID, amt Coins) error
+}
+
+type PriceFeeKeeper interface {
+	NewFeeInfo(ctx sdk.Context, owner AccountID) (err error)
+	LockFee(ctx sdk.Context, owner AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error)
+	TransferFee(ctx sdk.Context, from,to AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error)
+	UnLockFee(ctx sdk.Context, owner AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error)
+}
+
+type SingerKeeper interface {
+	PickSinger(ctx sdk.Context,depositID string,minStake sdk.Int,threshold int) (pickedSingerInfo  singerTypes.SingerInfos,err error)
 }
