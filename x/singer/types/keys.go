@@ -23,6 +23,7 @@ var (
 	SingerInfoKey = []byte{0x11} // prefix for each key to a singerInfo index
 	DepositInfoKey = []byte{0x21} 
 	DepositBtvAddressKey = []byte{0x31} 
+	DepositSpvKey = []byte{0x41} 
 
 )
 
@@ -44,4 +45,12 @@ func GetDepositBtcAddressDepositKey(depositID string) []byte {
 
 func GetDepositBtcAddressKey(depositID string,singerAccount AccountID) []byte {
 	return append(GetDepositBtcAddressDepositKey(depositID), singerAccount.StoreKey()...)
+}
+
+func GetDepositSpvKey(depositID string) []byte {
+	return append(DepositSpvKey, []byte(depositID)...)
+}
+
+func GetDepositSingerSpvKey(depositID string,singerAccount AccountID) []byte {
+	return append(GetDepositSpvKey(depositID), singerAccount.StoreKey()...)
 }

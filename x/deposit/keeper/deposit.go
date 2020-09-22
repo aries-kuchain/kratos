@@ -83,6 +83,7 @@ func (k Keeper) SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress
 	}
 
 	depositInfo.DepositAddress = append(depositInfo.DepositAddress,btcAddress...)
+	depositInfo.Status = types.AddressReady
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
 }

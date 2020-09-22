@@ -13,6 +13,8 @@ var (
 	ErrLegalCoinNotExist     = sdkerrors.Register(ModuleName, 7, "Legal Coin does not exist")
 	ErrAssetSymbolError      = sdkerrors.Register(ModuleName, 8, "coin denom should be equal")
 	ErrDepositNotExist   = sdkerrors.Register(ModuleName, 9, "Deposit does not exist")
-	ErrStatusNotSingerReady   = sdkerrors.Register(ModuleName, 1, "Deposit status is not SingerReady")
+	ErrStatusNotSingerReady   = sdkerrors.Register(ModuleName, 10, "Deposit status is not SingerReady")
+	ErrStatusNotAddressReady   = sdkerrors.Register(ModuleName, 11, "Deposit status is not AddressReady")
+	ErrSpvSubmiterNotOwner   = sdkerrors.Register(ModuleName, 12, "spv submiter is not the deposit owner")
 
 )

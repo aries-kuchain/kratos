@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"fmt"
 )
 
 func NewHandler(k keeper.Keeper) msg.Handler {
@@ -229,7 +228,7 @@ func handleKuMsgMsgSetBtcAddress(ctx chainTypes.Context, k keeper.Keeper, msg ty
 		return nil,err
 	}
 
-	if k.CheckBtcAddressReady(sdkCtx,msgData.DepoistID) {
+ 	if k.CheckBtcAddressReady(sdkCtx,msgData.DepoistID) {
 		err = k.SetBtcAddressReady(sdkCtx,msgData.DepoistID,msgData.BtcAddress)
 		if err != nil {
 			return nil,err

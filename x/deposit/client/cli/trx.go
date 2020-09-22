@@ -22,6 +22,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdProhibitLegalCoin(cdc),
 		GetCmdCreateDeposit(cdc),
 		GetCmdCreateCoin(cdc),
+		GetCmdSubmitSpv(cdc),
 	)
 	return txCmd
 }
@@ -40,6 +41,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		GetCmdQueryDeposit(queryRoute, cdc),
 		GetCmdQueryAllDeposit(queryRoute, cdc),
 		GetCmdQueryAllLegalCoin(queryRoute, cdc),
+		GetCmdQueryDepositSpv(queryRoute, cdc),
 	)
 	return txCmd
 }

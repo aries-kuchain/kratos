@@ -5,6 +5,7 @@ import (
 	//"github.com/KuChainNetwork/kuchain/chain/client/flags"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
+	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
 	//"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -118,6 +119,35 @@ func GetCmdQueryAllLegalCoin(storeName string, cdc *codec.Codec) *cobra.Command 
 			}
 
 			return cliCtx.PrintOutput(legalCoins)
+		},
+	}
+}
+
+
+func GetCmdQueryDepositSpv(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "deposit-spv [depositID]",
+		Short: "Query a deposit spv info",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			resKVs, _, err := cliCtx.QuerySubspace(types.GetDepositSpvKey(args[0]), storeName)
+			if err != nil {
+				return err
+			}
+
+			var spvInfos []singerTypes.SpvInfo
+			for _, kv := range resKVs {
+				spvInfo, err := singerTypes.UnmarshalSpvInfo(types.Cdc(), kv.Value)
+				if err != nil {
+					return err
+				}
+
+				spvInfos = append(spvInfos, spvInfo)
+			}
+
+			return cliCtx.PrintOutput(spvInfos)
 		},
 	}
 }

@@ -2,6 +2,8 @@ package types
 
 import (
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
+	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
+
 )
 
 //--------------------------------------------------------------------------------------------------------------
@@ -128,5 +130,31 @@ func (msg MsgCreateLegalCoin) ValidateBasic() error {
 	if !msg.MaxSupply.Amount.IsPositive() {
 		return ErrBadAmount
 	}
+	return nil
+}
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgSubmitSpv struct {
+	singerTypes.SpvInfo
+}
+
+func NewMsgSubmitSpv(spvInfo singerTypes.SpvInfo) MsgSubmitSpv {
+	return MsgSubmitSpv{SpvInfo:spvInfo}
+}
+
+// Route should return the name of the module
+func (msg MsgSubmitSpv) Route() string { return RouterKey }
+
+func (msg MsgSubmitSpv) Type() chainTypes.Name { return chainTypes.MustName("depositsubmitspv") }
+
+func (msg MsgSubmitSpv) Sender() AccountID {
+	return msg.SpvInfo.SpvSubmiter
+}
+
+func (msg MsgSubmitSpv) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SpvInfo.SpvSubmiter.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
 	return nil
 }

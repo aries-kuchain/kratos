@@ -20,6 +20,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgProhibitLegalCoin(ctx, k, msg)
 		case types.KuMsgPermintLegalCoin:
 			return handleKuMsgPermintLegalCoin(ctx, k, msg)
+		case types.KuMsgSubmitSpv:
+			return handleKuMsgSubmitSpv(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -90,6 +92,22 @@ func handleKuMsgPermintLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, m
 	sdkCtx := ctx.Context()
 
 	if err := keeper.PermintLegalCoin(sdkCtx, msgData.SystemAccount, msgData.Amount); err != nil {
+		return nil, err
+	}
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgSubmitSpv(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgSubmitSpv) (*sdk.Result, error) {
+	msgData := types.MsgSubmitSpv{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SpvInfo.SpvSubmiter)
+
+	sdkCtx := ctx.Context()
+
+	if err := keeper.NewSpvInfo(sdkCtx, msgData.SpvInfo); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil

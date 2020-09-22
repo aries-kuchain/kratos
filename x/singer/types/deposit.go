@@ -21,11 +21,11 @@ const (
 )
 
 type DepositInfo struct {
-	DepositID string
-	Threshold int
-	Singers []AccountID
-	minStake sdk.Int
-	Status DepositStatus
+	DepositID string `json:"deposit_id" yaml:"deposit_id"`
+	Threshold int `json:"threshold" yaml:"threshold"`
+	Singers []AccountID `json:"singers" yaml:"singers"`
+	minStake sdk.Int  
+	Status DepositStatus `json:"status" yaml:"status"`
 }
 
 
