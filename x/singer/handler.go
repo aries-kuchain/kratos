@@ -229,9 +229,11 @@ func handleKuMsgMsgSetBtcAddress(ctx chainTypes.Context, k keeper.Keeper, msg ty
 		return nil,err
 	}
 
-	//判断是否所有的Address都一样
 	if k.CheckBtcAddressReady(sdkCtx,msgData.DepoistID) {
-		fmt.Println("all address ready")
+		err = k.SetBtcAddressReady(sdkCtx,msgData.DepoistID,msgData.BtcAddress)
+		if err != nil {
+			return nil,err
+		}
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil

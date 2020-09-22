@@ -100,3 +100,19 @@ func  (k Keeper) CheckBtcAddressReady(ctx sdk.Context, depositID string) bool {
 	}
 	return true
 }
+
+func (k Keeper) SetBtcAddressReady(ctx sdk.Context, depositID string,btcAddress []byte)(err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if  depositInfo.Status != types.Open {
+		return types.ErrDepositStatusNotOpen
+	}
+
+	depositInfo.Status = types.AddressReady
+	k.SetDepositInfo(ctx,depositInfo)
+
+	return k.depositKeeper.SetDepositBtcAddress(ctx,depositID,btcAddress)
+}

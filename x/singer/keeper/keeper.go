@@ -20,6 +20,7 @@ type Keeper struct {
 	accountKeeper types.AccountKeeper
 	supplyKeeper  types.SupplyKeeper
 	pricefeeKeeper types.PriceFeeKeeper
+	depositKeeper types.DepositKeeper
 	paramstore         external.ParamsSubspace
 }
 
@@ -36,6 +37,10 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak 
 		pricefeeKeeper:pfk,
 		paramstore: ps.WithKeyTable(types.ParamKeyTable()),
 	}
+}
+
+func (k *Keeper) SetDepositKeeper(dk  types.DepositKeeper) {
+	k.depositKeeper = dk
 }
 
 func (k Keeper) ValidatorAccount(ctx sdk.Context, id AccountID) bool {

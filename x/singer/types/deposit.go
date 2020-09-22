@@ -4,6 +4,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	yaml "gopkg.in/yaml.v2"
+	"fmt"
+//	"encoding/hex"
 )
 
 type DepositStatus uint32
@@ -112,8 +114,14 @@ func UnmarshalDepositBtcAddress(cdc *codec.Codec, value []byte) (v DepositBtcAdd
 	return v, err
 }
 
-// String implements the Stringer interface for a SingerInfo object.
+// // String implements the Stringer interface for a SingerInfo object.
+// func (v DepositBtcAddress) String() string {
+// 	out, _ := yaml.Marshal(v)
+// 	return string(out)
+// }
+
 func (v DepositBtcAddress) String() string {
-	out, _ := yaml.Marshal(v)
-	return string(out)
+	return fmt.Sprintf(`DepositID:%s\n
+	Singer:%s\n
+	BtcAddress:%x\n`,v.DepositID,v.Singer.String(),v.BtcAddress)
 }

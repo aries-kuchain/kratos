@@ -42,3 +42,7 @@ type SupplyKeeper interface {
 type PriceFeeKeeper interface {
 	NewFeeInfo(ctx sdk.Context, owner AccountID) (err error)
 }
+
+type DepositKeeper interface {
+	SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress []byte)(err error)
+}

@@ -30,6 +30,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		GetCmdQueryAllSinger(queryRoute, cdc),
 		GetCmdQueryAllDeposit(queryRoute, cdc),
 		GetCmdQueryDeposit(queryRoute, cdc),
+		GetCmdQueryDepositBtcAddress(queryRoute, cdc),
 	)...)
 
 	return singerQueryCmd
@@ -162,6 +163,35 @@ func GetCmdQueryDeposit(storeName string, cdc *codec.Codec) *cobra.Command {
 			}
 
 			return cliCtx.PrintOutput(depositInfo)
+		},
+	}
+}
+
+
+func GetCmdQueryDepositBtcAddress(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "deposit-btcaddress [depositID]",
+		Short: "Query deposit btc address",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			resKVs, _, err := cliCtx.QuerySubspace(types.GetDepositBtcAddressDepositKey(args[0]), storeName)
+			if err != nil {
+				return err
+			}
+
+			var depositBtcAddress []types.DepositBtcAddress
+			for _, kv := range resKVs {
+				btcAddress, err := types.UnmarshalDepositBtcAddress(types.Cdc(), kv.Value)
+				if err != nil {
+					return err
+				}
+
+				depositBtcAddress = append(depositBtcAddress, btcAddress)
+			}
+
+			return cliCtx.PrintOutput(depositBtcAddress)
 		},
 	}
 }
