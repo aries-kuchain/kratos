@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
-	"encoding/hex"
+	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -309,10 +309,8 @@ func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
 			}
 
-			btcAddress,err := hex.DecodeString(args[2])
-			if err != nil {
-				return sdkerrors.Wrapf(err, "Decode hex String %s error", args[2])
-			}
+			btcAddress := hexutil.MustDecode(args[2])
+
 			msg := types.NewKuMsgMsgSetBtcAddress(authAccAddress, singerAccount,args[0],btcAddress)
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
