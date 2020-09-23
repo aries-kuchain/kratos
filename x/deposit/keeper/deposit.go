@@ -143,6 +143,9 @@ func (k Keeper) DepositToCoin(ctx sdk.Context,depositID string,owner AccountID) 
 	if !depositInfo.Owner.Eq(owner) {
 		return types.ErrNotOwnerAccount
 	}
+
+	depositInfo.Status = types.CashReady
+	k.SetDepositInfo(ctx,depositInfo)
 	//铸币，转币，更新存单状态
 	//	Issue(ctx sdk.Context, creator, symbol chainTypes.Name, amount chainTypes.Coin) error
 	legalCoin,found := k.GetLegalCoin(ctx,depositInfo.Asset)
