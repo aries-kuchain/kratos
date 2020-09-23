@@ -75,7 +75,7 @@ func (k Keeper) GetAllDepositInfo(ctx sdk.Context) (depositInfos []types.Deposit
 func (k Keeper) SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress []byte)(err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
-		return types.ErrDepositAlreadyExist
+		return types.ErrDepositNotExist
 	}
 
 	if depositInfo.Status != types.SingerReady {
@@ -87,3 +87,26 @@ func (k Keeper) SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
 }
+
+func (k Keeper) ActiveDeposit(ctx sdk.Context,depositID string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status != types.DepositSpvReady {
+		return types.ErrDepositNotExist
+	}
+
+	depositInfo.Status = types.Active
+	k.SetDepositInfo(ctx,depositInfo)
+
+	for _,singerAccount := range depositInfo.Singers {
+		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.Asset.Amount.Quo(sdk.NewInt(3)))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+

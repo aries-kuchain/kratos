@@ -31,6 +31,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgLogoutSinger(ctx, k, msg)
 		case types.KuMsgMsgSetBtcAddress:
 			return handleKuMsgMsgSetBtcAddress(ctx, k, msg)
+		case types.KuMsgActiveDeposit:
+			return handleKuMsgActiveDeposit(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -230,6 +232,31 @@ func handleKuMsgMsgSetBtcAddress(ctx chainTypes.Context, k keeper.Keeper, msg ty
 
  	if k.CheckBtcAddressReady(sdkCtx,msgData.DepoistID) {
 		err = k.SetBtcAddressReady(sdkCtx,msgData.DepoistID,msgData.BtcAddress)
+		if err != nil {
+			return nil,err
+		}
+	}
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+
+func handleKuMsgActiveDeposit(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgActiveDeposit) (*sdk.Result, error) {
+	msgData := types.MsgActiveDeposit{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SingerAccount)
+	sdkCtx := ctx.Context()
+
+	err := k.SetActiveDeposit(sdkCtx,msgData.DepositID,msgData.SingerAccount)
+	if  err != nil {
+		return nil,err
+	}
+
+	if k.CheckActiveReady(sdkCtx,msgData.DepositID) {
+		err := k.ActiveDeposit(sdkCtx,msgData.DepositID)
 		if err != nil {
 			return nil,err
 		}

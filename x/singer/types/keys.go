@@ -24,6 +24,7 @@ var (
 	DepositInfoKey = []byte{0x21} 
 	DepositBtvAddressKey = []byte{0x31} 
 	DepositSpvKey = []byte{0x41} 
+	DepositActiveKey = []byte{0x51}
 
 )
 
@@ -53,4 +54,12 @@ func GetDepositSpvKey(depositID string) []byte {
 
 func GetDepositSingerSpvKey(depositID string,singerAccount AccountID) []byte {
 	return append(GetDepositSpvKey(depositID), singerAccount.StoreKey()...)
+}
+
+func GetDepositActiveKey(depositID string) []byte {
+	return append(DepositActiveKey, []byte(depositID)...)
+}
+
+func GetDepositSingerActiveKey(depositID string,singerAccount AccountID) []byte {
+	return append(GetDepositActiveKey(depositID), singerAccount.StoreKey()...)
 }

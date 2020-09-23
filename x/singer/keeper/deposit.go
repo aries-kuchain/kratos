@@ -116,3 +116,78 @@ func (k Keeper) SetBtcAddressReady(ctx sdk.Context, depositID string,btcAddress 
 
 	return k.depositKeeper.SetDepositBtcAddress(ctx,depositID,btcAddress)
 }
+
+func (k Keeper) SetSpvReady(ctx sdk.Context, depositID string) (err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if  depositInfo.Status != types.AddressReady {
+		return types.ErrDepositStatusNotAddressReady
+	}
+
+	depositInfo.Status = types.SPVReady
+	k.SetDepositInfo(ctx,depositInfo)
+	return nil
+}
+
+func (k Keeper) SetActiveDeposit(ctx sdk.Context, depositID string,singerAccount AccountID) (err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if  depositInfo.Status != types.SPVReady {
+		return types.ErrDepositStatusNotSpvReady
+	}
+
+	if !depositInfo.CheckSinger(singerAccount) {
+		return types.ErrNotDepositSInger
+	}
+	
+	depositActiveInfo := types.NewDepositActiveInfo(depositID,singerAccount)
+	k.SetDepositActiveInfo(ctx,depositActiveInfo)
+
+	return nil
+}
+
+func  (k Keeper)  CheckActiveReady(ctx sdk.Context, depositID string) (bool) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return false
+	}
+
+	if  depositInfo.Status < types.SPVReady {
+		return false
+	}
+
+	if  depositInfo.Status > types.SPVReady {
+		return true
+	}
+
+	for _,singer := range depositInfo.Singers {
+		_,found := k.GetDepositActiveInfo(ctx,depositID,singer)
+		if !found {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (k Keeper)  ActiveDeposit(ctx sdk.Context, depositID string) (err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if  depositInfo.Status != types.SPVReady {
+		return types.ErrDepositStatusNotSpvReady
+	}
+
+	depositInfo.Status = types.DepositActive
+	k.SetDepositInfo(ctx,depositInfo)
+
+	return k.depositKeeper.ActiveDeposit(ctx,depositID)
+}

@@ -34,6 +34,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdClaimAccess(cdc),
 		GetCmdLogoutSinger(cdc),
 		GetCmdSetAddress(cdc),
+		GetCmdActiveDeposit(cdc),
 	)...)
 
 	return singerTxCmd
@@ -288,7 +289,6 @@ func GetCmdLogoutSinger(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-
 func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-address [deposit-id] [singer-account] [btc-address]",
@@ -312,6 +312,38 @@ func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
 			btcAddress := hexutil.MustDecode(args[2])
 
 			msg := types.NewKuMsgMsgSetBtcAddress(authAccAddress, singerAccount,args[0],btcAddress)
+			cliCtx = cliCtx.WithFromAccount(singerAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[1])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return cmd
+}
+
+func GetCmdActiveDeposit(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "active-deposit [deposit-id] [singer-account]",
+		Short: "active a deposit",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			singerAccount, err := chainTypes.NewAccountIDFromStr(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, singerAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
+			}
+
+			msg := types.NewKuMsgActiveDeposit(authAccAddress, singerAccount,args[0])
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])

@@ -24,5 +24,7 @@ var (
 	ErrNotDepositSInger = sdkerrors.Register(ModuleName, 18, "Singer is not in the deposit singer group")
 	ErrDepositNotExist = sdkerrors.Register(ModuleName, 19, "deposit not exist")
 	ErrDepositStatusNotOpen = sdkerrors.Register(ModuleName, 20, "deposit status is not open")
-
+	ErrDepositStatusNotAddressReady = sdkerrors.Register(ModuleName, 21, "deposit status is not AddressReady")
+	ErrDepositStatusNotSpvReady = sdkerrors.Register(ModuleName, 22, "deposit status is not SPVReady")
+	
 )

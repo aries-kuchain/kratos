@@ -13,10 +13,14 @@ type DepositStatus uint32
 const (
 	Open DepositStatus = 1
 	AddressReady DepositStatus = 2
-	Close DepositStatus = 3
+	SPVReady DepositStatus = 3
+	DepositActive  DepositStatus = 4
+	Close DepositStatus = 5
 
 	DepositStatusOpen = "open"
 	DepositStatusAddressReady = "addressReady"
+	DepositStatusSPVReady = "spvReady"
+	DepositStatusActive = "DepositActive"
 	DepositStatusClose = "close"
 )
 
@@ -114,14 +118,46 @@ func UnmarshalDepositBtcAddress(cdc *codec.Codec, value []byte) (v DepositBtcAdd
 	return v, err
 }
 
-// // String implements the Stringer interface for a SingerInfo object.
-// func (v DepositBtcAddress) String() string {
-// 	out, _ := yaml.Marshal(v)
-// 	return string(out)
-// }
-
 func (v DepositBtcAddress) String() string {
 	return fmt.Sprintf(`DepositID:%s\n
 	Singer:%s\n
 	BtcAddress:%x\n`,v.DepositID,v.Singer.String(),v.BtcAddress)
+}
+//--------------------------------------------------------------------------------------------------
+type DepositActiveInfo struct {
+	DepositID string
+	Singer AccountID
+}
+
+func NewDepositActiveInfo(depositID string,singer AccountID) DepositActiveInfo {
+	return DepositActiveInfo{
+		DepositID:     depositID,
+		Singer:       singer,
+	}
+}
+
+// return the redelegation
+func MustMarshalDepositActiveInfo(cdc *codec.Codec, depositActiveInfo DepositActiveInfo) []byte {
+	return cdc.MustMarshalBinaryBare(&depositActiveInfo)
+}
+
+// unmarshal a redelegation from a store value
+func MustUnmarshalDepositActiveInfo(cdc *codec.Codec, value []byte) DepositActiveInfo {
+	depositActiveInfo, err := UnmarshalDepositActiveInfo(cdc, value)
+	if err != nil {
+		panic(err)
+	}
+	return depositActiveInfo
+}
+
+// unmarshal a redelegation from a store value
+func UnmarshalDepositActiveInfo(cdc *codec.Codec, value []byte) (v DepositActiveInfo, err error) {
+	err = cdc.UnmarshalBinaryBare(value, &v)
+	return v, err
+}
+
+// String implements the Stringer interface for a SingerInfo object.
+func (v DepositActiveInfo) String() string {
+	out, _ := yaml.Marshal(v)
+	return string(out)
 }

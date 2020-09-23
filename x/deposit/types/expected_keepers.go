@@ -49,5 +49,6 @@ type PriceFeeKeeper interface {
 
 type SingerKeeper interface {
 	PickSinger(ctx sdk.Context,depositID string,minStake sdk.Int,threshold int) (pickedSingerInfo  singerTypes.SingerInfos,err error)
+	SetSpvReady(ctx sdk.Context, depositID string) (err error)
 }
 

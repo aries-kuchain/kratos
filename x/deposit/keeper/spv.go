@@ -41,5 +41,5 @@ func (k Keeper) NewSpvInfo(ctx sdk.Context, spvInfo singerTypes.SpvInfo) (err er
 	k.SetSpvInfo(ctx,spvInfo)
 	depositInfo.Status = types.DepositSpvReady
 	k.SetDepositInfo(ctx,depositInfo)
-	return nil
+	return k.singerKeeper.SetSpvReady(ctx,spvInfo.DepositID)
 }

@@ -227,3 +227,28 @@ func (msg KuMsgMsgSetBtcAddress) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//--------------------------------------------------------------------------------------------------------------------------
+type KuMsgActiveDeposit struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgActiveDeposit(auth sdk.AccAddress, singerAccount AccountID,depositID string) KuMsgActiveDeposit {
+	return KuMsgActiveDeposit{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgActiveDeposit{
+				SingerAccount: singerAccount,
+				DepositID:depositID,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgActiveDeposit) ValidateBasic() error {
+	msgData := MsgActiveDeposit{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+	return msgData.ValidateBasic()
+}

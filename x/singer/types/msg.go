@@ -232,3 +232,31 @@ func (msg MsgSetBtcAddress) ValidateBasic() error {
 	}
 	return nil
 }
+
+//-----------------------------------------------------------------------------------------------
+
+type MsgActiveDeposit struct {
+	DepositID string `json:"deposit_id" yaml:"deposit_id"`
+	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
+}
+
+func NewMsgActiveDeposit(singerAccount AccountID) MsgActiveDeposit {
+	return MsgActiveDeposit{SingerAccount: singerAccount}
+}
+
+// Route should return the name of the module
+func (msg MsgActiveDeposit) Route() string { return RouterKey }
+
+func (msg MsgActiveDeposit) Type() chainTypes.Name { return chainTypes.MustName("activedeposit") }
+
+func (msg MsgActiveDeposit) Sender() AccountID {
+	return msg.SingerAccount
+}
+
+func (msg MsgActiveDeposit) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SingerAccount.Empty() {
+		return ErrEmptySingerAccount
+	}
+	return nil
+}
