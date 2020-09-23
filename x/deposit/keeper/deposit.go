@@ -110,3 +110,23 @@ func (k Keeper) ActiveDeposit(ctx sdk.Context,depositID string) (err error) {
 	return nil
 }
 
+func (k Keeper) TransferDeposit(ctx sdk.Context,depositID string,from,to AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status != types.Active {
+		return types.ErrStatusNotActive
+	}
+
+	if !depositInfo.Owner.Eq(from) {
+		return types.ErrNotOwnerAccount
+	}
+
+	depositInfo.Owner = to
+	k.SetDepositInfo(ctx,depositInfo)
+
+	return nil
+}
+

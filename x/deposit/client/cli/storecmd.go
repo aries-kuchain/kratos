@@ -208,3 +208,40 @@ func GetCmdSubmitSpv(cdc *codec.Codec) *cobra.Command {
 
 	return flags.PostCommands(cmd)[0]
 }
+
+func GetCmdTransferDeposit(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "transfer-deposit [depositID] [from] [to] [memo]",
+		Short: "create a legal coin ",
+		Args:  cobra.ExactArgs(4),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			fromAccount, err := chainTypes.NewAccountIDFromStr(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+			toAccount, err := chainTypes.NewAccountIDFromStr(args[2])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, fromAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", fromAccount)
+			}
+
+			msg := types.NewKuMsgTransferDeposit(authAccAddress, args[0],fromAccount, toAccount, args[3])
+			cliCtx = cliCtx.WithFromAccount(fromAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[1])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return flags.PostCommands(cmd)[0]
+}

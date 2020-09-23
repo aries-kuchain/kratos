@@ -158,3 +158,40 @@ func (msg MsgSubmitSpv) ValidateBasic() error {
 
 	return nil
 }
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgTransferDeposit struct {
+	DepositID string
+	From AccountID
+	To AccountID
+	Memo string
+}
+
+func NewMsgTransferDeposit(depositID string,from,to AccountID,memo string) MsgTransferDeposit {
+	return MsgTransferDeposit{
+		DepositID:depositID,
+		From:from,
+		To:to,
+		Memo:memo,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgTransferDeposit) Route() string { return RouterKey }
+
+func (msg MsgTransferDeposit) Type() chainTypes.Name { return chainTypes.MustName("transferdeposit") }
+
+func (msg MsgTransferDeposit) Sender() AccountID {
+	return msg.From
+}
+
+func (msg MsgTransferDeposit) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.From.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	if msg.To.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+	return nil
+}

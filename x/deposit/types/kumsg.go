@@ -144,3 +144,31 @@ func (msg KuMsgSubmitSpv) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgTransferDeposit struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgTransferDeposit(auth sdk.AccAddress,depositID string,from,to AccountID,memo string ) KuMsgTransferDeposit {
+	return KuMsgTransferDeposit{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgTransferDeposit{
+					DepositID:depositID,
+					From:from,
+					To:to,
+					Memo:memo,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgTransferDeposit) ValidateBasic() error {
+	msgData := MsgTransferDeposit{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	return msgData.ValidateBasic()
+}

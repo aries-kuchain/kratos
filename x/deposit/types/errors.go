@@ -16,5 +16,7 @@ var (
 	ErrStatusNotSingerReady   = sdkerrors.Register(ModuleName, 10, "Deposit status is not SingerReady")
 	ErrStatusNotAddressReady   = sdkerrors.Register(ModuleName, 11, "Deposit status is not AddressReady")
 	ErrSpvSubmiterNotOwner   = sdkerrors.Register(ModuleName, 12, "spv submiter is not the deposit owner")
+	ErrNotOwnerAccount   = sdkerrors.Register(ModuleName, 13, "operator account is not deposit owner account")
+	ErrStatusNotActive   = sdkerrors.Register(ModuleName, 14, "Deposit status is not Active")
 
 )
