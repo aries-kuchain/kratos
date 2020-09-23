@@ -21,7 +21,7 @@ type AccountKeeper interface {
 type BankKeeper interface {
 	chainTypes.AssetTransfer
 	Create(ctx sdk.Context, creator, symbol chainTypes.Name, maxSupply chainTypes.Coin, canIssue, canLock, canBurn bool, issue2Height int64, initSupply chainTypes.Coin, desc []byte) error
-
+	Issue(ctx sdk.Context, creator, symbol chainTypes.Name, amount chainTypes.Coin) error
 	SpendableCoins(ctx sdk.Context, addr chainTypes.AccountID) chainTypes.Coins
 }
 

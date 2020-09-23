@@ -24,6 +24,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdCreateCoin(cdc),
 		GetCmdSubmitSpv(cdc),
 		GetCmdTransferDeposit(cdc),
+		GetCmdDepositToCoin(cdc),
 	)
 	return txCmd
 }

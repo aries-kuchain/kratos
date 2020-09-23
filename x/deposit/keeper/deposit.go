@@ -130,3 +130,34 @@ func (k Keeper) TransferDeposit(ctx sdk.Context,depositID string,from,to Account
 	return nil
 }
 
+func (k Keeper) DepositToCoin(ctx sdk.Context,depositID string,owner AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status != types.Active {
+		return types.ErrStatusNotActive
+	}
+
+	if !depositInfo.Owner.Eq(owner) {
+		return types.ErrNotOwnerAccount
+	}
+	//铸币，转币，更新存单状态
+	//	Issue(ctx sdk.Context, creator, symbol chainTypes.Name, amount chainTypes.Coin) error
+	legalCoin,found := k.GetLegalCoin(ctx,depositInfo.Asset)
+	if !found {
+		return types.ErrLegalCoinNotExist
+	}
+
+	err = k.bankKeeper.Issue(ctx,types.ModuleAccountName,legalCoin.Symbol,depositInfo.Asset)
+	if err != nil {
+		return err
+	}
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	if err != nil {
+		return err
+	}
+	return k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,owner,Coins{depositInfo.Asset})
+	//return nil
+}

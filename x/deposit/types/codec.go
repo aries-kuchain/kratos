@@ -12,6 +12,8 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(KuMsgProhibitLegalCoin{}, "kuchain/KuMsgProhibitLegalCoin", nil)
 	cdc.RegisterConcrete(KuMsgSubmitSpv{}, "deposit/KuMsgSubmitSpv", nil)
 	cdc.RegisterConcrete(KuMsgTransferDeposit{}, "deposit/KuMsgTransferDeposit", nil)
+	cdc.RegisterConcrete(KuMsgDepositToCoin{}, "deposit/KuMsgDepositToCoin", nil)
+	
 }
 
 var (

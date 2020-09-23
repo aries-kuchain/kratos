@@ -172,3 +172,29 @@ func (msg KuMsgTransferDeposit) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgDepositToCoin struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgDepositToCoin(auth sdk.AccAddress,depositID string,owner AccountID ) KuMsgDepositToCoin {
+	return KuMsgDepositToCoin{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgDepositToCoin{
+					DepositID:depositID,
+					Owner:owner,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgDepositToCoin) ValidateBasic() error {
+	msgData := MsgDepositToCoin{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	return msgData.ValidateBasic()
+}

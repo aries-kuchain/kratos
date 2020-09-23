@@ -11,6 +11,7 @@ type (
 	Dec        = sdk.Dec
 	Coin       = types.Coin
 	Coins      = types.Coins
+	Name = types.Name
 )
 
 const (

@@ -123,14 +123,16 @@ const (
 )
 
 type LegalCoin struct {
-	Asset  Coin
-	Status LegalCoinStatus
+	Symbol  Name `json:"symbol" yaml:"symbol"`
+	Asset  Coin `json:"asset" yaml:"asset"`
+	Status LegalCoinStatus `json:"status" yaml:"status"`
 }
 
-func NewLegalCoin(asset Coin) LegalCoin {
+func NewLegalCoin(asset Coin,symbol Name) LegalCoin {
 	return LegalCoin{
 		Asset:  asset,
 		Status: Permint,
+		Symbol:symbol,
 	}
 }
 

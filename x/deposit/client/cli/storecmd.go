@@ -245,3 +245,36 @@ func GetCmdTransferDeposit(cdc *codec.Codec) *cobra.Command {
 
 	return flags.PostCommands(cmd)[0]
 }
+
+func GetCmdDepositToCoin(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit-to-coin [depositID] [owner]",
+		Short: "trans deposit to coin ",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			ownerAccount, err := chainTypes.NewAccountIDFromStr(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+		
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, ownerAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", ownerAccount)
+			}
+
+			msg := types.NewKuMsgDepositToCoin(authAccAddress, args[0],ownerAccount)
+			cliCtx = cliCtx.WithFromAccount(ownerAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[1])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return flags.PostCommands(cmd)[0]
+}
