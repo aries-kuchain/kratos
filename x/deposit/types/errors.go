@@ -18,5 +18,6 @@ var (
 	ErrSpvSubmiterNotOwner   = sdkerrors.Register(ModuleName, 12, "spv submiter is not the deposit owner")
 	ErrNotOwnerAccount   = sdkerrors.Register(ModuleName, 13, "operator account is not deposit owner account")
 	ErrStatusNotActive   = sdkerrors.Register(ModuleName, 14, "Deposit status is not Active")
-
+	ErrCoinNotEqual   = sdkerrors.Register(ModuleName, 15, "Claim coin does not equal deposit coin")
+	ErrStatusNotCashReady   = sdkerrors.Register(ModuleName, 16, "Deposit status is not CashReady")
 )

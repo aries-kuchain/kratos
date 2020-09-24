@@ -146,8 +146,7 @@ func (k Keeper) DepositToCoin(ctx sdk.Context,depositID string,owner AccountID) 
 
 	depositInfo.Status = types.CashReady
 	k.SetDepositInfo(ctx,depositInfo)
-	//铸币，转币，更新存单状态
-	//	Issue(ctx sdk.Context, creator, symbol chainTypes.Name, amount chainTypes.Coin) error
+
 	legalCoin,found := k.GetLegalCoin(ctx,depositInfo.Asset)
 	if !found {
 		return types.ErrLegalCoinNotExist
@@ -162,5 +161,31 @@ func (k Keeper) DepositToCoin(ctx sdk.Context,depositID string,owner AccountID) 
 		return err
 	}
 	return k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,owner,Coins{depositInfo.Asset})
+}
+
+func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,asset Coin,claimAddress []byte) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status != types.CashReady {
+		return types.ErrStatusNotActive
+	}
+
+	if !depositInfo.Asset.IsEqual(asset) {
+		return types.ErrCoinNotEqual
+	}
+
+	_,err = k.pricefeeKeeper.LockFee(ctx,owner,asset.Amount)
+	if err != nil {
+		return err
+	}
+
+	depositInfo.WithDrawAddress = append(depositInfo.WithDrawAddress,claimAddress...)
+	depositInfo.Status = types.Cashing
+	depositInfo.Owner = owner
+	k.SetDepositInfo(ctx,depositInfo)
+	return k.singerKeeper.SetClaimAddress(ctx,depositID,claimAddress)
 	//return nil
 }

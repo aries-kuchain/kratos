@@ -15,12 +15,14 @@ const (
 	AddressReady DepositStatus = 2
 	SPVReady DepositStatus = 3
 	DepositActive  DepositStatus = 4
-	Close DepositStatus = 5
+	Cashing DepositStatus = 5
+	Close DepositStatus = 6
 
 	DepositStatusOpen = "open"
 	DepositStatusAddressReady = "addressReady"
 	DepositStatusSPVReady = "spvReady"
 	DepositStatusActive = "DepositActive"
+	DepositCashing = "Cashing"
 	DepositStatusClose = "close"
 )
 
@@ -28,6 +30,7 @@ type DepositInfo struct {
 	DepositID string `json:"deposit_id" yaml:"deposit_id"`
 	Threshold int `json:"threshold" yaml:"threshold"`
 	Singers []AccountID `json:"singers" yaml:"singers"`
+	ClaimAddress []byte  `json:"claim_address" yaml:"claim_address"`
 	minStake sdk.Int  
 	Status DepositStatus `json:"status" yaml:"status"`
 }

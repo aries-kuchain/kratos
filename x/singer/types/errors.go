@@ -26,5 +26,5 @@ var (
 	ErrDepositStatusNotOpen = sdkerrors.Register(ModuleName, 20, "deposit status is not open")
 	ErrDepositStatusNotAddressReady = sdkerrors.Register(ModuleName, 21, "deposit status is not AddressReady")
 	ErrDepositStatusNotSpvReady = sdkerrors.Register(ModuleName, 22, "deposit status is not SPVReady")
-	
+	ErrDepositStatusNotActive = sdkerrors.Register(ModuleName, 23, "deposit status is not Active")
 )

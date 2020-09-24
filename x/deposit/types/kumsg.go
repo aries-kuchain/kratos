@@ -198,3 +198,39 @@ func (msg KuMsgDepositToCoin) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgDepositClaimCoin struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgDepositClaimCoin(auth sdk.AccAddress,depositID string,owner AccountID,asset Coin,claimAddress []byte ) KuMsgDepositClaimCoin {
+	return KuMsgDepositClaimCoin{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithTransfer(owner, ModuleAccountID, chainTypes.Coins{asset}),
+			msg.WithData(Cdc(), &MsgDepositClaimCoin{
+					DepositID:depositID,
+					Owner:owner,
+					Asset:asset,
+					ClaimAddress:claimAddress,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgDepositClaimCoin) ValidateBasic() error {
+	if err := msg.KuMsg.ValidateTransfer(); err != nil {
+		return err
+	}
+
+	msgData := MsgDepositClaimCoin{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	if err := msg.KuMsg.ValidateTransferRequire(ModuleAccountID, chainTypes.NewCoins(msgData.Asset)); err != nil {
+		return chainTypes.ErrKuMsgInconsistentAmount
+	}
+	return msgData.ValidateBasic()
+}

@@ -191,3 +191,19 @@ func (k Keeper)  ActiveDeposit(ctx sdk.Context, depositID string) (err error) {
 
 	return k.depositKeeper.ActiveDeposit(ctx,depositID)
 }
+
+func (k Keeper)  SetClaimAddress(ctx sdk.Context, depositID string,claimAddress []byte) (err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if  depositInfo.Status != types.DepositActive {
+		return types.ErrDepositStatusNotActive
+	}
+
+	depositInfo.Status = types.Cashing
+	depositInfo.ClaimAddress = append(depositInfo.ClaimAddress,claimAddress...)
+	k.SetDepositInfo(ctx,depositInfo)
+	return nil
+}
