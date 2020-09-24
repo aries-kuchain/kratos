@@ -31,6 +31,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		GetCmdQueryAllDeposit(queryRoute, cdc),
 		GetCmdQueryDeposit(queryRoute, cdc),
 		GetCmdQueryDepositBtcAddress(queryRoute, cdc),
+		GetCmdQueryDepositClaimSpv(queryRoute, cdc),
 	)...)
 
 	return singerQueryCmd
@@ -192,6 +193,34 @@ func GetCmdQueryDepositBtcAddress(storeName string, cdc *codec.Codec) *cobra.Com
 			}
 
 			return cliCtx.PrintOutput(depositBtcAddress)
+		},
+	}
+}
+
+func GetCmdQueryDepositClaimSpv(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "deposit-claim-spv [depositID]",
+		Short: "Query spv for claim on the deposit",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			resKVs, _, err := cliCtx.QuerySubspace(types.GetDepositSpvKey(args[0]), storeName)
+			if err != nil {
+				return err
+			}
+
+			var spvInfos []types.SpvInfo
+			for _, kv := range resKVs {
+				spvInfo, err := types.UnmarshalSpvInfo(types.Cdc(), kv.Value)
+				if err != nil {
+					return err
+				}
+
+				spvInfos = append(spvInfos, spvInfo)
+			}
+
+			return cliCtx.PrintOutput(spvInfos)
 		},
 	}
 }

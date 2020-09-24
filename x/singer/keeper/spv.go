@@ -40,3 +40,26 @@ func (k Keeper) SetDepositActiveInfo(ctx sdk.Context, depositActiveInfo types.De
 	b := types.MustMarshalDepositActiveInfo(k.cdc, depositActiveInfo)
 	store.Set(types.GetDepositSingerActiveKey(depositActiveInfo.DepositID,depositActiveInfo.Singer), b)
 }
+
+func  (k Keeper) NewClaimSpvInfo(ctx sdk.Context, spvInfo types.SpvInfo) (err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,spvInfo.DepositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if  depositInfo.Status != types.Cashing {
+		if depositInfo.Status != types.CashOut {
+			return types.ErrDepositStatusNotSpvReady
+		}
+	}
+
+	if !depositInfo.CheckSinger(spvInfo.SpvSubmiter) {
+		return types.ErrNotDepositSInger
+	}
+	
+	k.SetSpvInfo(ctx,spvInfo)
+	depositInfo.Status = types.CashOut
+	k.SetDepositInfo(ctx,depositInfo)
+
+	return k.depositKeeper.SetCashOut(ctx,spvInfo.DepositID)
+}

@@ -16,7 +16,8 @@ const (
 	SPVReady DepositStatus = 3
 	DepositActive  DepositStatus = 4
 	Cashing DepositStatus = 5
-	Close DepositStatus = 6
+	CashOut DepositStatus = 6
+	Close DepositStatus = 7
 
 	DepositStatusOpen = "open"
 	DepositStatusAddressReady = "addressReady"

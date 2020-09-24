@@ -234,7 +234,6 @@ func (msg MsgSetBtcAddress) ValidateBasic() error {
 }
 
 //-----------------------------------------------------------------------------------------------
-
 type MsgActiveDeposit struct {
 	DepositID string `json:"deposit_id" yaml:"deposit_id"`
 	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
@@ -258,5 +257,31 @@ func (msg MsgActiveDeposit) ValidateBasic() error {
 	if msg.SingerAccount.Empty() {
 		return ErrEmptySingerAccount
 	}
+	return nil
+}
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgSubmitSpv struct {
+	SpvInfo
+}
+
+func NewMsgSubmitSpv(spvInfo SpvInfo) MsgSubmitSpv {
+	return MsgSubmitSpv{SpvInfo:spvInfo}
+}
+
+// Route should return the name of the module
+func (msg MsgSubmitSpv) Route() string { return RouterKey }
+
+func (msg MsgSubmitSpv) Type() chainTypes.Name { return chainTypes.MustName("singersubmitspv") }
+
+func (msg MsgSubmitSpv) Sender() AccountID {
+	return msg.SpvInfo.SpvSubmiter
+}
+
+func (msg MsgSubmitSpv) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SpvInfo.SpvSubmiter.Empty() {
+		return ErrEmptySingerAccount
+	}
+
 	return nil
 }

@@ -43,3 +43,23 @@ func (k Keeper) NewSpvInfo(ctx sdk.Context, spvInfo singerTypes.SpvInfo) (err er
 	k.SetDepositInfo(ctx,depositInfo)
 	return k.singerKeeper.SetSpvReady(ctx,spvInfo.DepositID)
 }
+
+func (k Keeper ) SetCashOut(ctx sdk.Context, depositID string)  (err error ) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status == types.CashOut {
+		return nil
+	}
+
+	if depositInfo.Status != types.Cashing {
+		return types.ErrStatusNotCashing
+	}
+
+	depositInfo.Status = types.CashOut
+	k.SetDepositInfo(ctx,depositInfo)
+
+	return nil
+}

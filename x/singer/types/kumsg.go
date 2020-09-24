@@ -252,3 +252,28 @@ func (msg KuMsgActiveDeposit) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgSubmitSpv struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgSubmitSpv(auth sdk.AccAddress,spvInfo SpvInfo ) KuMsgSubmitSpv {
+	return KuMsgSubmitSpv{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgSubmitSpv{
+				SpvInfo:spvInfo,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgSubmitSpv) ValidateBasic() error {
+	msgData := MsgSubmitSpv{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	return msgData.ValidateBasic()
+}

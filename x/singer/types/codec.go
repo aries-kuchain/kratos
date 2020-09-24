@@ -15,6 +15,8 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(KuMsgLogoutSinger{}, "kuchain/KuMsgLogoutSinger", nil)
 	cdc.RegisterConcrete(KuMsgMsgSetBtcAddress{}, "kuchain/KuMsgMsgSetBtcAddress", nil)
 	cdc.RegisterConcrete(KuMsgActiveDeposit{}, "kuchain/KuMsgActiveDeposit", nil)
+	cdc.RegisterConcrete(KuMsgSubmitSpv{}, "singer/KuMsgSubmitSpv", nil)
+
 }
 
 var (

@@ -33,6 +33,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgMsgSetBtcAddress(ctx, k, msg)
 		case types.KuMsgActiveDeposit:
 			return handleKuMsgActiveDeposit(ctx, k, msg)
+		case types.KuMsgSubmitSpv:
+			return handleKuMsgSubmitSpv(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -260,6 +262,23 @@ func handleKuMsgActiveDeposit(ctx chainTypes.Context, k keeper.Keeper, msg types
 		if err != nil {
 			return nil,err
 		}
+	}
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgSubmitSpv(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgSubmitSpv) (*sdk.Result, error) {
+	msgData := types.MsgSubmitSpv{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SpvInfo.SpvSubmiter)
+	sdkCtx := ctx.Context()
+
+	err := k.NewClaimSpvInfo(sdkCtx,msgData.SpvInfo)
+	if  err != nil {
+		return nil,err
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
