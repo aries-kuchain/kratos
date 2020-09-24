@@ -218,3 +218,18 @@ func (k Keeper) PickSinger(ctx sdk.Context,depositID string,minStake sdk.Int,thr
 
 	return pickedSingerInfo,nil
 }
+
+func (k Keeper) unlockSinger(ctx sdk.Context,singers []AccountID) (err error) {
+	for _, singer := range singers {
+		singerInfo,found := k.GetSingerInfo(ctx,singer)
+		if !found {
+			return types.ErrSingerNotExists
+		}
+		if singerInfo.Status != types.Lock {
+			return types.ErrSingerStatusNotLock
+		}
+		singerInfo.Status = types.Active
+		k.SetSingerInfo(ctx,singerInfo)
+	}
+	return nil
+}

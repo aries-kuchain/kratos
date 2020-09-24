@@ -49,7 +49,7 @@ func  (k Keeper) NewClaimSpvInfo(ctx sdk.Context, spvInfo types.SpvInfo) (err er
 
 	if  depositInfo.Status != types.Cashing {
 		if depositInfo.Status != types.CashOut {
-			return types.ErrDepositStatusNotSpvReady
+			return types.ErrDepositStatusNotCashing
 		}
 	}
 

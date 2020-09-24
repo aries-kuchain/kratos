@@ -207,3 +207,19 @@ func (k Keeper)  SetClaimAddress(ctx sdk.Context, depositID string,claimAddress 
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
 }
+
+func (k Keeper) FinishDeposit(ctx sdk.Context, depositID string) (err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if  depositInfo.Status != types.CashOut {
+		return types.ErrDepositStatusNotCashOut
+	}
+
+	depositInfo.Status = types.Close
+	k.SetDepositInfo(ctx,depositInfo)
+
+	return k.unlockSinger(ctx,depositInfo.Singers)
+}

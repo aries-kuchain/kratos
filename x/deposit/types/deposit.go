@@ -27,7 +27,7 @@ const (
 	DepositTypeActive          = "Active"
 	DepositTypeCashReady       = "CashReady"
 	DepositTypeCashing         = "Cashing"
-	DepositTypeCashEnd         = "CashOut"
+	DepositTypeCashOut         = "CashOut"
 	DepositTypeFinish          = "Finish"
 )
 
@@ -53,7 +53,7 @@ func (b DepositStatus) String() string {
 	case Cashing:
 		return DepositTypeCashing
 	case CashOut:
-		return DepositTypeCashEnd
+		return DepositTypeCashOut
 	case Finish:
 		return DepositTypeFinish
 	default:

@@ -21,5 +21,5 @@ var (
 	ErrCoinNotEqual   = sdkerrors.Register(ModuleName, 15, "Claim coin does not equal deposit coin")
 	ErrStatusNotCashReady   = sdkerrors.Register(ModuleName, 16, "Deposit status is not CashReady")
 	ErrStatusNotCashing   = sdkerrors.Register(ModuleName, 17, "Deposit status is not Cashing")
-
+	ErrStatusNotCashOut   = sdkerrors.Register(ModuleName, 18, "Deposit status is not CashOut")
 )

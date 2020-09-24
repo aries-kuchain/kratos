@@ -19,7 +19,7 @@ var (
 	ErrAccessIsZero = sdkerrors.Register(ModuleName, 13, "singer access is zero")
 	ErrSingerStatusLock = sdkerrors.Register(ModuleName, 14, "singer type is lock")
 	ErrDepositAlreadyExist = sdkerrors.Register(ModuleName, 15, "deposit already exist")
-	ErrSingerStatusNotActive = sdkerrors.Register(ModuleName, 16, "deposit status is not active")
+	ErrSingerStatusNotActive = sdkerrors.Register(ModuleName, 16, "singer status is not active")
 	ErrNotEnoughSingers = sdkerrors.Register(ModuleName, 17, "Singer is not enough")
 	ErrNotDepositSInger = sdkerrors.Register(ModuleName, 18, "Singer is not in the deposit singer group")
 	ErrDepositNotExist = sdkerrors.Register(ModuleName, 19, "deposit not exist")
@@ -27,4 +27,8 @@ var (
 	ErrDepositStatusNotAddressReady = sdkerrors.Register(ModuleName, 21, "deposit status is not AddressReady")
 	ErrDepositStatusNotSpvReady = sdkerrors.Register(ModuleName, 22, "deposit status is not SPVReady")
 	ErrDepositStatusNotActive = sdkerrors.Register(ModuleName, 23, "deposit status is not Active")
+	ErrDepositStatusNotCashOut = sdkerrors.Register(ModuleName, 24, "deposit status is not cashout")
+	ErrDepositStatusNotCashing = sdkerrors.Register(ModuleName, 25, "deposit status is not cashing")
+	ErrSingerStatusNotLock = sdkerrors.Register(ModuleName, 26, "singer status is not lock")
+
 )

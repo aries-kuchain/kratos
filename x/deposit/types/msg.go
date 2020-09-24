@@ -259,3 +259,33 @@ func (msg MsgDepositClaimCoin) ValidateBasic() error {
 
 	return nil
 }
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgFinishDeposit struct {
+	DepositID string
+	Owner AccountID
+}
+
+func NewMsgFinishDeposit(depositID string,owner AccountID,asset Coin,claimAddress []byte) MsgFinishDeposit {
+	return MsgFinishDeposit{
+		DepositID:depositID,
+		Owner:owner,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgFinishDeposit) Route() string { return RouterKey }
+
+func (msg MsgFinishDeposit) Type() chainTypes.Name { return chainTypes.MustName("finishdepsit") }
+
+func (msg MsgFinishDeposit) Sender() AccountID {
+	return msg.Owner
+}
+
+func (msg MsgFinishDeposit) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.Owner.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	return nil
+}

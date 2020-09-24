@@ -14,6 +14,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(KuMsgTransferDeposit{}, "deposit/KuMsgTransferDeposit", nil)
 	cdc.RegisterConcrete(KuMsgDepositToCoin{}, "deposit/KuMsgDepositToCoin", nil)
 	cdc.RegisterConcrete(KuMsgDepositClaimCoin{}, "deposit/KuMsgDepositClaimCoin", nil)
+	cdc.RegisterConcrete(KuMsgFinishDeposit{}, "deposit/KuMsgFinishDeposit", nil)
 
 }
 

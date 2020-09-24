@@ -234,3 +234,30 @@ func (msg KuMsgDepositClaimCoin) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgFinishDeposit struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgFinishDeposit(auth sdk.AccAddress,depositID string,owner AccountID ) KuMsgFinishDeposit {
+	return KuMsgFinishDeposit{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgFinishDeposit{
+					DepositID:depositID,
+					Owner:owner,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgFinishDeposit) ValidateBasic() error {
+
+	msgData := MsgFinishDeposit{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	return msgData.ValidateBasic()
+}

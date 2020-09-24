@@ -102,7 +102,7 @@ func (k Keeper) ActiveDeposit(ctx sdk.Context,depositID string) (err error) {
 	k.SetDepositInfo(ctx,depositInfo)
 
 	for _,singerAccount := range depositInfo.Singers {
-		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.Asset.Amount.Quo(sdk.NewInt(3)))
+		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.Asset.Amount.QuoRaw(3))
 		if err != nil {
 			return err
 		}
@@ -187,5 +187,35 @@ func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,as
 	depositInfo.Owner = owner
 	k.SetDepositInfo(ctx,depositInfo)
 	return k.singerKeeper.SetClaimAddress(ctx,depositID,claimAddress)
-	//return nil
+}
+
+func (k Keeper) FinishDeposit(ctx sdk.Context,depositID string,owner AccountID)(err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status != types.CashOut {
+		return types.ErrStatusNotCashOut
+	}
+
+	if !depositInfo.Owner.Eq(owner) {
+		return types.ErrNotOwnerAccount
+	}
+
+	for _,singerAccount := range depositInfo.Singers {
+		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.Asset.Amount.QuoRaw(3))
+		if err != nil {
+			return err
+		}
+		_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,depositInfo.Asset.Amount.QuoRaw(3).MulRaw(2))
+		if err != nil {
+			return err
+		}
+	}
+
+	depositInfo.Status = types.Finish
+	k.SetDepositInfo(ctx,depositInfo)
+
+	return k.singerKeeper.FinishDeposit(ctx,depositID)
 }
