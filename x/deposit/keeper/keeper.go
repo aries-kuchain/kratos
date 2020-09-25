@@ -2,13 +2,12 @@ package keeper
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	//	"github.com/cosmos/cosmos-sdk/x/bank"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	//	"github.com/xuyp1991/cosaccount/x/easystore/types"
 	"fmt"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/KuChainNetwork/kuchain/x/deposit/external"
+
 )
 
 // Keeper maintains the link to data storage and exposes getter/setter methods for the various parts of the state machine
@@ -21,12 +20,14 @@ type Keeper struct {
 	supplyKeeper  types.SupplyKeeper
 	pricefeeKeeper types.PriceFeeKeeper
 	singerKeeper types.SingerKeeper
+	paramstore         external.ParamsSubspace
+
 }
 
 
 // NewKeeper creates new instances of the nameservice Keeper
 func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
-	sk types.SupplyKeeper, pfk types.PriceFeeKeeper,srk  types.SingerKeeper,
+	sk types.SupplyKeeper, pfk types.PriceFeeKeeper,srk  types.SingerKeeper,ps external.ParamsSubspace,
 ) Keeper {
 	return Keeper{
 		storeKey:      storeKey,
@@ -36,6 +37,7 @@ func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak 
 		supplyKeeper:  sk,
 		singerKeeper:srk,
 		pricefeeKeeper:pfk,
+		paramstore: ps.WithKeyTable(types.ParamKeyTable()),
 	}
 }
 

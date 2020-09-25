@@ -4,6 +4,8 @@ import (
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"fmt"
+	"github.com/KuChainNetwork/kuchain/x/deposit/external"
+
 )
 
 func (k Keeper) GetDepositInfo(ctx sdk.Context, depositID string) (depositInfo types.DepositInfo, found bool) {
@@ -40,20 +42,22 @@ func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Co
 	if legalCoin.Status != types.Permint {
 		return depositId, types.ErrLegalCoinNotExist
 	}
-
-	//扣除费用   计算费用稍后
-	_,err = k.pricefeeKeeper.LockFee(ctx,ownerAccount,asset.Amount)
+	threshold := k.Threshold(ctx)
+	quoteAmount := k.CalQuoteAmount(ctx,asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	feeAmount := quoteAmount.MulRaw(k.DepositFeeRate(ctx)).QuoRaw(int64(100*threshold)).MulRaw(int64(threshold))
+	_,err = k.pricefeeKeeper.LockFee(ctx,ownerAccount,feeAmount)
 	if err != nil {
 		return depositId,err
 	}
-	//最低抵押以及签署人数
 	depositInfo := types.NewDepositInfo(depositId, ownerAccount, asset)
-	pickedSingers,err := k.singerKeeper.PickSinger(ctx,depositId,asset.Amount,3)
+	eachMortgage := quoteAmount.MulRaw(k.MortgageRage(ctx)).QuoRaw(int64(100*threshold))
+	pickedSingers,err := k.singerKeeper.PickSinger(ctx,depositId,eachMortgage,threshold)
 
 	if err != nil {
 		return depositId,err
 	}
-
+	depositInfo.CurrentFee = feeAmount
+	depositInfo.TotalFee = feeAmount
 	depositInfo.SetSingers(pickedSingers)
 	k.SetDepositInfo(ctx, depositInfo)
 	return depositId, nil
@@ -98,15 +102,17 @@ func (k Keeper) ActiveDeposit(ctx sdk.Context,depositID string) (err error) {
 		return types.ErrDepositNotExist
 	}
 
-	depositInfo.Status = types.Active
-	k.SetDepositInfo(ctx,depositInfo)
+	threshold := k.Threshold(ctx)
 
 	for _,singerAccount := range depositInfo.Singers {
-		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.Asset.Amount.QuoRaw(3))
+		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
 		if err != nil {
 			return err
 		}
 	}
+	depositInfo.CurrentFee = sdk.ZeroInt()
+	depositInfo.Status = types.Active
+	k.SetDepositInfo(ctx,depositInfo)
 	return nil
 }
 
@@ -176,8 +182,10 @@ func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,as
 	if !depositInfo.Asset.IsEqual(asset) {
 		return types.ErrCoinNotEqual
 	}
-
-	_,err = k.pricefeeKeeper.LockFee(ctx,owner,asset.Amount)
+	threshold := len(depositInfo.Singers)
+	quoteAmount := k.CalQuoteAmount(ctx,asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	feeAmount := quoteAmount.MulRaw(k.ClaimFeeRate(ctx)).QuoRaw(int64(100*threshold)).MulRaw(int64(threshold))
+	_,err = k.pricefeeKeeper.LockFee(ctx,owner,feeAmount)
 	if err != nil {
 		return err
 	}
@@ -185,6 +193,8 @@ func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,as
 	depositInfo.WithDrawAddress = append(depositInfo.WithDrawAddress,claimAddress...)
 	depositInfo.Status = types.Cashing
 	depositInfo.Owner = owner
+	depositInfo.CurrentFee = feeAmount
+	depositInfo.TotalFee = depositInfo.TotalFee.Add(feeAmount)
 	k.SetDepositInfo(ctx,depositInfo)
 	return k.singerKeeper.SetClaimAddress(ctx,depositID,claimAddress)
 }
@@ -202,13 +212,14 @@ func (k Keeper) FinishDeposit(ctx sdk.Context,depositID string,owner AccountID)(
 	if !depositInfo.Owner.Eq(owner) {
 		return types.ErrNotOwnerAccount
 	}
+	threshold := len(depositInfo.Singers)
 
 	for _,singerAccount := range depositInfo.Singers {
-		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.Asset.Amount.QuoRaw(3))
+		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
 		if err != nil {
 			return err
 		}
-		_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,depositInfo.Asset.Amount.QuoRaw(3).MulRaw(2))
+		_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,depositInfo.TotalFee.QuoRaw(3))
 		if err != nil {
 			return err
 		}
@@ -216,6 +227,14 @@ func (k Keeper) FinishDeposit(ctx sdk.Context,depositID string,owner AccountID)(
 
 	depositInfo.Status = types.Finish
 	k.SetDepositInfo(ctx,depositInfo)
-
 	return k.singerKeeper.FinishDeposit(ctx,depositID)
+}
+
+func (k Keeper) CalQuoteAmount(ctx sdk.Context,base,quote Coin) sdk.Int {
+	priceInfo,found := k.pricefeeKeeper.GetPriceInfo(ctx,base,quote)
+	if !found {
+		return sdk.ZeroInt()
+	}
+
+	return base.Amount.Mul(priceInfo.Quote.Amount).Quo(priceInfo.Base.Amount)
 }

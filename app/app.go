@@ -236,7 +236,7 @@ func NewKuchainApp(
 
 	app.pricefeeKeeper = pricefee.NewKeeper(keys[pricefee.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper)
 	app.singerKeeper = singer.NewKeeper(keys[singer.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper, app.pricefeeKeeper,app.subspaces[singer.ModuleName])
-	app.depositKeeper = deposit.NewKeeper(keys[deposit.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper,app.pricefeeKeeper, app.singerKeeper)
+	app.depositKeeper = deposit.NewKeeper(keys[deposit.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper,app.pricefeeKeeper, app.singerKeeper,app.subspaces[deposit.ModuleName])
 	app.singerKeeper.SetDepositKeeper(app.depositKeeper)
 
 

@@ -22,4 +22,5 @@ var (
 	ErrStatusNotCashReady   = sdkerrors.Register(ModuleName, 16, "Deposit status is not CashReady")
 	ErrStatusNotCashing   = sdkerrors.Register(ModuleName, 17, "Deposit status is not Cashing")
 	ErrStatusNotCashOut   = sdkerrors.Register(ModuleName, 18, "Deposit status is not CashOut")
+	ErrPriceNotFound   = sdkerrors.Register(ModuleName, 19, "Deposit status is not CashOut")
 )

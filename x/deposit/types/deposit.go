@@ -4,6 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	yaml "gopkg.in/yaml.v2"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type DepositStatus int32
@@ -69,6 +70,8 @@ type DepositInfo struct {
 	DepositAddress  []byte
 	WithDrawAddress []byte
 	Status          DepositStatus
+	CurrentFee sdk.Int
+	TotalFee sdk.Int
 }
 
 func NewDepositInfo(depositID string, owner AccountID, asset Coin) DepositInfo {

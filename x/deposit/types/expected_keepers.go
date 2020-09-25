@@ -5,6 +5,8 @@ package types
 import (
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
+	priceTypes "github.com/KuChainNetwork/kuchain/x/pricefee/types"
+
 	"github.com/KuChainNetwork/kuchain/x/account/exported"
 	supplyexported "github.com/KuChainNetwork/kuchain/x/supply/exported"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,6 +43,7 @@ type SupplyKeeper interface {
 }
 
 type PriceFeeKeeper interface {
+	GetPriceInfo(ctx sdk.Context, base,quote Coin) (priceInfo priceTypes.PriceInfo, found bool)
 	NewFeeInfo(ctx sdk.Context, owner AccountID) (err error)
 	LockFee(ctx sdk.Context, owner AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error)
 	TransferFee(ctx sdk.Context, from,to AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error)
