@@ -5,6 +5,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"time"
 )
 
 type DepositStatus int32
@@ -72,6 +73,7 @@ type DepositInfo struct {
 	Status          DepositStatus
 	CurrentFee sdk.Int
 	TotalFee sdk.Int
+	DepositChangeTime time.Time
 }
 
 func NewDepositInfo(depositID string, owner AccountID, asset Coin) DepositInfo {

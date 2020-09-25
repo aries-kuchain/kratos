@@ -20,6 +20,7 @@ func (k Keeper) GetDepositInfo(ctx sdk.Context, depositID string) (depositInfo t
 
 func (k Keeper) SetDepositInfo(ctx sdk.Context, depositInfo types.DepositInfo) {
 	store := ctx.KVStore(k.storeKey)
+	depositInfo.DepositChangeTime = ctx.BlockHeader().Time
 	b := types.MustMarshalDepositInfo(k.cdc, depositInfo)
 	store.Set(types.GetDepositInfoKey(depositInfo.DepositID), b)
 }

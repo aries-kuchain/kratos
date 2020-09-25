@@ -5,6 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	yaml "gopkg.in/yaml.v2"
 	"fmt"
+	"time"
 //	"encoding/hex"
 )
 
@@ -34,6 +35,7 @@ type DepositInfo struct {
 	ClaimAddress []byte  `json:"claim_address" yaml:"claim_address"`
 	minStake sdk.Int  
 	Status DepositStatus `json:"status" yaml:"status"`
+	DepositChangeTime time.Time
 }
 
 
