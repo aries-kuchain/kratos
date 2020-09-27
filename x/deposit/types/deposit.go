@@ -22,6 +22,8 @@ const (
 	CashOut         DepositStatus = 8
 	Finish          DepositStatus = 9
 	Aberrant    DepositStatus = 10
+	WrongDepositSPV  DepositStatus = 11
+	WrongSingerSPV  DepositStatus = 12
 
 	DepositTypeInit            = "Init"
 	DepositTypeSingerReady     = "SingerReady"
@@ -33,6 +35,8 @@ const (
 	DepositTypeCashOut         = "CashOut"
 	DepositTypeFinish          = "Finish"
 	DepositTypeAberrant          = "Aberrant"
+	DepositTypeWrongDepositSPV          = "WrongDepositSPV"
+	DepositTypeWrongSingerSPV          = "WrongSingerSPV"
 )
 
 // Equal compares two BondStatus instances

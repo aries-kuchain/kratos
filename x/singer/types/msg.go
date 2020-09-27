@@ -315,3 +315,33 @@ func (msg MsgWaitTimeout) ValidateBasic() error {
 
 	return nil
 }
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgReportSpvWrong struct {
+	DepositID string
+	SingerAccount AccountID
+}
+
+func NewMsgReportSpvWrong(depositID string,singerAccount AccountID,asset Coin,claimAddress []byte) MsgReportSpvWrong {
+	return MsgReportSpvWrong{
+		DepositID:depositID,
+		SingerAccount:singerAccount,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgReportSpvWrong) Route() string { return RouterKey }
+
+func (msg MsgReportSpvWrong) Type() chainTypes.Name { return chainTypes.MustName("reportspvwrong") }
+
+func (msg MsgReportSpvWrong) Sender() AccountID {
+	return msg.SingerAccount
+}
+
+func (msg MsgReportSpvWrong) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SingerAccount.Empty() {
+		return ErrEmptySingerAccount
+	}
+
+	return nil
+}

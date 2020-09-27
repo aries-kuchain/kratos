@@ -283,3 +283,23 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,singerAccount Accou
 	}
 	return types.ErrNotWaitStatus
 }
+
+func (k Keeper) ReportSpvWrong(ctx sdk.Context,depositID string,singerAccount AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+	
+	if !depositInfo.CheckSinger(singerAccount) {
+		return types.ErrNotDepositSInger
+	}
+
+	if  depositInfo.Status != types.SPVReady {
+		return types.ErrDepositStatusNotSpvReady
+	}
+
+	depositInfo.Status = types.WrongDepositSPV
+	k.SetDepositInfo(ctx,depositInfo)
+
+	return k.depositKeeper.SetWrongDepositSpv(ctx,depositID)
+}

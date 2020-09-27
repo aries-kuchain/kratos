@@ -340,7 +340,8 @@ func  (k Keeper) ExternalCloseDeposit(ctx sdk.Context,depositID string) (err err
 	if !found {
 		return types.ErrDepositNotExist
 	}
-		if depositInfo.Status != types.CashOut {
+
+	if depositInfo.Status != types.CashOut {
 		return types.ErrStatusNotCashOut
 	}
 
@@ -361,4 +362,19 @@ func  (k Keeper) ExternalCloseDeposit(ctx sdk.Context,depositID string) (err err
 	k.SetDepositInfo(ctx,depositInfo)
 	//销毁代币
 	return k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+}
+
+func  (k Keeper) SetWrongDepositSpv(ctx sdk.Context,depositID string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+	
+	if depositInfo.Status != types.DepositSpvReady {
+		return types.ErrDepositNotExist
+	}
+	depositInfo.Status = types.WrongDepositSPV
+	k.SetDepositInfo(ctx,depositInfo)
+
+	return nil
 }

@@ -37,6 +37,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgSubmitSpv(ctx, k, msg)
 		case types.KuMsgWaitTimeout:
 			return handleKuMsgWaitTimeout(ctx, k, msg)
+		case types.KuMsgReportSpvWrong:
+			return handleKuMsgReportSpvWrong(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -302,3 +304,21 @@ func handleKuMsgWaitTimeout(ctx chainTypes.Context, k keeper.Keeper, msg types.K
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
+
+func handleKuMsgReportSpvWrong(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgReportSpvWrong) (*sdk.Result, error) {
+	msgData := types.MsgReportSpvWrong{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SingerAccount)
+	sdkCtx := ctx.Context()
+
+	err := k.ReportSpvWrong(sdkCtx,msgData.DepositID,msgData.SingerAccount)
+	if  err != nil {
+		return nil,err
+	}
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+

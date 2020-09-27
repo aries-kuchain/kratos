@@ -20,6 +20,8 @@ const (
 	CashOut DepositStatus = 6
 	Close DepositStatus = 7
 	Aberrant    DepositStatus = 8
+	WrongDepositSPV  DepositStatus = 9
+	WrongSingerSPV  DepositStatus = 10
 
 	DepositStatusOpen = "open"
 	DepositStatusAddressReady = "addressReady"
@@ -28,7 +30,8 @@ const (
 	DepositCashing = "Cashing"
 	DepositStatusClose = "close"
 	DepositStatusAberrant = "Aberrant"
-
+	DepositWrongDepositSPV = "WrongDepositSPV"
+	DepositWrongSingerSPV = "WrongSingerSPV"
 )
 
 type DepositInfo struct {

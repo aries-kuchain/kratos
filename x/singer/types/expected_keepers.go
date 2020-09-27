@@ -49,4 +49,5 @@ type DepositKeeper interface {
 	SetCashOut(ctx sdk.Context, depositID string)  (err error )
 	AberrantDeposit(ctx sdk.Context,depositID string) (err error)
 	ExternalCloseDeposit(ctx sdk.Context,depositID string) (err error)
+	SetWrongDepositSpv(ctx sdk.Context,depositID string) (err error) 
 }
