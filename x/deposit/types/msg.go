@@ -295,7 +295,7 @@ type MsgWaitTimeout struct {
 	Owner AccountID
 }
 
-func NewMsgWaitTimeout(depositID string,owner AccountID,asset Coin,claimAddress []byte) MsgWaitTimeout {
+func NewMsgWaitTimeout(depositID string,owner AccountID,asset Coin) MsgWaitTimeout {
 	return MsgWaitTimeout{
 		DepositID:depositID,
 		Owner:owner,
@@ -312,6 +312,36 @@ func (msg MsgWaitTimeout) Sender() AccountID {
 }
 
 func (msg MsgWaitTimeout) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.Owner.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	return nil
+}
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgReportWrongSpv struct {
+	DepositID string
+	Owner AccountID
+}
+
+func NewMsgReportWrongSpv(depositID string,owner AccountID,asset Coin ) MsgReportWrongSpv {
+	return MsgReportWrongSpv{
+		DepositID:depositID,
+		Owner:owner,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgReportWrongSpv) Route() string { return RouterKey }
+
+func (msg MsgReportWrongSpv) Type() chainTypes.Name { return chainTypes.MustName("reportwrongspv") }
+
+func (msg MsgReportWrongSpv) Sender() AccountID {
+	return msg.Owner
+}
+
+func (msg MsgReportWrongSpv) ValidateBasic() error {
 	// note that unmarshaling from bech32 ensures either empty or valid
 	if msg.Owner.Empty() {
 		return ErrEmptyOwnerAccount

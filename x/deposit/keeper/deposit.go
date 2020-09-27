@@ -378,3 +378,22 @@ func  (k Keeper) SetWrongDepositSpv(ctx sdk.Context,depositID string) (err error
 
 	return nil
 }
+
+func  (k Keeper) ReportWrongSingerSpv(ctx sdk.Context,depositID string,owner AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status != types.CashOut {
+		return types.ErrStatusNotCashOut
+	}
+
+	if !depositInfo.Owner.Eq(owner) {
+		return types.ErrNotOwnerAccount
+	}
+
+	depositInfo.Status = types.WrongSingerSPV
+	k.SetDepositInfo(ctx,depositInfo)
+	return k.singerKeeper.SetWrongSingerSpv(ctx,depositID)
+}

@@ -288,3 +288,30 @@ func (msg KuMsgWaitTimeout) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgReportWrongSpv struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgReportWrongSpv(auth sdk.AccAddress,depositID string,owner AccountID ) KuMsgReportWrongSpv {
+	return KuMsgReportWrongSpv{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgReportWrongSpv{
+					DepositID:depositID,
+					Owner:owner,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgReportWrongSpv) ValidateBasic() error {
+
+	msgData := MsgReportWrongSpv{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	return msgData.ValidateBasic()
+}
