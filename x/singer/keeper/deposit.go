@@ -251,3 +251,35 @@ func (k Keeper) AberrantDeposit(ctx sdk.Context, depositID string)(err error) {
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
 }
+
+func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,singerAccount AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+	
+	if !depositInfo.CheckSinger(singerAccount) {
+		return types.ErrNotDepositSInger
+	}
+
+	if depositInfo.DepositChangeTime.Add(k.WaitTime(ctx)).After(ctx.BlockHeader().Time) {
+		return types.ErrNotReachWaitTime
+	}
+
+	if depositInfo.Status == types.AddressReady {
+		k.depositKeeper.AberrantDeposit(ctx,depositID)
+		depositInfo.Status = types.Close
+		k.SetDepositInfo(ctx,depositInfo)
+
+		return k.unlockSinger(ctx,depositInfo.Singers)
+	}
+
+	if depositInfo.Status == types.CashOut {
+		k.depositKeeper.ExternalCloseDeposit(ctx,depositID)
+		depositInfo.Status = types.Close
+		k.SetDepositInfo(ctx,depositInfo)
+
+		return k.unlockSinger(ctx,depositInfo.Singers)
+	}
+	return types.ErrNotWaitStatus
+}

@@ -6,16 +6,17 @@ import (
 
 // RegisterCodec registers concrete types on codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(KuMsgRegisterSinger{}, "kuchain/KuMsgRegisterSinger", nil)
-	cdc.RegisterConcrete(KuMsgPayAccess{}, "kuchain/KuMsgPayAccess", nil)
-	cdc.RegisterConcrete(KuMsgActiveSinger{}, "kuchain/KuMsgActiveSinger", nil)
-	cdc.RegisterConcrete(KuMsgBTCMortgage{}, "kuchain/KuMsgBTCMortgage", nil)
-	cdc.RegisterConcrete(KuMsgClaimBTCMortgate{}, "kuchain/KuMsgClaimBTCMortgate", nil)
-	cdc.RegisterConcrete(KuMsgClaimAccess{}, "kuchain/KuMsgClaimAccess", nil)
-	cdc.RegisterConcrete(KuMsgLogoutSinger{}, "kuchain/KuMsgLogoutSinger", nil)
-	cdc.RegisterConcrete(KuMsgMsgSetBtcAddress{}, "kuchain/KuMsgMsgSetBtcAddress", nil)
-	cdc.RegisterConcrete(KuMsgActiveDeposit{}, "kuchain/KuMsgActiveDeposit", nil)
+	cdc.RegisterConcrete(KuMsgRegisterSinger{}, "singer/KuMsgRegisterSinger", nil)
+	cdc.RegisterConcrete(KuMsgPayAccess{}, "singer/KuMsgPayAccess", nil)
+	cdc.RegisterConcrete(KuMsgActiveSinger{}, "singer/KuMsgActiveSinger", nil)
+	cdc.RegisterConcrete(KuMsgBTCMortgage{}, "singer/KuMsgBTCMortgage", nil)
+	cdc.RegisterConcrete(KuMsgClaimBTCMortgate{}, "singer/KuMsgClaimBTCMortgate", nil)
+	cdc.RegisterConcrete(KuMsgClaimAccess{}, "singer/KuMsgClaimAccess", nil)
+	cdc.RegisterConcrete(KuMsgLogoutSinger{}, "singer/KuMsgLogoutSinger", nil)
+	cdc.RegisterConcrete(KuMsgMsgSetBtcAddress{}, "singer/KuMsgMsgSetBtcAddress", nil)
+	cdc.RegisterConcrete(KuMsgActiveDeposit{}, "singer/KuMsgActiveDeposit", nil)
 	cdc.RegisterConcrete(KuMsgSubmitSpv{}, "singer/KuMsgSubmitSpv", nil)
+	cdc.RegisterConcrete(KuMsgWaitTimeout{}, "singer/KuMsgWaitTimeout", nil)
 
 }
 

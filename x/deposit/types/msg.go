@@ -305,7 +305,7 @@ func NewMsgWaitTimeout(depositID string,owner AccountID,asset Coin,claimAddress 
 // Route should return the name of the module
 func (msg MsgWaitTimeout) Route() string { return RouterKey }
 
-func (msg MsgWaitTimeout) Type() chainTypes.Name { return chainTypes.MustName("addresstimeout") }
+func (msg MsgWaitTimeout) Type() chainTypes.Name { return chainTypes.MustName("singertimeout") }
 
 func (msg MsgWaitTimeout) Sender() AccountID {
 	return msg.Owner

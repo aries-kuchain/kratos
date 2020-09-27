@@ -6,29 +6,36 @@ import (
 	"github.com/KuChainNetwork/kuchain/x/singer/external"
 	yaml "gopkg.in/yaml.v2"
 	"github.com/cosmos/cosmos-sdk/codec"
-
+	"time"
 )
 
 // Default parameter namespace
 const (
 	DefaultParamspace = ModuleName
 	DefaultMinAccessAmountByPower int64 = 1
+	DefaultWaitTime time.Duration = time.Second * 10
+
 )
 
 var (
 	KeyMinAccessAmount     = []byte("MinAccessAmount")
+	KeyWaitTime     = []byte("waittime")
 
 )
 
 type Params struct {
 	MinAccessAmount sdk.Int `json:"min_access_amount" yaml:"min_access_amount"`
+	WaitTime  time.Duration `json:"wait_time" yaml:"wait_time"`
+ 
 }
 
 func NewParams(
 	accessAmount sdk.Int,
+	waitTime time.Duration,
 ) Params {
 	return Params{
 		MinAccessAmount:accessAmount,
+		WaitTime:waitTime,
 	}
 }
 
@@ -36,6 +43,7 @@ func NewParams(
 func DefaultParams() Params {
 	return NewParams(
 		external.TokensFromConsensusPower(DefaultMinAccessAmountByPower),
+		DefaultWaitTime,
 	)
 }
 
@@ -47,6 +55,7 @@ func ParamKeyTable() external.ParamsKeyTable {
 func (p *Params) ParamSetPairs() external.ParamsSetPairs {
 	return external.ParamsSetPairs{
 		external.NewParamSetPair(KeyMinAccessAmount, &p.MinAccessAmount, validateMinAccessAmount),
+		external.NewParamSetPair(KeyWaitTime, &p.WaitTime, validateWaitTime),
 	}
 }
 
@@ -91,6 +100,19 @@ func validateMinAccessAmount(i interface{}) error {
 	}
 
 	if v.IsNegative() {
+		return fmt.Errorf("unbonding time must be positive: %d", v)
+	}
+
+	return nil
+}
+
+func validateWaitTime(i interface{}) error {
+	v, ok := i.(time.Duration)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v <= 0 {
 		return fmt.Errorf("unbonding time must be positive: %d", v)
 	}
 

@@ -30,5 +30,7 @@ var (
 	ErrDepositStatusNotCashOut = sdkerrors.Register(ModuleName, 24, "deposit status is not cashout")
 	ErrDepositStatusNotCashing = sdkerrors.Register(ModuleName, 25, "deposit status is not cashing")
 	ErrSingerStatusNotLock = sdkerrors.Register(ModuleName, 26, "singer status is not lock")
+	ErrNotReachWaitTime  = sdkerrors.Register(ModuleName, 27, "deposit does not Reach Wait Time")
+	ErrNotWaitStatus  = sdkerrors.Register(ModuleName, 28, "singer Deposit Status is not a wait for other operator status")
 
 )

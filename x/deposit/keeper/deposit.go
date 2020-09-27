@@ -103,7 +103,7 @@ func (k Keeper) ActiveDeposit(ctx sdk.Context,depositID string) (err error) {
 		return types.ErrDepositNotExist
 	}
 
-	threshold := k.Threshold(ctx)
+	threshold := len(depositInfo.Singers)
 
 	for _,singerAccount := range depositInfo.Singers {
 		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
@@ -229,7 +229,11 @@ func (k Keeper) FinishDeposit(ctx sdk.Context,depositID string,owner AccountID)(
 	depositInfo.Status = types.Finish
 	k.SetDepositInfo(ctx,depositInfo)
 	//销毁代币
-	k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+	err = k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+	if err != nil {
+		return err
+	}
+
 	return k.singerKeeper.FinishDeposit(ctx,depositID)
 }
 
@@ -271,7 +275,7 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (e
 		depositInfo.Status = types.Active
 		k.SetDepositInfo(ctx,depositInfo)
 
-		threshold := k.Threshold(ctx)
+		threshold := len(depositInfo.Singers)
 
 		for _,singerAccount := range depositInfo.Singers {
 			_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
@@ -301,5 +305,60 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (e
 	}
 
 	return  types.ErrNotWaitStatus
+}
 
+func (k Keeper) AberrantDeposit(ctx sdk.Context,depositID string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status != types.AddressReady {
+		return types.ErrStatusNotAddressReady
+	}
+
+	threshold := len(depositInfo.Singers)
+
+	for _,singerAccount := range depositInfo.Singers {
+		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
+		if err != nil {
+			return err
+		}
+		_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,depositInfo.TotalFee.QuoRaw(3))
+		if err != nil {
+			return err
+		}
+	}
+
+	depositInfo.Status = types.Aberrant
+	k.SetDepositInfo(ctx,depositInfo)
+	return nil
+}
+
+func  (k Keeper) ExternalCloseDeposit(ctx sdk.Context,depositID string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+		if depositInfo.Status != types.CashOut {
+		return types.ErrStatusNotCashOut
+	}
+
+	threshold := len(depositInfo.Singers)
+
+	for _,singerAccount := range depositInfo.Singers {
+		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
+		if err != nil {
+			return err
+		}
+		_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,depositInfo.TotalFee.QuoRaw(3))
+		if err != nil {
+			return err
+		}
+	}
+
+	depositInfo.Status = types.Finish
+	k.SetDepositInfo(ctx,depositInfo)
+	//销毁代币
+	return k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
 }
