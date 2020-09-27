@@ -5,6 +5,7 @@ import (
 	"github.com/KuChainNetwork/kuchain/x/singer/external"
 	yaml "gopkg.in/yaml.v2"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"time"
 )
 
 // Default parameter namespace
@@ -15,6 +16,9 @@ const (
 	DefaultDepositFeeRate = 5
 	DefaultClaimFeeRate = 5
 	DefaultThreshold = 3
+
+	DefaultWaitTime time.Duration = time.Second * 10
+
 )
 
 var (
@@ -22,6 +26,7 @@ var (
 	KeyDepositFeeRate     = []byte("depositfeerate")
 	KeyClaimFeeRate     = []byte("claimfeerate")
 	KeyThreshold     = []byte("threshold")
+	KeyWaitTime     = []byte("waittime")
 )
 
 
@@ -30,6 +35,7 @@ type Params struct {
 	DepositFeeRate int64 `json:"deposit_fee_rate" yaml:"deposit_fee_rate"`
 	ClaimFeeRate int64  `json:"claim_fee_rate" yaml:"claim_fee_rate"`
 	Threshold int `json:"threshold" yaml:"threshold"`
+	WaitTime  time.Duration `json:"wait_time" yaml:"wait_time"`
 }
 
 func NewParams(
@@ -37,12 +43,14 @@ func NewParams(
 	depositFeeRate int64,
 	claimFeeRate int64,
 	threshold int,
+	waitTime time.Duration,
 ) Params {
 	return Params{
 		MortgageRate:mortgageRage,
 		DepositFeeRate:depositFeeRate,
 		ClaimFeeRate:claimFeeRate,
 		Threshold:threshold,
+		WaitTime:waitTime,
 	}
 }
 
@@ -53,6 +61,7 @@ func DefaultParams() Params {
 		DefaultDepositFeeRate,
 		DefaultClaimFeeRate,
 		DefaultThreshold,
+		DefaultWaitTime,
 	)
 }
 
@@ -67,6 +76,7 @@ func (p *Params) ParamSetPairs() external.ParamsSetPairs {
 		external.NewParamSetPair(KeyDepositFeeRate, &p.DepositFeeRate, validateFeeRate),
 		external.NewParamSetPair(KeyClaimFeeRate, &p.ClaimFeeRate, validateFeeRate),
 		external.NewParamSetPair(KeyThreshold, &p.Threshold, validateThreshold),
+		external.NewParamSetPair(KeyWaitTime, &p.WaitTime, validateWaitTime),
 
 	}
 }
@@ -146,6 +156,19 @@ func validateThreshold(i interface{}) error {
 
 	if v < 0 {
 		return fmt.Errorf("Threshold must be :positive %d", v)
+	}
+
+	return nil
+}
+
+func validateWaitTime(i interface{}) error {
+	v, ok := i.(time.Duration)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v <= 0 {
+		return fmt.Errorf("unbonding time must be positive: %d", v)
 	}
 
 	return nil

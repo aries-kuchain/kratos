@@ -72,7 +72,7 @@ var (
 		gov.ModuleName:            {supply.Burner},
 		mint.ModuleName:           {supply.Minter},
 		singer.ModuleName:         nil,
-		deposit.ModuleName:         nil,
+		deposit.ModuleName:         {supply.Burner},
 		pricefee.ModuleName:         nil,
 
 	}

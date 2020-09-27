@@ -3,7 +3,7 @@ package keeper
 import (
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	"time"
 )
 
 func (k Keeper) MortgageRage(ctx sdk.Context) (res int64) {
@@ -26,6 +26,11 @@ func (k Keeper) Threshold(ctx sdk.Context) (res int) {
 	return res
 }
 
+func (k Keeper) WaitTime(ctx sdk.Context) (res time.Duration) {
+	k.paramstore.Get(ctx, types.KeyWaitTime, &res)
+	return res
+}
+
 // Get all parameteras as types.Params
 func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 	return types.NewParams(
@@ -33,6 +38,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.DepositFeeRate(ctx),
 		k.ClaimFeeRate(ctx),
 		k.Threshold(ctx),
+		k.WaitTime(ctx),
 	)
 }
 

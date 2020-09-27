@@ -261,3 +261,30 @@ func (msg KuMsgFinishDeposit) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgWaitTimeout struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgWaitTimeout(auth sdk.AccAddress,depositID string,owner AccountID ) KuMsgWaitTimeout {
+	return KuMsgWaitTimeout{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgWaitTimeout{
+					DepositID:depositID,
+					Owner:owner,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgWaitTimeout) ValidateBasic() error {
+
+	msgData := MsgWaitTimeout{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	return msgData.ValidateBasic()
+}

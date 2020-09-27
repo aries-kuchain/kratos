@@ -30,6 +30,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgDepositClaimCoin(ctx, k, msg)
 		case types.KuMsgFinishDeposit:
 			return handleKuMsgFinishDeposit(ctx, k, msg)
+		case types.KuMsgWaitTimeout:
+			return handleKuMsgWaitTimeout(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -180,6 +182,22 @@ func handleKuMsgFinishDeposit(ctx chainTypes.Context, keeper keeper.Keeper, msg 
 	sdkCtx := ctx.Context()
 
 	if err := keeper.FinishDeposit(sdkCtx, msgData.DepositID,msgData.Owner); err != nil {
+		return nil, err
+	}
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgWaitTimeout(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgWaitTimeout) (*sdk.Result, error) {
+	msgData := types.MsgWaitTimeout{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.Owner)
+
+	sdkCtx := ctx.Context()
+
+	if err := keeper.WaitTimeOut(sdkCtx, msgData.DepositID,msgData.Owner); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil

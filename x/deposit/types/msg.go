@@ -289,3 +289,33 @@ func (msg MsgFinishDeposit) ValidateBasic() error {
 
 	return nil
 }
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgWaitTimeout struct {
+	DepositID string
+	Owner AccountID
+}
+
+func NewMsgWaitTimeout(depositID string,owner AccountID,asset Coin,claimAddress []byte) MsgWaitTimeout {
+	return MsgWaitTimeout{
+		DepositID:depositID,
+		Owner:owner,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgWaitTimeout) Route() string { return RouterKey }
+
+func (msg MsgWaitTimeout) Type() chainTypes.Name { return chainTypes.MustName("addresstimeout") }
+
+func (msg MsgWaitTimeout) Sender() AccountID {
+	return msg.Owner
+}
+
+func (msg MsgWaitTimeout) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.Owner.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	return nil
+}

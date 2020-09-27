@@ -55,5 +55,7 @@ type SingerKeeper interface {
 	SetSpvReady(ctx sdk.Context, depositID string) (err error)
 	SetClaimAddress(ctx sdk.Context, depositID string,claimAddress []byte) (err error) 
 	FinishDeposit(ctx sdk.Context, depositID string) (err error) 
+	AberrantDeposit(ctx sdk.Context, depositID string)(err error)
+	ActiveSingerDeposit(ctx sdk.Context, depositID string) (err error)
 }
 

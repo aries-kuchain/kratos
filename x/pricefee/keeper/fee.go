@@ -92,7 +92,7 @@ func (k Keeper)LockFee(ctx sdk.Context, owner AccountID,amount sdk.Int) (totalPr
 	}
 
 	if feeInfo.PrestoreFee.LT(amount) {
-		return feeInfo.PrestoreFee,types.ErrFeeNotEnough
+		return feeInfo.PrestoreFee,types.ErrNotEnoughFeeToLock
 	}
 
 	feeInfo.PrestoreFee = feeInfo.PrestoreFee.Sub(amount)
@@ -108,7 +108,7 @@ func (k Keeper)UnLockFee(ctx sdk.Context, owner AccountID,amount sdk.Int) (total
 	}
 
 	if feeInfo.LockedFee.LT(amount) {
-		return feeInfo.PrestoreFee,types.ErrFeeNotEnough
+		return feeInfo.PrestoreFee,types.ErrNotEnoughFeeToUnLock
 	}
 
 	feeInfo.PrestoreFee = feeInfo.PrestoreFee.Add(amount)
@@ -129,7 +129,7 @@ func (k Keeper)TransferFee(ctx sdk.Context, from,to AccountID,amount sdk.Int) (t
 	}
 
 	if feeFrom.LockedFee.LT(amount) {
-		return feeFrom.LockedFee,types.ErrFeeNotEnough
+		return feeFrom.LockedFee,types.ErrNotEnoughFeeToTransfer
 	}
 
 	feeFrom.LockedFee = feeFrom.LockedFee.Sub(amount)

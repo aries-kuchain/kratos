@@ -14,5 +14,8 @@ var (
 	ErrBadDenom            = sdkerrors.Register(ModuleName, 8, "invalid coin denomination")
 	ErrNotSystemAccount    = sdkerrors.Register(ModuleName, 9, "operate account is not  system account")
 	ErrSameDenom    = sdkerrors.Register(ModuleName, 10, "base and quote has the same denom")
+	ErrNotEnoughFeeToLock = sdkerrors.Register(ModuleName, 11, "prestore fee not enough to lock ")
+	ErrNotEnoughFeeToUnLock = sdkerrors.Register(ModuleName, 12, "lock fee is not enough to unlock ")
+	ErrNotEnoughFeeToTransfer = sdkerrors.Register(ModuleName, 13, "lock fee is not enough to transfer ")
 
 )

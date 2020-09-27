@@ -21,6 +21,7 @@ const (
 	Cashing         DepositStatus = 7
 	CashOut         DepositStatus = 8
 	Finish          DepositStatus = 9
+	Aberrant    DepositStatus = 10
 
 	DepositTypeInit            = "Init"
 	DepositTypeSingerReady     = "SingerReady"
@@ -31,6 +32,7 @@ const (
 	DepositTypeCashing         = "Cashing"
 	DepositTypeCashOut         = "CashOut"
 	DepositTypeFinish          = "Finish"
+	DepositTypeAberrant          = "Aberrant"
 )
 
 // Equal compares two BondStatus instances
@@ -58,6 +60,8 @@ func (b DepositStatus) String() string {
 		return DepositTypeCashOut
 	case Finish:
 		return DepositTypeFinish
+	case Aberrant:
+		return DepositTypeAberrant
 	default:
 		panic("invalid deposit status")
 	}

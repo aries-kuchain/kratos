@@ -19,6 +19,7 @@ const (
 	Cashing DepositStatus = 5
 	CashOut DepositStatus = 6
 	Close DepositStatus = 7
+	Aberrant    DepositStatus = 8
 
 	DepositStatusOpen = "open"
 	DepositStatusAddressReady = "addressReady"
@@ -26,6 +27,8 @@ const (
 	DepositStatusActive = "DepositActive"
 	DepositCashing = "Cashing"
 	DepositStatusClose = "close"
+	DepositStatusAberrant = "Aberrant"
+
 )
 
 type DepositInfo struct {
@@ -35,7 +38,7 @@ type DepositInfo struct {
 	ClaimAddress []byte  `json:"claim_address" yaml:"claim_address"`
 	minStake sdk.Int  
 	Status DepositStatus `json:"status" yaml:"status"`
-	DepositChangeTime time.Time
+	DepositChangeTime time.Time `json:"deposit_change_time" yaml:"deposit_change_time"`
 }
 
 
