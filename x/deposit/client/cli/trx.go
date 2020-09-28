@@ -29,6 +29,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdFinishDeposit(cdc),
 		GetCmdDepostWaitTimeOut(cdc),
 		GetReportSingerWrongSpv(cdc),
+		GetJudgeSpv(cdc),
 	)
 	return txCmd
 }

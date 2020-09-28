@@ -199,10 +199,6 @@ func (k Keeper) ActiveSingerDeposit(ctx sdk.Context, depositID string) (err erro
 		return types.ErrDepositNotExist
 	}
 
-	if  depositInfo.Status != types.SPVReady {
-		return types.ErrDepositStatusNotSpvReady
-	}
-
 	depositInfo.Status = types.DepositActive
 	k.SetDepositInfo(ctx,depositInfo)
 
@@ -317,4 +313,15 @@ func (k Keeper) SetWrongSingerSpv(ctx sdk.Context, depositID string)(err error) 
 	depositInfo.Status = types.WrongSingerSPV
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
+}
+
+func (k Keeper) AberrantFinishDeposit(ctx sdk.Context, depositID string)(err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	depositInfo.Status = types.Close
+	k.SetDepositInfo(ctx,depositInfo)
+	return k.unlockSinger(ctx,depositInfo.Singers)
 }

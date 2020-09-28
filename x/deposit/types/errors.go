@@ -25,5 +25,6 @@ var (
 	ErrPriceNotFound   = sdkerrors.Register(ModuleName, 19, "Deposit status is not CashOut")
 	ErrNotReachWaitTime  = sdkerrors.Register(ModuleName, 20, "Do not Reach Wait Time")
 	ErrNotWaitStatus  = sdkerrors.Register(ModuleName, 21, "Deposit Status is not a wait for other operator status")
+	ErrNotJudgeStatus  = sdkerrors.Register(ModuleName, 22, "Deposit Status is not a judge status")
 
 )

@@ -416,3 +416,38 @@ func GetReportSingerWrongSpv(cdc *codec.Codec) *cobra.Command {
 
 	return flags.PostCommands(cmd)[0]
 }
+
+func GetJudgeSpv(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "judge-spv [depositID] [systemAccount] [spvIsRight] [feeToSinger]",
+		Short: "judge spv is right ",
+		Args:  cobra.ExactArgs(4),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			systemAccount, err := chainTypes.NewAccountIDFromStr(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "validator account id error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, systemAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", systemAccount)
+			}
+
+			spvIsRight := args[2] == "1"
+			feeToSinger := args[3] == "1"
+
+			msg := types.NewKuMsgJudgeDepositSpv(authAccAddress, args[0],systemAccount,spvIsRight,feeToSinger)
+			cliCtx = cliCtx.WithFromAccount(systemAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[1])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return flags.PostCommands(cmd)[0]
+}

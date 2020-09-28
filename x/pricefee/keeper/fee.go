@@ -5,7 +5,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/pricefee/external"
-
 )
 
 func (k Keeper) GetFeeInfo(ctx sdk.Context, owner AccountID) (feeInfo types.FeeInfo, found bool) {

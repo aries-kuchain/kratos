@@ -7,6 +7,7 @@ import (
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/KuChainNetwork/kuchain/chain/constants"
 )
 
 func NewHandler(k keeper.Keeper) msg.Handler {
@@ -34,6 +35,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgWaitTimeout(ctx, k, msg)
 		case types.KuMsgReportWrongSpv:
 			return handleKuMsgReportWrongSpv(ctx, k, msg)
+		case types.KuMsgJudgeDepositSpv:
+			return handleKuMsgJudgeDepositSpv(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -216,6 +219,27 @@ func handleKuMsgReportWrongSpv(ctx chainTypes.Context, keeper keeper.Keeper, msg
 	sdkCtx := ctx.Context()
 
 	if err := keeper.ReportWrongSingerSpv(sdkCtx, msgData.DepositID,msgData.Owner); err != nil {
+		return nil, err
+	}
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgJudgeDepositSpv(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgJudgeDepositSpv) (*sdk.Result, error) {
+	msgData := types.MsgJudgeDepositSpv{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	name, ok := msgData.SystemAccount.ToName()
+	if ok && constants.IsSystemAccount(name) {
+		return nil, types.ErrNotSystemAccount
+	}
+
+	ctx.RequireAuth(msgData.SystemAccount)
+
+	sdkCtx := ctx.Context()
+
+	if err := keeper.JudgeSpvRight(sdkCtx, msgData.DepositID,msgData.SystemAccount,msgData.SpvIsRight,msgData.FeeToSinger); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil

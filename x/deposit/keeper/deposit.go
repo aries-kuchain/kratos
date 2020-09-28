@@ -191,6 +191,11 @@ func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,as
 		return err
 	}
 
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	if err != nil {
+		return err
+	}
+
 	depositInfo.WithDrawAddress = append(depositInfo.WithDrawAddress,claimAddress...)
 	depositInfo.Status = types.Cashing
 	depositInfo.Owner = owner
@@ -287,10 +292,6 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (e
 	}
 
 	if depositInfo.Status == types.Cashing {
-		err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
-		if err != nil {
-			return err
-		}
 		err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,owner,Coins{depositInfo.Asset})
 		if err != nil {
 			return err
@@ -396,4 +397,112 @@ func  (k Keeper) ReportWrongSingerSpv(ctx sdk.Context,depositID string,owner Acc
 	depositInfo.Status = types.WrongSingerSPV
 	k.SetDepositInfo(ctx,depositInfo)
 	return k.singerKeeper.SetWrongSingerSpv(ctx,depositID)
+}
+
+func  (k Keeper) JudgeSpvRight(ctx sdk.Context,depositID string,systemAccount AccountID,spvIsRight bool,feeToSinger bool) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status == types.WrongDepositSPV {
+		if spvIsRight {
+			depositInfo.Status = types.Active
+			err = k.singerKeeper.ActiveSingerDeposit(ctx,depositID)
+				if err != nil {
+					return err
+				}
+		} else {
+			depositInfo.Status = types.Aberrant
+			k.singerKeeper.AberrantFinishDeposit(ctx,depositID)
+		}
+
+		if feeToSinger {
+			threshold := len(depositInfo.Singers)
+			singerFee := depositInfo.CurrentFee.QuoRaw(int64(threshold))
+			for _,singerAccount := range depositInfo.Singers {
+				_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,singerFee)
+				if err != nil {
+					return err
+				}
+				if !spvIsRight {
+					//unlock
+					k.pricefeeKeeper.UnLockFee(ctx,singerAccount,singerFee)
+				}
+			}
+			depositInfo.CurrentFee = sdk.ZeroInt()
+		} else {
+			//返还费用给用户
+			k.pricefeeKeeper.UnLockFee(ctx,depositInfo.Owner,depositInfo.TotalFee)
+			depositInfo.CurrentFee = sdk.ZeroInt()
+			depositInfo.TotalFee = sdk.ZeroInt()
+		}
+		k.SetDepositInfo(ctx,depositInfo)
+
+	} else if  depositInfo.Status == types.WrongSingerSPV {
+		if spvIsRight {
+			//正常close
+			depositInfo.Status = types.Finish
+			//销毁代币
+			err = k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+			if err != nil {
+				return err
+			}
+
+			err = k.singerKeeper.AberrantFinishDeposit(ctx,depositID)
+			if err != nil {
+				return err
+			}
+		} else {
+			//SPVtimeout
+			err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,depositInfo.Owner,Coins{depositInfo.Asset})
+			if err != nil {
+				return err
+			}
+			depositInfo.Status = types.Aberrant
+			err = k.singerKeeper.AberrantDeposit(ctx,depositID)
+			if err != nil {
+				return err
+			}
+		}
+
+		if feeToSinger {
+			threshold := len(depositInfo.Singers)
+			singerFee := depositInfo.CurrentFee.QuoRaw(int64(threshold))
+			unlockFee := depositInfo.TotalFee.QuoRaw(int64(threshold))
+			for _,singerAccount := range depositInfo.Singers {
+				_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,singerFee)
+				if err != nil {
+					return err
+				}
+				_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,unlockFee)
+				if err != nil {
+					return err
+				}
+			}
+			depositInfo.CurrentFee = sdk.ZeroInt()
+			depositInfo.TotalFee = sdk.ZeroInt()
+		} else {
+			_,err = k.pricefeeKeeper.UnLockFee(ctx,depositInfo.Owner,depositInfo.CurrentFee)
+			if err != nil {
+				return err
+			}
+			depositInfo.TotalFee = 	depositInfo.TotalFee.Sub(depositInfo.CurrentFee)
+			depositInfo.CurrentFee = sdk.ZeroInt()
+			threshold := len(depositInfo.Singers)
+			unlockFee := depositInfo.TotalFee.QuoRaw(int64(threshold))
+
+			for _,singerAccount := range depositInfo.Singers {
+					_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,unlockFee)
+				if err != nil {
+					return err
+				}
+			}
+			depositInfo.TotalFee = sdk.ZeroInt()
+		}
+		k.SetDepositInfo(ctx,depositInfo)
+	} else {
+		return types.ErrNotJudgeStatus
+	}
+	return nil
 }

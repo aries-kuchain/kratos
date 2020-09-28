@@ -315,3 +315,32 @@ func (msg KuMsgReportWrongSpv) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgJudgeDepositSpv struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgJudgeDepositSpv(auth sdk.AccAddress,depositID string,systemAccount AccountID ,spvIsRight bool,feeToSinger bool) KuMsgJudgeDepositSpv {
+	return KuMsgJudgeDepositSpv{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgJudgeDepositSpv{
+					DepositID:depositID,
+					SystemAccount:systemAccount,
+					SpvIsRight:spvIsRight,
+					FeeToSinger:feeToSinger,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgJudgeDepositSpv) ValidateBasic() error {
+
+	msgData := MsgJudgeDepositSpv{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	return msgData.ValidateBasic()
+}

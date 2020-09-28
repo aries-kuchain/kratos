@@ -349,3 +349,37 @@ func (msg MsgReportWrongSpv) ValidateBasic() error {
 
 	return nil
 }
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgJudgeDepositSpv struct {
+	DepositID string
+	SystemAccount AccountID
+	SpvIsRight	bool
+	FeeToSinger bool
+}
+
+func NewMsgJudgeDepositSpv(depositID string,systemAccount AccountID,asset Coin,spvIsRight bool,feeToSinger bool) MsgJudgeDepositSpv {
+	return MsgJudgeDepositSpv{
+		DepositID:depositID,
+		SystemAccount:systemAccount,
+		SpvIsRight:spvIsRight,
+		FeeToSinger:feeToSinger,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgJudgeDepositSpv) Route() string { return RouterKey }
+
+func (msg MsgJudgeDepositSpv) Type() chainTypes.Name { return chainTypes.MustName("judgedepositspv") }
+
+func (msg MsgJudgeDepositSpv) Sender() AccountID {
+	return msg.SystemAccount
+}
+
+func (msg MsgJudgeDepositSpv) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SystemAccount.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	return nil
+}
