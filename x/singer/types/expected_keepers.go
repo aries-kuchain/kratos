@@ -44,7 +44,7 @@ type PriceFeeKeeper interface {
 }
 
 type DepositKeeper interface {
-	SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress []byte)(err error)
+	SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress string)(err error)
 	ActiveDeposit(ctx sdk.Context,depositID string) (err error)
 	SetCashOut(ctx sdk.Context, depositID string)  (err error )
 	AberrantDeposit(ctx sdk.Context,depositID string) (err error)

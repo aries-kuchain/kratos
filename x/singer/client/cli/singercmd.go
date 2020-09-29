@@ -314,9 +314,7 @@ func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
 			}
 
-			btcAddress := hexutil.MustDecode(args[2])
-
-			msg := types.NewKuMsgMsgSetBtcAddress(authAccAddress, singerAccount,args[0],btcAddress)
+			msg := types.NewKuMsgMsgSetBtcAddress(authAccAddress, singerAccount,args[0],args[2])
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])

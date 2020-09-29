@@ -33,4 +33,7 @@ var (
 	ErrNotReachWaitTime  = sdkerrors.Register(ModuleName, 27, "deposit does not Reach Wait Time")
 	ErrNotWaitStatus  = sdkerrors.Register(ModuleName, 28, "singer Deposit Status is not a wait for other operator status")
 	ErrDepositStatusNotWrongDepositSPv = sdkerrors.Register(ModuleName, 29, "singer Deposit Status is wrong deposit spv")
+	ErrEmptyDepositID  = sdkerrors.Register(ModuleName, 30, "empty depositID ")
+	ErrWrongBtcAddress  = sdkerrors.Register(ModuleName, 31, "wrong  btc address")
+
 )

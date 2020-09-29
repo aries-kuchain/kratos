@@ -4,6 +4,8 @@ import (
 	//	"encoding/json"
 	//	sdk "github.com/cosmos/cosmos-sdk/types"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
+	 "github.com/KuChainNetwork/kuchain/chain/hexutil"
+
 )
 
 type MsgRegisterSinger struct {
@@ -205,10 +207,10 @@ func (msg MsgLogoutSinger) ValidateBasic() error {
 type MsgSetBtcAddress struct {
 	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
 	DepoistID string `json:"deposit_id" yaml:"deposit_id"`
-	BtcAddress []byte `json:"btc_address" yaml:"btc_address"`
+	BtcAddress string `json:"btc_address" yaml:"btc_address"`
 }
 
-func NewMsgSetBtcAddress(singerAccount AccountID,depositID string,btcAddress []byte) MsgSetBtcAddress {
+func NewMsgSetBtcAddress(singerAccount AccountID,depositID string,btcAddress string) MsgSetBtcAddress {
 	return MsgSetBtcAddress{
 		SingerAccount: singerAccount,
 		DepoistID:depositID,
@@ -229,6 +231,14 @@ func (msg MsgSetBtcAddress) ValidateBasic() error {
 	// note that unmarshaling from bech32 ensures either empty or valid
 	if msg.SingerAccount.Empty() {
 		return ErrEmptySingerAccount
+	}
+
+	if len(msg.DepoistID) == 0 {
+		return ErrEmptyDepositID
+	}
+
+	if !hexutil.IsValidBtcAddress(msg.BtcAddress) {
+		return ErrWrongBtcAddress
 	}
 	return nil
 }
@@ -256,6 +266,10 @@ func (msg MsgActiveDeposit) ValidateBasic() error {
 	// note that unmarshaling from bech32 ensures either empty or valid
 	if msg.SingerAccount.Empty() {
 		return ErrEmptySingerAccount
+	}
+
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
 	}
 	return nil
 }
@@ -313,6 +327,9 @@ func (msg MsgWaitTimeout) ValidateBasic() error {
 		return ErrEmptySingerAccount
 	}
 
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------
@@ -321,7 +338,7 @@ type MsgReportSpvWrong struct {
 	SingerAccount AccountID
 }
 
-func NewMsgReportSpvWrong(depositID string,singerAccount AccountID,asset Coin,claimAddress []byte) MsgReportSpvWrong {
+func NewMsgReportSpvWrong(depositID string,singerAccount AccountID,asset Coin) MsgReportSpvWrong {
 	return MsgReportSpvWrong{
 		DepositID:depositID,
 		SingerAccount:singerAccount,
@@ -342,6 +359,9 @@ func (msg MsgReportSpvWrong) ValidateBasic() error {
 	if msg.SingerAccount.Empty() {
 		return ErrEmptySingerAccount
 	}
-
+	
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
 	return nil
 }

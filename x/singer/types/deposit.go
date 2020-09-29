@@ -38,7 +38,7 @@ type DepositInfo struct {
 	DepositID string `json:"deposit_id" yaml:"deposit_id"`
 	Threshold int `json:"threshold" yaml:"threshold"`
 	Singers []AccountID `json:"singers" yaml:"singers"`
-	ClaimAddress []byte  `json:"claim_address" yaml:"claim_address"`
+	ClaimAddress string  `json:"claim_address" yaml:"claim_address"`
 	minStake sdk.Int  
 	Status DepositStatus `json:"status" yaml:"status"`
 	DepositChangeTime time.Time `json:"deposit_change_time" yaml:"deposit_change_time"`
@@ -99,10 +99,10 @@ func (v DepositInfo) CheckSinger(singerAccount AccountID) bool {
 type DepositBtcAddress struct {
 	DepositID string
 	Singer AccountID
-	BtcAddress []byte
+	BtcAddress string
 }
 
-func NewDepositBtcAddress(depositID string,singer AccountID,btcAddress []byte) DepositBtcAddress {
+func NewDepositBtcAddress(depositID string,singer AccountID,btcAddress string) DepositBtcAddress {
 	return DepositBtcAddress{
 		DepositID:     depositID,
 		Singer:       singer,

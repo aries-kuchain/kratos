@@ -203,7 +203,7 @@ type KuMsgDepositClaimCoin struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgDepositClaimCoin(auth sdk.AccAddress,depositID string,owner AccountID,asset Coin,claimAddress []byte ) KuMsgDepositClaimCoin {
+func NewKuMsgDepositClaimCoin(auth sdk.AccAddress,depositID string,owner AccountID,asset Coin,claimAddress string ) KuMsgDepositClaimCoin {
 	return KuMsgDepositClaimCoin{
 		*msg.MustNewKuMsg(
 			RouterKeyName,

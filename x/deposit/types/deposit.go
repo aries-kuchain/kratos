@@ -76,8 +76,8 @@ type DepositInfo struct {
 	Owner           AccountID
 	Asset           Coin
 	Singers         []AccountID
-	DepositAddress  []byte
-	WithDrawAddress []byte
+	DepositAddress  string
+	WithDrawAddress string
 	Status          DepositStatus
 	CurrentFee sdk.Int
 	TotalFee sdk.Int

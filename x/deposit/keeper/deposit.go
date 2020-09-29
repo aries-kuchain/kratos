@@ -77,7 +77,7 @@ func (k Keeper) GetAllDepositInfo(ctx sdk.Context) (depositInfos []types.Deposit
 	return depositInfos
 }
 
-func (k Keeper) SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress []byte)(err error) {
+func (k Keeper) SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress string)(err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -87,7 +87,7 @@ func (k Keeper) SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress
 		return types.ErrStatusNotSingerReady
 	}
 
-	depositInfo.DepositAddress = append(depositInfo.DepositAddress,btcAddress...)
+	depositInfo.DepositAddress = btcAddress
 	depositInfo.Status = types.AddressReady
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
@@ -170,7 +170,7 @@ func (k Keeper) DepositToCoin(ctx sdk.Context,depositID string,owner AccountID) 
 	return k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,owner,Coins{depositInfo.Asset})
 }
 
-func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,asset Coin,claimAddress []byte) (err error) {
+func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,asset Coin,claimAddress string) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -196,7 +196,7 @@ func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,as
 		return err
 	}
 
-	depositInfo.WithDrawAddress = append(depositInfo.WithDrawAddress,claimAddress...)
+	depositInfo.WithDrawAddress = claimAddress
 	depositInfo.Status = types.Cashing
 	depositInfo.Owner = owner
 	depositInfo.CurrentFee = feeAmount
@@ -413,7 +413,7 @@ func  (k Keeper) JudgeSpvRight(ctx sdk.Context,depositID string,systemAccount Ac
 					return err
 				}
 		} else {
-			depositInfo.Status = types.Aberrant
+			depositInfo.Status = types.Finish
 			k.singerKeeper.AberrantFinishDeposit(ctx,depositID)
 		}
 

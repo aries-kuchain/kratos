@@ -3,7 +3,7 @@ package keeper
 import (
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"bytes"
+	//"bytes"
 )
 
 func (k Keeper) GetDepositInfo(ctx sdk.Context, depositID string) (depositInfo types.DepositInfo, found bool) {
@@ -56,7 +56,7 @@ func (k Keeper) SetDepositBtcAddress(ctx sdk.Context, depositBtcAddress types.De
 }
 
 
-func  (k Keeper) NewDepositBtcAddress(ctx sdk.Context, depositID string,singer AccountID,btcAddress []byte) (err error){
+func  (k Keeper) NewDepositBtcAddress(ctx sdk.Context, depositID string,singer AccountID,btcAddress string) (err error){
 	depositInfo,found := k.GetDepositInfo(ctx,depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -86,23 +86,22 @@ func  (k Keeper) CheckBtcAddressReady(ctx sdk.Context, depositID string) bool {
 		return true
 	}
 
-	var temBtcAddress []byte
+	var temBtcAddress string
 
 	for _,singer := range depositInfo.Singers {
 		btcAddress,found := k.GetDepositBtcAddress(ctx,depositID,singer)
 		if !found {
 			return false
 		}
-		if len(temBtcAddress) != 0 &&  !bytes.Equal(temBtcAddress,btcAddress.BtcAddress) {
+		if len(temBtcAddress) != 0 && temBtcAddress != btcAddress.BtcAddress  {
 			return false
 		}
-		temBtcAddress = []byte("")
-		temBtcAddress = append(temBtcAddress,btcAddress.BtcAddress...)
+		temBtcAddress = temBtcAddress
 	}
 	return true
 }
 
-func (k Keeper) SetBtcAddressReady(ctx sdk.Context, depositID string,btcAddress []byte)(err error) {
+func (k Keeper) SetBtcAddressReady(ctx sdk.Context, depositID string,btcAddress string)(err error) {
 	depositInfo,found := k.GetDepositInfo(ctx,depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -205,7 +204,7 @@ func (k Keeper) ActiveSingerDeposit(ctx sdk.Context, depositID string) (err erro
 	return nil
 }
 
-func (k Keeper)  SetClaimAddress(ctx sdk.Context, depositID string,claimAddress []byte) (err error) {
+func (k Keeper)  SetClaimAddress(ctx sdk.Context, depositID string,claimAddress string) (err error) {
 	depositInfo,found := k.GetDepositInfo(ctx,depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -216,7 +215,7 @@ func (k Keeper)  SetClaimAddress(ctx sdk.Context, depositID string,claimAddress 
 	}
 
 	depositInfo.Status = types.Cashing
-	depositInfo.ClaimAddress = append(depositInfo.ClaimAddress,claimAddress...)
+	depositInfo.ClaimAddress = claimAddress
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
 }

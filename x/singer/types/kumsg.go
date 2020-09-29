@@ -206,7 +206,7 @@ type KuMsgMsgSetBtcAddress struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgMsgSetBtcAddress(auth sdk.AccAddress, singerAccount AccountID,depositID string,btcAddress []byte) KuMsgMsgSetBtcAddress {
+func NewKuMsgMsgSetBtcAddress(auth sdk.AccAddress, singerAccount AccountID,depositID string,btcAddress string) KuMsgMsgSetBtcAddress {
 	return KuMsgMsgSetBtcAddress{
 		*msg.MustNewKuMsg(
 			RouterKeyName,

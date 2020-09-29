@@ -305,9 +305,7 @@ func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrap(err, "amount parse error")
 			}
 
-			btcAddress := hexutil.MustDecode(args[3])
-
-			msg := types.NewKuMsgDepositClaimCoin(authAccAddress,args[0], ownerAccount,asset,btcAddress)
+			msg := types.NewKuMsgDepositClaimCoin(authAccAddress,args[0], ownerAccount,asset,args[3])
 			cliCtx = cliCtx.WithFromAccount(ownerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])

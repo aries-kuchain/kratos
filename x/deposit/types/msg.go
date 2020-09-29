@@ -230,10 +230,10 @@ type MsgDepositClaimCoin struct {
 	DepositID string
 	Owner AccountID
 	Asset Coin
-	ClaimAddress []byte
+	ClaimAddress string
 }
 
-func NewMsgDepositClaimCoin(depositID string,owner AccountID,asset Coin,claimAddress []byte) MsgDepositClaimCoin {
+func NewMsgDepositClaimCoin(depositID string,owner AccountID,asset Coin,claimAddress string) MsgDepositClaimCoin {
 	return MsgDepositClaimCoin{
 		DepositID:depositID,
 		Owner:owner,
