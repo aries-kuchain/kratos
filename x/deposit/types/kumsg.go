@@ -344,3 +344,38 @@ func (msg KuMsgJudgeDepositSpv) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgClaimAberrant struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgClaimAberrant(auth sdk.AccAddress,depositID string,claimAccount AccountID,amount Coin ) KuMsgClaimAberrant {
+	return KuMsgClaimAberrant{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithTransfer(claimAccount, ModuleAccountID, chainTypes.Coins{amount}),
+			msg.WithData(Cdc(), &MsgClaimAberrant{
+					DepositID:depositID,
+					ClaimAccount:claimAccount,
+					Amount:amount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgClaimAberrant) ValidateBasic() error {
+	if err := msg.KuMsg.ValidateTransfer(); err != nil {
+		return err
+	}
+
+	msgData := MsgClaimAberrant{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	if err := msg.KuMsg.ValidateTransferRequire(ModuleAccountID, chainTypes.NewCoins(msgData.Amount)); err != nil {
+		return chainTypes.ErrKuMsgInconsistentAmount
+	}
+	return msgData.ValidateBasic()
+}

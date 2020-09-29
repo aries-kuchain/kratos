@@ -418,3 +418,42 @@ func (msg MsgJudgeDepositSpv) ValidateBasic() error {
 	}
 	return nil
 }
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgClaimAberrant struct {
+	DepositID string
+	ClaimAccount AccountID
+	Amount	Coin
+}
+
+func NewMsgClaimAberrant(depositID string,claimAccount AccountID,amount Coin) MsgClaimAberrant {
+	return MsgClaimAberrant{
+		DepositID:depositID,
+		ClaimAccount:claimAccount,
+		Amount:amount,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgClaimAberrant) Route() string { return RouterKey }
+
+func (msg MsgClaimAberrant) Type() chainTypes.Name { return chainTypes.MustName("claimaberrant") }
+
+func (msg MsgClaimAberrant) Sender() AccountID {
+	return msg.ClaimAccount
+}
+
+func (msg MsgClaimAberrant) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.ClaimAccount.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
+	
+	if !msg.Amount.Amount.IsPositive() {
+		return ErrBadAmount
+	}
+	return nil
+}

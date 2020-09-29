@@ -35,5 +35,6 @@ var (
 	ErrDepositStatusNotWrongDepositSPv = sdkerrors.Register(ModuleName, 29, "singer Deposit Status is wrong deposit spv")
 	ErrEmptyDepositID  = sdkerrors.Register(ModuleName, 30, "empty depositID ")
 	ErrWrongBtcAddress  = sdkerrors.Register(ModuleName, 31, "wrong  btc address")
+	ErrDepositStatusNotAberrant = sdkerrors.Register(ModuleName, 32, "deposit status is not Aberrant")
 
 )

@@ -28,4 +28,5 @@ var (
 	ErrNotJudgeStatus  = sdkerrors.Register(ModuleName, 22, "Deposit Status is not a judge status")
 	ErrEmptyDepositID     = sdkerrors.Register(ModuleName, 23, "empty depositID")
 	ErrWrongBtcAddress  = sdkerrors.Register(ModuleName, 24, "wrong btc address")
+	ErrStatusNotAberrant   = sdkerrors.Register(ModuleName, 25, "Deposit status is not Aberrant")
 )

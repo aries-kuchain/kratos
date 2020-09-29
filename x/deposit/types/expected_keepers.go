@@ -60,5 +60,6 @@ type SingerKeeper interface {
 	SetWrongSingerSpv(ctx sdk.Context, depositID string)(err error)
 	AberrantFinishDeposit(ctx sdk.Context, depositID string)(err error)
 	FinishDepositPunishSinger(ctx sdk.Context, depositID string,owner AccountID)(err error)
+	FinishAberrantDeposit(ctx sdk.Context, depositID string,claimAccount AccountID)(err error)
 }
 

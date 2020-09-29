@@ -37,6 +37,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgReportWrongSpv(ctx, k, msg)
 		case types.KuMsgJudgeDepositSpv:
 			return handleKuMsgJudgeDepositSpv(ctx, k, msg)
+		case types.KuMsgClaimAberrant:
+			return handleKuMsgClaimAberrant(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -240,6 +242,22 @@ func handleKuMsgJudgeDepositSpv(ctx chainTypes.Context, keeper keeper.Keeper, ms
 	sdkCtx := ctx.Context()
 
 	if err := keeper.JudgeSpvRight(sdkCtx, msgData.DepositID,msgData.SystemAccount,msgData.SpvIsRight,msgData.FeeToSinger); err != nil {
+		return nil, err
+	}
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgClaimAberrant(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgClaimAberrant) (*sdk.Result, error) {
+	msgData := types.MsgClaimAberrant{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.ClaimAccount)
+
+	sdkCtx := ctx.Context()
+
+	if err := keeper.ClaimAberrantDeposit(sdkCtx, msgData.DepositID,msgData.ClaimAccount); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil

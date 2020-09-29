@@ -506,3 +506,27 @@ func  (k Keeper) JudgeSpvRight(ctx sdk.Context,depositID string,systemAccount Ac
 	}
 	return nil
 }
+
+func  (k Keeper) ClaimAberrantDeposit(ctx sdk.Context,depositID string,claimAccount AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status != types.Aberrant {
+		return types.ErrStatusNotAberrant
+	}
+
+	err = k.singerKeeper.FinishAberrantDeposit(ctx,depositID,claimAccount)
+	if  err != nil {
+		return 
+	}
+	depositInfo.Status = types.Finish
+	k.SetDepositInfo(ctx,depositInfo)
+
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	if err != nil {
+		return err
+	}
+	return k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+}

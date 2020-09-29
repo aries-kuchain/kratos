@@ -18,7 +18,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(KuMsgWaitTimeout{}, "deposit/KuMsgWaitTimeout", nil)
 	cdc.RegisterConcrete(KuMsgReportWrongSpv{}, "deposit/KuMsgReportWrongSpv", nil)
 	cdc.RegisterConcrete(KuMsgJudgeDepositSpv{}, "deposit/KuMsgJudgeDepositSpv", nil)
-
+	cdc.RegisterConcrete(KuMsgClaimAberrant{}, "deposit/KuMsgClaimAberrant", nil)
 }
 
 var (
