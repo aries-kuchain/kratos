@@ -3,7 +3,9 @@ package keeper
 import (
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	//"bytes"
+	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
+	"github.com/KuChainNetwork/kuchain/x/singer/external"
+	"fmt"
 )
 
 func (k Keeper) GetDepositInfo(ctx sdk.Context, depositID string) (depositInfo types.DepositInfo, found bool) {
@@ -30,7 +32,7 @@ func (k Keeper) NewDepositInfo(ctx sdk.Context, depositID string,threshold int,s
 	if found {
 		return types.ErrDepositAlreadyExist
 	}
-
+	fmt.Println("xuyapeng add for test NewDepositInfo ",minStake)
 	depositInfo := types.NewDepositInfo(depositID,threshold,minStake)
 	depositInfo.SetSingers(singer)
 	k.SetDepositInfo(ctx,depositInfo)
@@ -96,7 +98,7 @@ func  (k Keeper) CheckBtcAddressReady(ctx sdk.Context, depositID string) bool {
 		if len(temBtcAddress) != 0 && temBtcAddress != btcAddress.BtcAddress  {
 			return false
 		}
-		temBtcAddress = temBtcAddress
+		temBtcAddress = btcAddress.BtcAddress
 	}
 	return true
 }
@@ -323,4 +325,24 @@ func (k Keeper) AberrantFinishDeposit(ctx sdk.Context, depositID string)(err err
 	depositInfo.Status = types.Close
 	k.SetDepositInfo(ctx,depositInfo)
 	return k.unlockSinger(ctx,depositInfo.Singers)
+}
+
+func (k Keeper) FinishDepositPunishSinger(ctx sdk.Context, depositID string,owner AccountID)(err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+	//punish Singer
+	punishRate := k.PunishRate(ctx)
+	fmt.Println("xuyapeng add for test ",punishRate)
+	minStake :=  depositInfo.GetMinStake()
+	fmt.Println("xuyapeng add for test ",minStake)
+	punishAmount := minStake.MulRaw(int64(punishRate)).QuoRaw(100)
+	k.punishSinger(ctx,depositInfo.Singers,punishAmount)
+	//transfer coins to deposit owner
+	amount := chainTypes.NewCoin( external.DefaultBondDenom,punishAmount.MulRaw(int64(len(depositInfo.Singers))))
+	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, owner, chainTypes.NewCoins(amount))
+	depositInfo.Status = types.Close
+	k.SetDepositInfo(ctx,depositInfo)
+	return nil
 }

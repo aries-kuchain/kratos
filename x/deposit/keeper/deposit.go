@@ -271,9 +271,9 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (e
 			return err
 		}
 
-		depositInfo.Status = types.Aberrant
+		depositInfo.Status = types.Finish
 		k.SetDepositInfo(ctx,depositInfo)
-		return k.singerKeeper.AberrantDeposit(ctx,depositID)
+		return k.singerKeeper.FinishDepositPunishSinger(ctx,depositID,depositInfo.Owner)
 	}
 
 	if depositInfo.Status == types.DepositSpvReady {
@@ -331,7 +331,7 @@ func (k Keeper) AberrantDeposit(ctx sdk.Context,depositID string) (err error) {
 		}
 	}
 
-	depositInfo.Status = types.Aberrant
+	depositInfo.Status = types.Finish
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
 }

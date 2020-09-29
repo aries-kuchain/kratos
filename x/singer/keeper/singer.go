@@ -233,3 +233,23 @@ func (k Keeper) unlockSinger(ctx sdk.Context,singers []AccountID) (err error) {
 	}
 	return nil
 }
+
+func  (k Keeper) punishSinger(ctx sdk.Context,singers []AccountID,punishAmount sdk.Int) (err error) {
+	for _, singer := range singers {
+		singerInfo,found := k.GetSingerInfo(ctx,singer)
+		if !found {
+			return types.ErrSingerNotExists
+		}
+		if singerInfo.Status != types.Lock {
+			return types.ErrSingerStatusNotLock
+		}
+		if singerInfo.SignatureMortgage.LT(punishAmount) {
+			return types.ErrMortgageNotEnough
+		}
+
+		singerInfo.SignatureMortgage = singerInfo.SignatureMortgage.Sub(punishAmount)
+		singerInfo.Status = types.Active
+		k.SetSingerInfo(ctx,singerInfo)
+	}
+	return nil
+}

@@ -26,5 +26,6 @@ var (
 	ErrNotReachWaitTime  = sdkerrors.Register(ModuleName, 20, "Do not Reach Wait Time")
 	ErrNotWaitStatus  = sdkerrors.Register(ModuleName, 21, "Deposit Status is not a wait for other operator status")
 	ErrNotJudgeStatus  = sdkerrors.Register(ModuleName, 22, "Deposit Status is not a judge status")
-
+	ErrEmptyDepositID     = sdkerrors.Register(ModuleName, 23, "empty depositID")
+	ErrWrongBtcAddress  = sdkerrors.Register(ModuleName, 24, "wrong btc address")
 )

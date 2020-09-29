@@ -14,28 +14,31 @@ const (
 	DefaultParamspace = ModuleName
 	DefaultMinAccessAmountByPower int64 = 1
 	DefaultWaitTime time.Duration = time.Second * 10
-
+	DefaultPunishRate int = 10
 )
 
 var (
 	KeyMinAccessAmount     = []byte("MinAccessAmount")
 	KeyWaitTime     = []byte("waittime")
+	KeyPunishRage     = []byte("punishrate")
 
 )
 
 type Params struct {
 	MinAccessAmount sdk.Int `json:"min_access_amount" yaml:"min_access_amount"`
 	WaitTime  time.Duration `json:"wait_time" yaml:"wait_time"`
- 
+	PunishRage int `json:"punish_rate" yaml:"punish_rate"`
 }
 
 func NewParams(
 	accessAmount sdk.Int,
 	waitTime time.Duration,
+	punishRate int,
 ) Params {
 	return Params{
 		MinAccessAmount:accessAmount,
 		WaitTime:waitTime,
+		PunishRage:punishRate,
 	}
 }
 
@@ -44,6 +47,7 @@ func DefaultParams() Params {
 	return NewParams(
 		external.TokensFromConsensusPower(DefaultMinAccessAmountByPower),
 		DefaultWaitTime,
+		DefaultPunishRate,
 	)
 }
 
@@ -56,6 +60,8 @@ func (p *Params) ParamSetPairs() external.ParamsSetPairs {
 	return external.ParamsSetPairs{
 		external.NewParamSetPair(KeyMinAccessAmount, &p.MinAccessAmount, validateMinAccessAmount),
 		external.NewParamSetPair(KeyWaitTime, &p.WaitTime, validateWaitTime),
+		external.NewParamSetPair(KeyPunishRage, &p.PunishRage, validatePunishRate),
+
 	}
 }
 
@@ -100,7 +106,7 @@ func validateMinAccessAmount(i interface{}) error {
 	}
 
 	if v.IsNegative() {
-		return fmt.Errorf("unbonding time must be positive: %d", v)
+		return fmt.Errorf("min Access Amount must be positive: %d", v)
 	}
 
 	return nil
@@ -113,7 +119,20 @@ func validateWaitTime(i interface{}) error {
 	}
 
 	if v <= 0 {
-		return fmt.Errorf("unbonding time must be positive: %d", v)
+		return fmt.Errorf("wait time must be positive: %d", v)
+	}
+
+	return nil
+}
+
+func validatePunishRate(i interface{}) error {
+	v, ok := i.(int)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v <= 0 {
+		return fmt.Errorf("punish rate must be positive: %d", v)
 	}
 
 	return nil

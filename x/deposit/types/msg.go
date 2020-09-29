@@ -3,6 +3,7 @@ package types
 import (
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
+	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 
 )
 
@@ -156,6 +157,10 @@ func (msg MsgSubmitSpv) ValidateBasic() error {
 		return ErrEmptyOwnerAccount
 	}
 
+	if len(msg.SpvInfo.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
+
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------
@@ -193,6 +198,10 @@ func (msg MsgTransferDeposit) ValidateBasic() error {
 	if msg.To.Empty() {
 		return ErrEmptyOwnerAccount
 	}
+
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------
@@ -223,6 +232,9 @@ func (msg MsgDepositToCoin) ValidateBasic() error {
 		return ErrEmptyOwnerAccount
 	}
 
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------
@@ -257,6 +269,17 @@ func (msg MsgDepositClaimCoin) ValidateBasic() error {
 		return ErrEmptyOwnerAccount
 	}
 
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
+
+	if !msg.Asset.IsPositive() {
+		return ErrBadAmount
+	}
+
+	if !hexutil.IsValidBtcAddress(msg.ClaimAddress) {
+		return ErrWrongBtcAddress
+	}
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------
@@ -287,6 +310,9 @@ func (msg MsgFinishDeposit) ValidateBasic() error {
 		return ErrEmptyOwnerAccount
 	}
 
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------
@@ -317,6 +343,9 @@ func (msg MsgWaitTimeout) ValidateBasic() error {
 		return ErrEmptyOwnerAccount
 	}
 
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------
@@ -347,6 +376,9 @@ func (msg MsgReportWrongSpv) ValidateBasic() error {
 		return ErrEmptyOwnerAccount
 	}
 
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------
@@ -381,5 +413,8 @@ func (msg MsgJudgeDepositSpv) ValidateBasic() error {
 		return ErrEmptyOwnerAccount
 	}
 
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
 	return nil
 }

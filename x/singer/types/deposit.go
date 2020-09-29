@@ -39,7 +39,7 @@ type DepositInfo struct {
 	Threshold int `json:"threshold" yaml:"threshold"`
 	Singers []AccountID `json:"singers" yaml:"singers"`
 	ClaimAddress string  `json:"claim_address" yaml:"claim_address"`
-	minStake sdk.Int  
+	MinStake sdk.Int  `json:"min_Stake" yaml:"min_Stake"`
 	Status DepositStatus `json:"status" yaml:"status"`
 	DepositChangeTime time.Time `json:"deposit_change_time" yaml:"deposit_change_time"`
 }
@@ -49,9 +49,13 @@ func NewDepositInfo(depositID string,threshold int,minStake sdk.Int) DepositInfo
 	return DepositInfo{
 		DepositID:     depositID,
 		Threshold:       threshold,
-		minStake: minStake,
+		MinStake: minStake,
 		Status:Open,
 	}
+}
+
+func (v DepositInfo) GetMinStake() sdk.Int {
+	return v.MinStake
 }
 
 // return the redelegation

@@ -16,11 +16,17 @@ func (k Keeper) WaitTime(ctx sdk.Context) (res time.Duration) {
 	return res
 }
 
+func (k Keeper) PunishRate(ctx sdk.Context) (res int) {
+	k.paramstore.Get(ctx, types.KeyPunishRage, &res)
+	return res
+}
+
 // Get all parameteras as types.Params
 func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 	return types.NewParams(
 		k.MinAccessAmount(ctx),
 		k.WaitTime(ctx),
+		k.PunishRate(ctx),
 	)
 }
 
