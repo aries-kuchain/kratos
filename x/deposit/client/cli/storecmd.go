@@ -453,7 +453,7 @@ func GetCmdClaimAberrant(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "claim-aberrant [deposit-id] [claim-account] [amount] ",
 		Short: "claim a aberrant deposit ",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))

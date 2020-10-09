@@ -49,7 +49,7 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 func handleKuKuMsgCreateDeposit(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgCreateDeposit) (*sdk.Result, error) {
 	msgData := types.MsgCreateDeposit{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgCreateDeposit data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.OwnerAccount)
@@ -67,7 +67,7 @@ func handleKuKuMsgCreateDeposit(ctx chainTypes.Context, keeper keeper.Keeper, ms
 func handleKuMsgProhibitLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgProhibitLegalCoin) (*sdk.Result, error) {
 	msgData := types.MsgProhibitLegalCoin{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgProhibitLegalCoin data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.SystemAccount)
@@ -85,7 +85,7 @@ func handleKuMsgProhibitLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, 
 func handleKuMsgCreateLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgCreateLegalCoin) (*sdk.Result, error) {
 	msgData := types.MsgCreateLegalCoin{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgCreateLegalCoin data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.SystemAccount)
@@ -101,7 +101,7 @@ func handleKuMsgCreateLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, ms
 func handleKuMsgPermintLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgPermintLegalCoin) (*sdk.Result, error) {
 	msgData := types.MsgProhibitLegalCoin{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgProhibitLegalCoin data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.SystemAccount)
@@ -117,7 +117,7 @@ func handleKuMsgPermintLegalCoin(ctx chainTypes.Context, keeper keeper.Keeper, m
 func handleKuMsgSubmitSpv(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgSubmitSpv) (*sdk.Result, error) {
 	msgData := types.MsgSubmitSpv{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgSubmitSpv data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.SpvInfo.SpvSubmiter)
@@ -133,7 +133,7 @@ func handleKuMsgSubmitSpv(ctx chainTypes.Context, keeper keeper.Keeper, msg type
 func handleKuMsgTransferDeposit(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgTransferDeposit) (*sdk.Result, error) {
 	msgData := types.MsgTransferDeposit{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgTransferDeposit data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.From)
@@ -149,7 +149,7 @@ func handleKuMsgTransferDeposit(ctx chainTypes.Context, keeper keeper.Keeper, ms
 func handleKuMsgDepositToCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgDepositToCoin) (*sdk.Result, error) {
 	msgData := types.MsgDepositToCoin{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgDepositToCoin data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.Owner)
@@ -165,7 +165,7 @@ func handleKuMsgDepositToCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg 
 func handleKuMsgDepositClaimCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgDepositClaimCoin) (*sdk.Result, error) {
 	msgData := types.MsgDepositClaimCoin{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgDepositClaimCoin data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.Owner)
@@ -181,7 +181,7 @@ func handleKuMsgDepositClaimCoin(ctx chainTypes.Context, keeper keeper.Keeper, m
 func handleKuMsgFinishDeposit(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgFinishDeposit) (*sdk.Result, error) {
 	msgData := types.MsgFinishDeposit{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgFinishDeposit data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.Owner)
@@ -197,7 +197,7 @@ func handleKuMsgFinishDeposit(ctx chainTypes.Context, keeper keeper.Keeper, msg 
 func handleKuMsgWaitTimeout(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgWaitTimeout) (*sdk.Result, error) {
 	msgData := types.MsgWaitTimeout{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgWaitTimeout data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.Owner)
@@ -213,7 +213,7 @@ func handleKuMsgWaitTimeout(ctx chainTypes.Context, keeper keeper.Keeper, msg ty
 func handleKuMsgReportWrongSpv(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgReportWrongSpv) (*sdk.Result, error) {
 	msgData := types.MsgReportWrongSpv{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgReportWrongSpv data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.Owner)
@@ -229,7 +229,7 @@ func handleKuMsgReportWrongSpv(ctx chainTypes.Context, keeper keeper.Keeper, msg
 func handleKuMsgJudgeDepositSpv(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgJudgeDepositSpv) (*sdk.Result, error) {
 	msgData := types.MsgJudgeDepositSpv{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgJudgeDepositSpv data unmarshal error")
 	}
 
 	name, ok := msgData.SystemAccount.ToName()
@@ -250,7 +250,7 @@ func handleKuMsgJudgeDepositSpv(ctx chainTypes.Context, keeper keeper.Keeper, ms
 func handleKuMsgClaimAberrant(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgClaimAberrant) (*sdk.Result, error) {
 	msgData := types.MsgClaimAberrant{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
-		return nil, sdkerrors.Wrapf(err, "msg MsgRegisterSinger data unmarshal error")
+		return nil, sdkerrors.Wrapf(err, "msg MsgClaimAberrant data unmarshal error")
 	}
 
 	ctx.RequireAuth(msgData.ClaimAccount)

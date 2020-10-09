@@ -300,6 +300,8 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (e
 		if err != nil {
 			return err
 		}
+		depositInfo.TotalFee = depositInfo.TotalFee.Sub(depositInfo.CurrentFee)
+		depositInfo.CurrentFee = sdk.ZeroInt()
 		depositInfo.Status = types.Aberrant
 		k.SetDepositInfo(ctx,depositInfo)
 		return k.singerKeeper.AberrantDeposit(ctx,depositID)
@@ -489,16 +491,7 @@ func  (k Keeper) JudgeSpvRight(ctx sdk.Context,depositID string,systemAccount Ac
 			}
 			depositInfo.TotalFee = 	depositInfo.TotalFee.Sub(depositInfo.CurrentFee)
 			depositInfo.CurrentFee = sdk.ZeroInt()
-			threshold := len(depositInfo.Singers)
-			unlockFee := depositInfo.TotalFee.QuoRaw(int64(threshold))
 
-			for _,singerAccount := range depositInfo.Singers {
-					_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,unlockFee)
-				if err != nil {
-					return err
-				}
-			}
-			depositInfo.TotalFee = sdk.ZeroInt()
 		}
 		k.SetDepositInfo(ctx,depositInfo)
 	} else {
@@ -522,8 +515,24 @@ func  (k Keeper) ClaimAberrantDeposit(ctx sdk.Context,depositID string,claimAcco
 		return 
 	}
 	depositInfo.Status = types.Finish
-	k.SetDepositInfo(ctx,depositInfo)
+	//handle fee to claimAccount
+	threshold := len(depositInfo.Singers)
+	unlockFee := depositInfo.TotalFee.QuoRaw(int64(threshold))
 
+	for _,singerAccount := range depositInfo.Singers {
+		_,err := k.pricefeeKeeper.TransferFee(ctx,singerAccount,claimAccount,unlockFee)
+		if err != nil {
+			return err
+		}
+	}
+
+	_,err = k.pricefeeKeeper.UnLockFee(ctx,claimAccount,depositInfo.TotalFee)
+	if err != nil {
+		return err
+	}
+
+	depositInfo.TotalFee = sdk.ZeroInt()
+	k.SetDepositInfo(ctx,depositInfo)
 	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
 	if err != nil {
 		return err

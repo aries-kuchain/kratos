@@ -221,7 +221,7 @@ func NewKuMsgMsgSetBtcAddress(auth sdk.AccAddress, singerAccount AccountID,depos
 }
 
 func (msg KuMsgMsgSetBtcAddress) ValidateBasic() error {
-	msgData := MsgLogoutSinger{}
+	msgData := MsgSetBtcAddress{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
 		return err
 	}

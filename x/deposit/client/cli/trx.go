@@ -30,6 +30,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdDepostWaitTimeOut(cdc),
 		GetReportSingerWrongSpv(cdc),
 		GetJudgeSpv(cdc),
+		GetCmdClaimAberrant(cdc),
 	)
 	return txCmd
 }
