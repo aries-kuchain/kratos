@@ -1,7 +1,7 @@
 package cli
 
 import (
-	//	"fmt"
+	"fmt"
 	//"github.com/KuChainNetwork/kuchain/chain/client/flags"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
@@ -148,6 +148,36 @@ func GetCmdQueryDepositSpv(storeName string, cdc *codec.Codec) *cobra.Command {
 			}
 
 			return cliCtx.PrintOutput(spvInfos)
+		},
+	}
+}
+
+func GetCmdQueryDepositMortgageRatio(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "deposit-mortgage-ratio [depositID]",
+		Short: "Query a deposit spv motrgage ratio",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			params := types.NewQueryDepositParams(args[0])
+			bz, err := cdc.MarshalJSON(params)
+			if err != nil {
+				return fmt.Errorf("failed to marshal params: %w", err)
+			}
+
+			// query for delegator total rewards
+			route := fmt.Sprintf("custom/%s/%s", storeName, types.QueryDepositMortgageRatioParams)
+			res, _, err := cliCtx.QueryWithData(route, bz)
+			if err != nil {
+				return err
+			}
+
+			var result types.QueryDepositMortgageRatioResponse
+			if err = cdc.UnmarshalJSON(res, &result); err != nil {
+				return fmt.Errorf("failed to unmarshal response: %w", err)
+			}
+			return cliCtx.PrintOutput(result)
 		},
 	}
 }

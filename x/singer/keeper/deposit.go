@@ -360,3 +360,27 @@ func (k Keeper) FinishAberrantDeposit(ctx sdk.Context, depositID string,claimAcc
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
 }
+
+func (k Keeper) GetMortgageRatio(ctx sdk.Context, depositID string,baseMortgage sdk.Int) (err error,baseRate,currentRate sdk.Int) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist,sdk.ZeroInt(),sdk.ZeroInt()
+	}
+
+	minStake :=  depositInfo.GetMinStake()
+	threshold := len(depositInfo.Singers)
+	baseRate = minStake.MulRaw(int64(threshold*100)).Quo(baseMortgage)
+
+	currentStake := sdk.ZeroInt()
+	for _,singerAccount := range depositInfo.Singers {
+		singerInfo,found := k.GetSingerInfo(ctx,singerAccount)
+		if !found {
+			return types.ErrSingerNotExists,baseRate,sdk.ZeroInt()
+		}
+		currentStake = currentStake.Add(singerInfo.SignatureMortgage)
+	}
+
+	currentRate = currentStake.MulRaw(int64(100)).Quo(baseMortgage)
+	return nil,baseRate,currentRate
+
+}

@@ -1,29 +1,56 @@
 package keeper
 
 import (
-	// "github.com/cosmos/cosmos-sdk/codec"
-	// sdk "github.com/cosmos/cosmos-sdk/types"
-	// abci "github.com/tendermint/tendermint/abci/types"
+//	"encoding/json"
+
+//	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
+	"github.com/KuChainNetwork/kuchain/x/deposit/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-type QueryResResolve struct {
-	Value string `json:"value"`
+func NewQuerier(k Keeper) sdk.Querier {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
+		switch path[0] {
+		case types.QueryDepositMortgageRatioParams:
+			return queryQueryDepositMortgageRatio(ctx, path[1:], req, k)
+
+		default:
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown query path: %s", path[0])
+		}
+	}
 }
 
-// // nolint: unparam
-// func queryResolve(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Keeper) (res []byte, err error) {
-// 	name := path[0]
+func queryQueryDepositMortgageRatio(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 
-// 	value := keeper.ResolveName(ctx, name)
+	var params types.QueryDepositParams
+	err := k.cdc.UnmarshalJSON(req.Data, &params)
 
-// 	if value == "" {
-// 		return []byte{}, nil //sdk.ErrUnknownRequest("could not resolve name")
-// 	}
+	ctx.Logger().Debug("queryValidatorOutstandingRewards:", params, err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
 
-// 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, QueryResResolve{value})
-// 	if err2 != nil {
-// 		panic("could not marshal result to JSON")
-// 	}
+	err,baseRatio,currentRatio := k.GetMortgageRatio(ctx, params.DepositID)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
 
-// 	return bz, nil
-// }
+	// ctx.Logger().Debug("1 queryValidatorOutstandingRewards:", rewards)
+
+	// if rewards.Rewards == nil {
+	// 	rewards.Rewards = chainTypes.DecCoins{}
+	// }
+	depositMortgageRatio := types.NewQueryDepositMortgageRatioResponse(params.DepositID,baseRatio,currentRatio)
+
+	bz, err := codec.MarshalJSONIndent(k.cdc, depositMortgageRatio)
+	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+

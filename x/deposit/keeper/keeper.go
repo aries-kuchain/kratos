@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"fmt"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
-	abci "github.com/tendermint/tendermint/abci/types"
+	//abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/external"
 
 )
@@ -95,14 +95,4 @@ func (k Keeper) IterateAllBalances(ctx sdk.Context, cb func(sdk.AccAddress, sdk.
 	// }
 }
 
-func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
-		switch path[0] {
-		case types.QueryValue:
-			return nil, nil //queryResolve(ctx, path[1:], req, keeper)
 
-		default:
-			return nil, nil //sdk.ErrUnknownRequest("unknown bank query endpoint")
-		}
-	}
-}
