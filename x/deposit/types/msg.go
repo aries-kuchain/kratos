@@ -457,3 +457,42 @@ func (msg MsgClaimAberrant) ValidateBasic() error {
 	}
 	return nil
 }
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgClaimMortgage struct {
+	DepositID string
+	ClaimAccount AccountID
+	Amount	Coin
+}
+
+func NewMsgClaimMortgage(depositID string,claimAccount AccountID,amount Coin) MsgClaimMortgage {
+	return MsgClaimMortgage{
+		DepositID:depositID,
+		ClaimAccount:claimAccount,
+		Amount:amount,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgClaimMortgage) Route() string { return RouterKey }
+
+func (msg MsgClaimMortgage) Type() chainTypes.Name { return chainTypes.MustName("claimmortgage") }
+
+func (msg MsgClaimMortgage) Sender() AccountID {
+	return msg.ClaimAccount
+}
+
+func (msg MsgClaimMortgage) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.ClaimAccount.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
+	
+	if !msg.Amount.Amount.IsPositive() {
+		return ErrBadAmount
+	}
+	return nil
+}

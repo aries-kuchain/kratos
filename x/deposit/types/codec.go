@@ -19,6 +19,8 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(KuMsgReportWrongSpv{}, "deposit/KuMsgReportWrongSpv", nil)
 	cdc.RegisterConcrete(KuMsgJudgeDepositSpv{}, "deposit/KuMsgJudgeDepositSpv", nil)
 	cdc.RegisterConcrete(KuMsgClaimAberrant{}, "deposit/KuMsgClaimAberrant", nil)
+	cdc.RegisterConcrete(KuMsgClaimMortgage{}, "deposit/KuMsgClaimMortgage", nil)
+
 }
 
 var (

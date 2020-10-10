@@ -379,3 +379,38 @@ func (msg KuMsgClaimAberrant) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgClaimMortgage struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgClaimMortgage(auth sdk.AccAddress,depositID string,claimAccount AccountID,amount Coin ) KuMsgClaimMortgage {
+	return KuMsgClaimMortgage{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithTransfer(claimAccount, ModuleAccountID, chainTypes.Coins{amount}),
+			msg.WithData(Cdc(), &MsgClaimMortgage{
+					DepositID:depositID,
+					ClaimAccount:claimAccount,
+					Amount:amount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgClaimMortgage) ValidateBasic() error {
+	if err := msg.KuMsg.ValidateTransfer(); err != nil {
+		return err
+	}
+
+	msgData := MsgClaimMortgage{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	if err := msg.KuMsg.ValidateTransferRequire(ModuleAccountID, chainTypes.NewCoins(msgData.Amount)); err != nil {
+		return chainTypes.ErrKuMsgInconsistentAmount
+	}
+	return msgData.ValidateBasic()
+}

@@ -376,5 +376,26 @@ func (k Keeper) GetMortgageRatio(ctx sdk.Context, depositID string,baseMortgage 
 	baseRate = minStake.MulRaw(int64(threshold*100)).Quo(baseMortgage)
 
 	return nil,baseRate
+}
 
+func (k Keeper) FinishLackMortgageDeposit(ctx sdk.Context, depositID string,claimAccount AccountID) (err error) {
+	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	depositInfo.Status = types.Close
+	k.SetDepositInfo(ctx,depositInfo)
+	err = k.punishSinger(ctx,depositInfo.Singers,depositInfo.MinStake)
+	if  err != nil {
+		return nil
+	}
+//transfer to claimAccount
+	amount := chainTypes.NewCoin( external.DefaultBondDenom,depositInfo.MinStake.MulRaw(int64(len(depositInfo.Singers))))
+	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, claimAccount, chainTypes.NewCoins(amount))
+	if  err != nil {
+		return nil
+	}
+
+	return nil
 }

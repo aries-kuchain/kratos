@@ -545,8 +545,52 @@ func  (k Keeper)  GetMortgageRatio(ctx sdk.Context,depositID string) (err error,
 	if !found {
 		return types.ErrDepositNotExist,sdk.ZeroInt()
 	}
-	//threshold := len(depositInfo.Singers)
+
 	quoteAmount := k.CalQuoteAmount(ctx,depositInfo.Asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
 	err,baseRatio = k.singerKeeper.GetMortgageRatio(ctx,depositID,quoteAmount)
 	return err,baseRatio
+}
+
+func  (k Keeper) ClaimMortgageDeposit(ctx sdk.Context,depositID string,claimAccount AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+	//check status
+	if depositInfo.Status != types.CashReady {
+		return types.ErrStatusNotCashReady
+	}
+
+	quoteAmount := k.CalQuoteAmount(ctx,depositInfo.Asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	err,baseRatio := k.singerKeeper.GetMortgageRatio(ctx,depositID,quoteAmount)
+	if err != nil {
+		return nil
+	}
+	if baseRatio.GT(sdk.NewInt(110)) {
+		return types.ErrMortgageNotLack
+	}
+
+	err = k.singerKeeper.FinishLackMortgageDeposit(ctx,depositID,claimAccount)
+	if err != nil {
+		return nil
+	}
+
+	threshold := len(depositInfo.Singers)
+	unlockFee := depositInfo.TotalFee.QuoRaw(int64(threshold))
+	for _,singerAccount := range depositInfo.Singers {
+		_,err := k.pricefeeKeeper.UnLockFee(ctx,singerAccount,unlockFee)
+		if err != nil {
+			return err
+		}
+	}
+
+	depositInfo.TotalFee = sdk.ZeroInt()
+	depositInfo.Status = types.Finish
+	k.SetDepositInfo(ctx,depositInfo)
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	if err != nil {
+		return err
+	}
+	return k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+	
 }

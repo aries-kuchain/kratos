@@ -39,6 +39,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgJudgeDepositSpv(ctx, k, msg)
 		case types.KuMsgClaimAberrant:
 			return handleKuMsgClaimAberrant(ctx, k, msg)
+		case types.KuMsgClaimMortgage:
+			return handleKuMsgClaimMortgage(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -258,6 +260,22 @@ func handleKuMsgClaimAberrant(ctx chainTypes.Context, keeper keeper.Keeper, msg 
 	sdkCtx := ctx.Context()
 
 	if err := keeper.ClaimAberrantDeposit(sdkCtx, msgData.DepositID,msgData.ClaimAccount); err != nil {
+		return nil, err
+	}
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgClaimMortgage(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgClaimMortgage) (*sdk.Result, error) {
+	msgData := types.MsgClaimMortgage{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgClaimMortgage data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.ClaimAccount)
+
+	sdkCtx := ctx.Context()
+
+	if err := keeper.ClaimMortgageDeposit(sdkCtx, msgData.DepositID,msgData.ClaimAccount); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
