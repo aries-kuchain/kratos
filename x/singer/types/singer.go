@@ -46,6 +46,7 @@ type SingerInfo struct {
 	AccessAsset       sdk.Int      `json:"access_asset" yaml:"access_asset"`
 	Status            SingerStatus `json:"status" yaml:"status"`
 	SignatureMortgage sdk.Int      `json:"signature_mortgage" yaml:"signature_mortgage"`
+	LockMortgage sdk.Int       `json:"locked_morgage" yaml:"locked_morgage"`
 }
 
 func NewSingerInfo(singerName AccountID) SingerInfo {
@@ -54,6 +55,7 @@ func NewSingerInfo(singerName AccountID) SingerInfo {
 		AccessAsset:       sdk.ZeroInt(),
 		Status:            InActive,
 		SignatureMortgage: sdk.ZeroInt(),
+		LockMortgage:sdk.ZeroInt(),
 	}
 }
 

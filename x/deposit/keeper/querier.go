@@ -33,12 +33,12 @@ func queryQueryDepositMortgageRatio(ctx sdk.Context, path []string, req abci.Req
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
-	err,baseRatio,currentRatio,punishRatio := k.GetMortgageRatio(ctx, params.DepositID)
+	err,baseRatio := k.GetMortgageRatio(ctx, params.DepositID)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 
-	depositMortgageRatio := types.NewQueryDepositMortgageRatioResponse(params.DepositID,baseRatio,currentRatio,punishRatio)
+	depositMortgageRatio := types.NewQueryDepositMortgageRatioResponse(params.DepositID,baseRatio)
 
 	bz, err := codec.MarshalJSONIndent(k.cdc, depositMortgageRatio)
 	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)

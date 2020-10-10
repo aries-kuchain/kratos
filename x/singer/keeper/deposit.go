@@ -233,7 +233,7 @@ func (k Keeper) FinishDeposit(ctx sdk.Context, depositID string) (err error) {
 	depositInfo.Status = types.Close
 	k.SetDepositInfo(ctx,depositInfo)
 
-	return k.unlockSinger(ctx,depositInfo.Singers)
+	return k.unlockMortgage(ctx,depositInfo.Singers,depositInfo.MinStake)
 }
 
 func (k Keeper) AberrantDeposit(ctx sdk.Context, depositID string)(err error) {
@@ -266,7 +266,7 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,singerAccount Accou
 		depositInfo.Status = types.Close
 		k.SetDepositInfo(ctx,depositInfo)
 
-		return k.unlockSinger(ctx,depositInfo.Singers)
+		return k.unlockMortgage(ctx,depositInfo.Singers,depositInfo.MinStake)
 	}
 
 	if depositInfo.Status == types.CashOut {
@@ -274,7 +274,7 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,singerAccount Accou
 		depositInfo.Status = types.Close
 		k.SetDepositInfo(ctx,depositInfo)
 
-		return k.unlockSinger(ctx,depositInfo.Singers)
+		return k.unlockMortgage(ctx,depositInfo.Singers,depositInfo.MinStake)
 	}
 	return types.ErrNotWaitStatus
 }
@@ -322,7 +322,7 @@ func (k Keeper) AberrantFinishDeposit(ctx sdk.Context, depositID string)(err err
 
 	depositInfo.Status = types.Close
 	k.SetDepositInfo(ctx,depositInfo)
-	return k.unlockSinger(ctx,depositInfo.Singers)
+	return k.unlockMortgage(ctx,depositInfo.Singers,depositInfo.MinStake)
 }
 
 func (k Keeper) FinishDepositPunishSinger(ctx sdk.Context, depositID string,owner AccountID)(err error) {
@@ -335,6 +335,7 @@ func (k Keeper) FinishDepositPunishSinger(ctx sdk.Context, depositID string,owne
 	minStake :=  depositInfo.GetMinStake()
 	punishAmount := minStake.MulRaw(int64(punishRate)).QuoRaw(100)
 	k.punishSinger(ctx,depositInfo.Singers,punishAmount)
+	k.unlockMortgage(ctx,depositInfo.Singers,minStake.Sub(punishAmount))
 	//transfer coins to deposit owner
 	amount := chainTypes.NewCoin( external.DefaultBondDenom,punishAmount.MulRaw(int64(len(depositInfo.Singers))))
 	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, owner, chainTypes.NewCoins(amount))
@@ -353,7 +354,10 @@ func (k Keeper) FinishAberrantDeposit(ctx sdk.Context, depositID string,claimAcc
 	}
 	//transfer singers mortgage to claimAccount  how much?
 	minStake :=  depositInfo.GetMinStake()
-	k.punishSinger(ctx,depositInfo.Singers,minStake)
+	err = k.punishSinger(ctx,depositInfo.Singers,minStake)
+	if err != nil {
+		return err
+	}
 	amount := chainTypes.NewCoin( external.DefaultBondDenom,minStake.MulRaw(int64(len(depositInfo.Singers))))
 	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, claimAccount, chainTypes.NewCoins(amount))
 	depositInfo.Status = types.Close
@@ -361,33 +365,16 @@ func (k Keeper) FinishAberrantDeposit(ctx sdk.Context, depositID string,claimAcc
 	return nil
 }
 
-func (k Keeper) GetMortgageRatio(ctx sdk.Context, depositID string,baseMortgage sdk.Int) (err error,baseRate,currentRate,punishRate sdk.Int) {
+func (k Keeper) GetMortgageRatio(ctx sdk.Context, depositID string,baseMortgage sdk.Int) (err error,baseRate sdk.Int) {
 	depositInfo,found := k.GetDepositInfo(ctx,depositID)
 	if !found {
-		return types.ErrDepositNotExist,sdk.ZeroInt(),sdk.ZeroInt(),sdk.ZeroInt()
+		return types.ErrDepositNotExist,sdk.ZeroInt()
 	}
 
 	minStake :=  depositInfo.GetMinStake()
 	threshold := len(depositInfo.Singers)
 	baseRate = minStake.MulRaw(int64(threshold*100)).Quo(baseMortgage)
 
-	currentStake := sdk.ZeroInt()
-	punishStake := sdk.ZeroInt()
-	for _,singerAccount := range depositInfo.Singers {
-		singerInfo,found := k.GetSingerInfo(ctx,singerAccount)
-		if !found {
-			return types.ErrSingerNotExists,baseRate,sdk.ZeroInt(),sdk.ZeroInt()
-		}
-		currentStake = currentStake.Add(singerInfo.SignatureMortgage)
-		if   punishStake.Equal(sdk.ZeroInt()) {
-			punishStake = singerInfo.SignatureMortgage
-		} else if punishStake.GT(singerInfo.SignatureMortgage) {
-			punishStake = singerInfo.SignatureMortgage
-		}
-	}
-
-	currentRate = currentStake.MulRaw(int64(100)).Quo(baseMortgage)
-	punishRate = punishStake.MulRaw(int64(threshold*100)).Quo(baseMortgage)
-	return nil,baseRate,currentRate,punishRate
+	return nil,baseRate
 
 }

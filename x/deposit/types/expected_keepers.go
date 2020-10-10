@@ -61,6 +61,6 @@ type SingerKeeper interface {
 	AberrantFinishDeposit(ctx sdk.Context, depositID string)(err error)
 	FinishDepositPunishSinger(ctx sdk.Context, depositID string,owner AccountID)(err error)
 	FinishAberrantDeposit(ctx sdk.Context, depositID string,claimAccount AccountID)(err error)
-	GetMortgageRatio(ctx sdk.Context, depositID string,baseMortgage sdk.Int) (err error,baseRate,currentRate,punishRate sdk.Int)
+	GetMortgageRatio(ctx sdk.Context, depositID string,baseMortgage sdk.Int) (err error,baseRate sdk.Int)
 }
 

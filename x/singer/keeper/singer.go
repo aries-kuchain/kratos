@@ -155,7 +155,7 @@ func (k Keeper) SingerLogoutAccess(ctx sdk.Context, singerAccount AccountID) ( e
 		return  types.ErrSingerNotExists
 	}
 
-	if singer.Status == types.Lock {
+	if singer.Status == types.Lock {//TODO
 		return  types.ErrMortgageNotEnough
 	}
 
@@ -187,6 +187,21 @@ func (k Keeper) lockSinger(ctx sdk.Context,singerInfors types.SingerInfos) (err 
 	return nil
 }
 
+func (k Keeper) lockMortgage(ctx sdk.Context,singerInfors types.SingerInfos,lockAmount sdk.Int) (err error) {
+	for _, singerInfo := range singerInfors {
+		if singerInfo.Status != types.Active {
+			return types.ErrSingerStatusNotActive
+		}
+		if  singerInfo.SignatureMortgage.LT(lockAmount) {
+			return types.ErrMortgageNotEnough
+		}
+		singerInfo.SignatureMortgage = singerInfo.SignatureMortgage.Sub(lockAmount)
+		singerInfo.LockMortgage = singerInfo.LockMortgage.Add(lockAmount)
+		k.SetSingerInfo(ctx,singerInfo)
+	}
+	return nil
+}
+
 func (k Keeper) PickSinger(ctx sdk.Context,depositID string,minStake sdk.Int,threshold int) (pickedSingerInfo  types.SingerInfos,err error) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.SingerInfoKey)
@@ -211,7 +226,7 @@ func (k Keeper) PickSinger(ctx sdk.Context,depositID string,minStake sdk.Int,thr
 	}
 
 	k.NewDepositInfo(ctx,depositID,threshold,pickedSingerInfo,minStake)
-	err = k.lockSinger(ctx,pickedSingerInfo)
+	err = k.lockMortgage(ctx,pickedSingerInfo,minStake)
 	if err != nil {
 		return nil,err
 	}
@@ -234,21 +249,33 @@ func (k Keeper) unlockSinger(ctx sdk.Context,singers []AccountID) (err error) {
 	return nil
 }
 
+func (k Keeper) unlockMortgage(ctx sdk.Context,singers []AccountID,unlockAmount sdk.Int) (err error) {
+	for _, singer := range singers {
+		singerInfo,found := k.GetSingerInfo(ctx,singer)
+		if !found {
+			return types.ErrSingerNotExists
+		}
+		if singerInfo.LockMortgage.LT(unlockAmount) {
+			return types.ErrMortgageNotEnough
+		}
+		singerInfo.LockMortgage = singerInfo.LockMortgage.Sub(unlockAmount)
+		singerInfo.SignatureMortgage = singerInfo.SignatureMortgage.Add(unlockAmount)
+		k.SetSingerInfo(ctx,singerInfo)
+	}
+	return nil
+}
+
 func  (k Keeper) punishSinger(ctx sdk.Context,singers []AccountID,punishAmount sdk.Int) (err error) {
 	for _, singer := range singers {
 		singerInfo,found := k.GetSingerInfo(ctx,singer)
 		if !found {
 			return types.ErrSingerNotExists
 		}
-		if singerInfo.Status != types.Lock {
-			return types.ErrSingerStatusNotLock
-		}
-		if singerInfo.SignatureMortgage.LT(punishAmount) {
+		if singerInfo.LockMortgage.LT(punishAmount) {
 			return types.ErrMortgageNotEnough
 		}
 
-		singerInfo.SignatureMortgage = singerInfo.SignatureMortgage.Sub(punishAmount)
-		singerInfo.Status = types.Active
+		singerInfo.LockMortgage = singerInfo.LockMortgage.Sub(punishAmount)
 		k.SetSingerInfo(ctx,singerInfo)
 	}
 	return nil

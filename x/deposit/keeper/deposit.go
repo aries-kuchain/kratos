@@ -540,13 +540,13 @@ func  (k Keeper) ClaimAberrantDeposit(ctx sdk.Context,depositID string,claimAcco
 	return k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
 }
 
-func  (k Keeper)  GetMortgageRatio(ctx sdk.Context,depositID string) (err error,baseRatio,currentRatio,punishRate sdk.Int) {
+func  (k Keeper)  GetMortgageRatio(ctx sdk.Context,depositID string) (err error,baseRatio sdk.Int) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
-		return types.ErrDepositNotExist,sdk.ZeroInt(),sdk.ZeroInt(),sdk.ZeroInt()
+		return types.ErrDepositNotExist,sdk.ZeroInt()
 	}
 	//threshold := len(depositInfo.Singers)
 	quoteAmount := k.CalQuoteAmount(ctx,depositInfo.Asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
-	err,baseRatio,currentRatio,punishRate = k.singerKeeper.GetMortgageRatio(ctx,depositID,quoteAmount)
-	return err,baseRatio,currentRatio,punishRate
+	err,baseRatio = k.singerKeeper.GetMortgageRatio(ctx,depositID,quoteAmount)
+	return err,baseRatio
 }
