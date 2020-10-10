@@ -11,6 +11,11 @@ func (k Keeper) MortgageRage(ctx sdk.Context) (res int64) {
 	return res
 }
 
+func (k Keeper) LackMortgageRage(ctx sdk.Context) (res int64) {
+	k.paramstore.Get(ctx, types.KeyLackMortgageRate, &res)
+	return res
+}
+
 func (k Keeper) DepositFeeRate(ctx sdk.Context) (res int64) {
 	k.paramstore.Get(ctx, types.KeyDepositFeeRate, &res)
 	return res
@@ -31,6 +36,11 @@ func (k Keeper) WaitTime(ctx sdk.Context) (res time.Duration) {
 	return res
 }
 
+func (k Keeper) DepositLifeCycle(ctx sdk.Context) (res time.Duration) {
+	k.paramstore.Get(ctx, types.KeyDepositLifeCycle, &res)
+	return res
+}
+
 // Get all parameteras as types.Params
 func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 	return types.NewParams(
@@ -39,6 +49,8 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.ClaimFeeRate(ctx),
 		k.Threshold(ctx),
 		k.WaitTime(ctx),
+		k.LackMortgageRage(ctx),
+		k.DepositLifeCycle(ctx),
 	)
 }
 

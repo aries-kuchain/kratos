@@ -30,5 +30,6 @@ var (
 	ErrWrongBtcAddress  = sdkerrors.Register(ModuleName, 24, "wrong btc address")
 	ErrStatusNotAberrant   = sdkerrors.Register(ModuleName, 25, "Deposit status is not Aberrant")
 	ErrMortgageNotLack   = sdkerrors.Register(ModuleName, 26, "Deposit mortgage is Adequate")
+	ErrNotReachLifeCycle  = sdkerrors.Register(ModuleName, 27, "Do not Reach Deposit Life Cycle")
 
 )

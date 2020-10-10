@@ -32,6 +32,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetJudgeSpv(cdc),
 		GetCmdClaimAberrant(cdc),
 		GetCmdClaimMortgage(cdc),
+		GetCmdCashReadyDeposit(cdc),
 	)
 	return txCmd
 }

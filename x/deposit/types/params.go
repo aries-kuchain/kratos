@@ -16,8 +16,10 @@ const (
 	DefaultDepositFeeRate = 5
 	DefaultClaimFeeRate = 5
 	DefaultThreshold = 3
+	DefaultLackMortgageRate = 110
 
-	DefaultWaitTime time.Duration = time.Second * 10
+	DefaultWaitTime time.Duration = time.Second * 10//3 days
+	DefaultDepositLifeCycle time.Duration = time.Second * 10//0.5 years
 
 )
 
@@ -27,6 +29,9 @@ var (
 	KeyClaimFeeRate     = []byte("claimfeerate")
 	KeyThreshold     = []byte("threshold")
 	KeyWaitTime     = []byte("waittime")
+	KeyLackMortgageRate     = []byte("lackmortgagerate")
+	KeyDepositLifeCycle     = []byte("depositlifecycle")
+
 )
 
 
@@ -36,6 +41,8 @@ type Params struct {
 	ClaimFeeRate int64  `json:"claim_fee_rate" yaml:"claim_fee_rate"`
 	Threshold int `json:"threshold" yaml:"threshold"`
 	WaitTime  time.Duration `json:"wait_time" yaml:"wait_time"`
+	LackMortgageRate int64 `json:"lack_mortgate_rage" yaml:"lack_mortgate_rage"`
+	DepositLifeCycle  time.Duration `json:"deposit_life_cycle" yaml:"deposit_life_cycle"`
 }
 
 func NewParams(
@@ -44,6 +51,8 @@ func NewParams(
 	claimFeeRate int64,
 	threshold int,
 	waitTime time.Duration,
+	lackMortgageRage int64,
+	depositLifeCycle time.Duration,
 ) Params {
 	return Params{
 		MortgageRate:mortgageRage,
@@ -51,6 +60,8 @@ func NewParams(
 		ClaimFeeRate:claimFeeRate,
 		Threshold:threshold,
 		WaitTime:waitTime,
+		LackMortgageRate:lackMortgageRage,
+		DepositLifeCycle:depositLifeCycle,
 	}
 }
 
@@ -62,6 +73,8 @@ func DefaultParams() Params {
 		DefaultClaimFeeRate,
 		DefaultThreshold,
 		DefaultWaitTime,
+		DefaultLackMortgageRate,
+		DefaultDepositLifeCycle,
 	)
 }
 
@@ -77,7 +90,8 @@ func (p *Params) ParamSetPairs() external.ParamsSetPairs {
 		external.NewParamSetPair(KeyClaimFeeRate, &p.ClaimFeeRate, validateFeeRate),
 		external.NewParamSetPair(KeyThreshold, &p.Threshold, validateThreshold),
 		external.NewParamSetPair(KeyWaitTime, &p.WaitTime, validateWaitTime),
-
+		external.NewParamSetPair(KeyLackMortgageRate, &p.LackMortgageRate, validateLackMortgageRate),
+		external.NewParamSetPair(KeyDepositLifeCycle, &p.DepositLifeCycle, validateWaitTime),
 	}
 }
 
@@ -130,6 +144,19 @@ func validateMortgageRate(i interface{}) error {
 
 	if v < 100 {
 		return fmt.Errorf("mortgage rate must be greater 100: %d", v)
+	}
+
+	return nil
+}
+
+func validateLackMortgageRate(i interface{}) error {
+	v, ok := i.(int64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v < 0 {
+		return fmt.Errorf("mortgage rate must be greater 0: %d", v)
 	}
 
 	return nil

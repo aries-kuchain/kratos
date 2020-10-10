@@ -566,7 +566,7 @@ func  (k Keeper) ClaimMortgageDeposit(ctx sdk.Context,depositID string,claimAcco
 	if err != nil {
 		return nil
 	}
-	if baseRatio.GT(sdk.NewInt(110)) {
+	if baseRatio.GT(sdk.NewInt(k.LackMortgageRage(ctx))) {
 		return types.ErrMortgageNotLack
 	}
 
@@ -593,4 +593,38 @@ func  (k Keeper) ClaimMortgageDeposit(ctx sdk.Context,depositID string,claimAcco
 	}
 	return k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
 	
+}
+
+func  (k Keeper)  CashReadyDeposit(ctx sdk.Context,depositID string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return types.ErrDepositNotExist
+	}
+
+	if depositInfo.Status != types.Active {
+		return types.ErrStatusNotActive
+	}
+
+	//time check
+	if depositInfo.DepositChangeTime.Add(k.DepositLifeCycle(ctx)).After(ctx.BlockHeader().Time) {
+		return types.ErrNotReachLifeCycle
+	}
+
+	depositInfo.Status = types.CashReady
+	k.SetDepositInfo(ctx,depositInfo)
+
+	legalCoin,found := k.GetLegalCoin(ctx,depositInfo.Asset)
+	if !found {
+		return types.ErrLegalCoinNotExist
+	}
+
+	err = k.bankKeeper.Issue(ctx,types.ModuleAccountName,legalCoin.Symbol,depositInfo.Asset)
+	if err != nil {
+		return err
+	}
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	if err != nil {
+		return err
+	}
+	return k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,depositInfo.Owner,Coins{depositInfo.Asset})
 }

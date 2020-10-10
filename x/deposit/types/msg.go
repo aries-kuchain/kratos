@@ -496,3 +496,33 @@ func (msg MsgClaimMortgage) ValidateBasic() error {
 	}
 	return nil
 }
+//----------------------------------------------------------------------------------------------------------------------------
+type MsgCashReadyDeposit struct {
+	DepositID string
+	Operator  AccountID
+}
+
+func NewMsgCashReadyDeposit(depositID string,operator AccountID) MsgCashReadyDeposit {
+	return MsgCashReadyDeposit{
+		DepositID:depositID,
+		Operator:operator,
+	}
+}
+
+// Route should return the name of the module
+func (msg MsgCashReadyDeposit) Route() string { return RouterKey }
+
+func (msg MsgCashReadyDeposit) Type() chainTypes.Name { return chainTypes.MustName("cashreadydeposit") }
+
+func (msg MsgCashReadyDeposit) Sender() AccountID {
+	return msg.Operator
+}
+
+func (msg MsgCashReadyDeposit) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+
+	if len(msg.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
+	return nil
+}

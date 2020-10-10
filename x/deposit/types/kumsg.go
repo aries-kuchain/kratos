@@ -414,3 +414,30 @@ func (msg KuMsgClaimMortgage) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgCashReadyDeposit struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgCashReadyDeposit(auth sdk.AccAddress,depositID string,operator AccountID ) KuMsgCashReadyDeposit {
+	return KuMsgCashReadyDeposit{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgCashReadyDeposit{
+					DepositID:depositID,
+					Operator:operator,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgCashReadyDeposit) ValidateBasic() error {
+
+	msgData := MsgCashReadyDeposit{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	return msgData.ValidateBasic()
+}
