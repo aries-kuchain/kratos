@@ -70,9 +70,10 @@ func (k Keeper) ActiveSingerInfo(ctx sdk.Context, singerAccount AccountID) error
 		return types.ErrSingerNotExists
 	}
 
-	if singer.Status != types.InActive {
+	if singer.Status == types.Active {
 		return types.ErrSingerAlreadyActive
 	}
+
 	if singer.AccessAsset.LT(k.MinAccessAmount(ctx)) {
 		return types.ErrInsufficientAccessAsset
 	}
@@ -111,7 +112,7 @@ func (k Keeper) SingerClaimBTCMortgate(ctx sdk.Context, singerAccount AccountID,
 
 	//状态判断
 	if singer.Status == types.Lock {
-		return sdk.ZeroInt(), types.ErrMortgageNotEnough
+		return sdk.ZeroInt(), types.ErrSingerStatusNotActive
 	}
 
 	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, singerAccount, chainTypes.NewCoins(amount))
@@ -156,7 +157,7 @@ func (k Keeper) SingerLogoutAccess(ctx sdk.Context, singerAccount AccountID) ( e
 	}
 
 	if singer.Status == types.Lock {//TODO
-		return  types.ErrMortgageNotEnough
+		return  types.ErrSingerStatusNotActive
 	}
 
 	if singer.AccessAsset.IsZero() {
@@ -176,10 +177,11 @@ func (k Keeper) SingerLogoutAccess(ctx sdk.Context, singerAccount AccountID) ( e
 	return nil
 }
 
-func (k Keeper) lockSinger(ctx sdk.Context,singerInfors types.SingerInfos) (err error) {
-	for _, singerInfo := range singerInfors {
-		if singerInfo.Status != types.Active {
-			return types.ErrSingerStatusNotActive
+func (k Keeper) lockSinger(ctx sdk.Context, singers []AccountID) (err error) {
+	for _, singer := range singers {
+		singerInfo,found := k.GetSingerInfo(ctx,singer)
+		if !found {
+			return types.ErrSingerNotExists
 		}
 		singerInfo.Status = types.Lock
 		k.SetSingerInfo(ctx,singerInfo)

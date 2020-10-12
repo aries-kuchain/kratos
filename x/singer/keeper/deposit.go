@@ -244,6 +244,7 @@ func (k Keeper) AberrantDeposit(ctx sdk.Context, depositID string)(err error) {
 
 	depositInfo.Status = types.Aberrant
 	k.SetDepositInfo(ctx,depositInfo)
+	k.lockSinger(ctx,depositInfo.Singers)
 	return nil
 }
 
@@ -334,11 +335,20 @@ func (k Keeper) FinishDepositPunishSinger(ctx sdk.Context, depositID string,owne
 	punishRate := k.PunishRate(ctx)
 	minStake :=  depositInfo.GetMinStake()
 	punishAmount := minStake.MulRaw(int64(punishRate)).QuoRaw(100)
-	k.punishSinger(ctx,depositInfo.Singers,punishAmount)
-	k.unlockMortgage(ctx,depositInfo.Singers,minStake.Sub(punishAmount))
+	err = k.punishSinger(ctx,depositInfo.Singers,punishAmount)
+	if err != nil {
+		return err
+	}
+	err = k.unlockMortgage(ctx,depositInfo.Singers,minStake.Sub(punishAmount))
+	if err != nil {
+		return err
+	}
 	//transfer coins to deposit owner
 	amount := chainTypes.NewCoin( external.DefaultBondDenom,punishAmount.MulRaw(int64(len(depositInfo.Singers))))
 	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, owner, chainTypes.NewCoins(amount))
+	if err != nil {
+		return err
+	}
 	depositInfo.Status = types.Close
 	k.SetDepositInfo(ctx,depositInfo)
 	return nil
