@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"fmt"
 	"github.com/KuChainNetwork/kuchain/x/deposit/external"
-
+	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 )
 
 func (k Keeper) GetDepositInfo(ctx sdk.Context, depositID string) (depositInfo types.DepositInfo, found bool) {
@@ -28,7 +28,10 @@ func (k Keeper) SetDepositInfo(ctx sdk.Context, depositInfo types.DepositInfo) {
 }
 
 func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Coin) (depositID string, err error) {
+	var byteDeposit []byte
 	depositId := fmt.Sprintf("%s-%s-%s", ownerAccount.String(), asset.String(), ctx.BlockHeader().Time.Format("2006-01-02-15:04:05"))
+	byteDeposit = append(byteDeposit, []byte(depositId)...)
+	depositId=hexutil.Encode(byteDeposit)
 
 	_, found := k.GetDepositInfo(ctx, depositId)
 	if found {
