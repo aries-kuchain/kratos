@@ -2,23 +2,14 @@ package singer_test
 
 import (
 	"testing"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/smartystreets/goconvey/convey"
-
 	abci "github.com/tendermint/tendermint/abci/types"
-
-	// "encoding/hex"
-
 	"github.com/KuChainNetwork/kuchain/chain/config"
 	"github.com/KuChainNetwork/kuchain/chain/constants"
-//	"github.com/KuChainNetwork/kuchain/chain/msg"
 	"github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/test/simapp"
-	// stakingTypes "github.com/KuChainNetwork/kuchain/x/staking/types"
-	// "github.com/tendermint/tendermint/crypto"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
-	// "github.com/tendermint/tendermint/crypto/ed25519"
 )
 
 func newTestApp(wallet *simapp.Wallet) (addAlice, addJack, addValidator sdk.AccAddress, accAlice, accJack, accValidator types.AccountID, app *simapp.SimApp) {

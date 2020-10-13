@@ -15,7 +15,7 @@ type KuMsgOpenFee struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgRegisterSinger(auth sdk.AccAddress, owner AccountID) KuMsgOpenFee {
+func NewKuMsgOpenFee(auth sdk.AccAddress, owner AccountID) KuMsgOpenFee {
 	return KuMsgOpenFee{
 		*msg.MustNewKuMsg(
 			RouterKeyName,

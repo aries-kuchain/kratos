@@ -38,7 +38,7 @@ func GetCmdOpenFee(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", owner)
 			}
 
-			msg := types.NewKuMsgRegisterSinger(authAccAddress, owner)
+			msg := types.NewKuMsgOpenFee(authAccAddress, owner)
 			cliCtx = cliCtx.WithFromAccount(owner)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[0])
