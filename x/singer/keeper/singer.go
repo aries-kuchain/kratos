@@ -132,7 +132,7 @@ func (k Keeper) SingerClaimAccess(ctx sdk.Context, singerAccount AccountID) (tot
 		return sdk.ZeroInt(), types.ErrSingerNotExists
 	}
 
-	if singer.AccessAsset.LT(k.MinAccessAmount(ctx)) {
+	if singer.AccessAsset.LTE(k.MinAccessAmount(ctx)) {
 		return sdk.ZeroInt(),types.ErrInsufficientAccessAsset
 	}
 
@@ -162,6 +162,10 @@ func (k Keeper) SingerLogoutAccess(ctx sdk.Context, singerAccount AccountID) ( e
 
 	if singer.AccessAsset.IsZero() {
 		return types.ErrAccessIsZero
+	}
+
+	if !singer.LockMortgage.IsZero() {
+		return types.ErrSingerIsBusy
 	}
 
 	amount := chainTypes.NewCoin( external.DefaultBondDenom,singer.AccessAsset)

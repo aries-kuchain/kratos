@@ -116,9 +116,6 @@ func handleKuMsgActiveSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.
 	if !constants.IsSystemAccount(name) {
 		return nil,types.ErrNotSystemAccount
 	}
-	// if ok && !constants.IsSystemAccount(name) {
-	// 	return nil, types.ErrNotSystemAccount
-	// }
 
 	if err := k.ActiveSingerInfo(sdkCtx, msgData.SingerAccount); err != nil {
 		return nil, err
