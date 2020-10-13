@@ -30,6 +30,10 @@ func (msg MsgRegisterSinger) ValidateBasic() error {
 	if msg.SingerAccount.Empty() {
 		return ErrEmptySingerAccount
 	}
+	_,ok := msg.SingerAccount.ToName() 
+	if !ok {
+		return ErrAccountNotAddress
+	}
 	return nil
 }
 //--------------------------------------------------------------------------------------------------------------

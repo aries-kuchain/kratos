@@ -36,7 +36,7 @@ var (
 	ErrEmptyDepositID  = sdkerrors.Register(ModuleName, 30, "empty depositID ")
 	ErrWrongBtcAddress  = sdkerrors.Register(ModuleName, 31, "wrong  btc address")
 	ErrDepositStatusNotAberrant = sdkerrors.Register(ModuleName, 32, "deposit status is not Aberrant")
-	ErrSystemNotAddress  = sdkerrors.Register(ModuleName, 33, "system account must not be an address")
+	ErrAccountNotAddress  = sdkerrors.Register(ModuleName, 33, "account must not be an address")
 	ErrSingerIsBusy  = sdkerrors.Register(ModuleName, 34, "system account is under guarantee")
 
 )
