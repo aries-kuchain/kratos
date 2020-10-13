@@ -17,5 +17,6 @@ var (
 	ErrNotEnoughFeeToLock = sdkerrors.Register(ModuleName, 11, "prestore fee not enough to lock ")
 	ErrNotEnoughFeeToUnLock = sdkerrors.Register(ModuleName, 12, "lock fee is not enough to unlock ")
 	ErrNotEnoughFeeToTransfer = sdkerrors.Register(ModuleName, 13, "lock fee is not enough to transfer ")
+	ErrSystemNotAddress  = sdkerrors.Register(ModuleName, 14, "system account must not be an address")
 
 )

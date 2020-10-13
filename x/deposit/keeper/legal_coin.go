@@ -34,7 +34,10 @@ func (k Keeper) ProhibitLegalCoin(ctx sdk.Context, systemAccount AccountID, asse
 	}
 
 	name, ok := systemAccount.ToName()
-	if ok && constants.IsSystemAccount(name) {
+	if !ok {
+		return types.ErrSystemNotAddress
+	}
+	if !constants.IsSystemAccount(name) {
 		return types.ErrNotSystemAccount
 	}
 	legalCoin.Status = types.Prohibit
@@ -49,9 +52,13 @@ func (k Keeper) PermintLegalCoin(ctx sdk.Context, systemAccount AccountID, asset
 	}
 
 	name, ok := systemAccount.ToName()
-	if ok && constants.IsSystemAccount(name) {
+	if !ok {
+		return types.ErrSystemNotAddress
+	}
+	if !constants.IsSystemAccount(name) {
 		return types.ErrNotSystemAccount
 	}
+	
 	legalCoin.Status = types.Permint
 	k.SetLegalCoin(ctx, legalCoin)
 	return nil
@@ -59,7 +66,10 @@ func (k Keeper) PermintLegalCoin(ctx sdk.Context, systemAccount AccountID, asset
 
 func (k Keeper) CreateLegalCoin(ctx sdk.Context, systemAccount AccountID, asset Coin, symbol chainTypes.Name) (err error) {
 	name, ok := systemAccount.ToName()
-	if ok && constants.IsSystemAccount(name) {
+	if !ok {
+		return types.ErrSystemNotAddress
+	}
+	if !constants.IsSystemAccount(name) {
 		return types.ErrNotSystemAccount
 	}
 

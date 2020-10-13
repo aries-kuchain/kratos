@@ -219,12 +219,12 @@ func (k Keeper) PickSinger(ctx sdk.Context,depositID string,minStake sdk.Int,thr
 
 	sort.Sort(singerInfos)
 
-	for i:=0;i<threshold; i=i+1 {
-		pickedSingerInfo = append(pickedSingerInfo,singerInfos[i])
+	if len(singerInfos) < threshold {
+		return nil,types.ErrNotEnoughSingers
 	}
 
-	if len(pickedSingerInfo) < threshold {
-		return nil,types.ErrNotEnoughSingers
+	for i:=0;i<threshold; i=i+1 {
+		pickedSingerInfo = append(pickedSingerInfo,singerInfos[i])
 	}
 
 	k.NewDepositInfo(ctx,depositID,threshold,pickedSingerInfo,minStake)

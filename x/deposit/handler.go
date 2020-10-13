@@ -237,8 +237,11 @@ func handleKuMsgJudgeDepositSpv(ctx chainTypes.Context, keeper keeper.Keeper, ms
 	}
 
 	name, ok := msgData.SystemAccount.ToName()
-	if ok && constants.IsSystemAccount(name) {
-		return nil, types.ErrNotSystemAccount
+	if !ok {
+		return nil,types.ErrSystemNotAddress
+	}
+	if !constants.IsSystemAccount(name) {
+		return nil,types.ErrNotSystemAccount
 	}
 
 	ctx.RequireAuth(msgData.SystemAccount)

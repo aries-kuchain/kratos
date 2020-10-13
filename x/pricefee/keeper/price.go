@@ -26,7 +26,10 @@ func (k Keeper) SetPriceInfo(ctx sdk.Context, priceInfo types.PriceInfo) {
 
 func (k Keeper) SetPrice(ctx sdk.Context, msgSetPrice types.MsgSetPrice) (err error){
 	name, ok := msgSetPrice.SystemAccount.ToName()
-	if ok && constants.IsSystemAccount(name) {
+	if !ok {
+		return types.ErrSystemNotAddress
+	}
+	if !constants.IsSystemAccount(name) {
 		return types.ErrNotSystemAccount
 	}
 	priceInfo := types.NewPriceInfo(msgSetPrice.Base,msgSetPrice.Quote,msgSetPrice.Remark)

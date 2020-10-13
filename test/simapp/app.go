@@ -33,6 +33,9 @@ import (
 	"github.com/KuChainNetwork/kuchain/x/slashing"
 	"github.com/KuChainNetwork/kuchain/x/staking"
 	"github.com/KuChainNetwork/kuchain/x/supply"
+	"github.com/KuChainNetwork/kuchain/x/singer"
+	"github.com/KuChainNetwork/kuchain/x/deposit"
+	"github.com/KuChainNetwork/kuchain/x/pricefee"
 )
 
 const appName = "SimApp"
@@ -61,6 +64,9 @@ var (
 		mint.NewAppModuleBasic(),
 		params.NewAppModuleBasic(),
 		plugin.NewAppModuleBasic(),
+		singer.NewAppModuleBasic(),
+		deposit.NewAppModuleBasic(),
+		pricefee.NewAppModuleBasic(),	
 	)
 
 	// maccPerms module account permissions
@@ -72,6 +78,9 @@ var (
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
 		gov.ModuleName:            {supply.Burner},
 		mint.ModuleName:           {supply.Minter},
+		singer.ModuleName:         nil,
+		deposit.ModuleName:         {supply.Burner},
+		pricefee.ModuleName:         nil,
 	}
 	allowedReceivingModAcc = map[string]bool{
 		distr.ModuleName: true,
@@ -123,6 +132,9 @@ type SimApp struct {
 	slashingKeeper slashing.Keeper
 	evidenceKeeper evidence.Keeper
 	govKeeper      gov.Keeper
+	singerKeeper   singer.Keeper
+	depositKeeper   deposit.Keeper
+	pricefeeKeeper   pricefee.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -148,7 +160,7 @@ func NewSimApp(
 
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, staking.StoreKey, slashing.StoreKey, evidence.StoreKey, gov.StoreKey,
-		account.StoreKey, asset.StoreKey, supply.StoreKey, params.StoreKey, mint.StoreKey, distr.StoreKey, params.StoreKey,
+		account.StoreKey, asset.StoreKey, supply.StoreKey, params.StoreKey, mint.StoreKey, distr.StoreKey, params.StoreKey,singer.StoreKey,deposit.StoreKey,pricefee.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(params.TStoreKey, staking.TStoreKey, params.TStoreKey)
 
@@ -170,6 +182,9 @@ func NewSimApp(
 	app.subspaces[evidence.ModuleName] = app.paramsKeeper.Subspace(evidence.DefaultParamspace)
 	app.subspaces[mint.ModuleName] = app.paramsKeeper.Subspace(mint.DefaultParamspace)
 	app.subspaces[gov.ModuleName] = app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
+	app.subspaces[singer.ModuleName] = app.paramsKeeper.Subspace(singer.DefaultParamspace)
+	app.subspaces[deposit.ModuleName] = app.paramsKeeper.Subspace(deposit.DefaultParamspace)
+	app.subspaces[pricefee.ModuleName] = app.paramsKeeper.Subspace(pricefee.DefaultParamspace)
 	// add keepers
 	app.accountKeeper = account.NewAccountKeeper(cdc, keys[account.StoreKey])
 	app.assetKeeper = asset.NewAssetKeeper(cdc, keys[asset.StoreKey], app.accountKeeper)
@@ -212,6 +227,12 @@ func NewSimApp(
 		app.supplyKeeper, &stakingKeeper, app.distrKeeper, govRouter,
 	)
 
+
+	app.pricefeeKeeper = pricefee.NewKeeper(keys[pricefee.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper)
+	app.singerKeeper = singer.NewKeeper(keys[singer.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper, app.pricefeeKeeper,app.subspaces[singer.ModuleName])
+	app.depositKeeper = deposit.NewKeeper(keys[deposit.StoreKey], cdc,app.assetKeeper, app.accountKeeper,app.supplyKeeper,app.pricefeeKeeper, app.singerKeeper,app.subspaces[deposit.ModuleName])
+	app.singerKeeper.SetDepositKeeper(app.depositKeeper)
+
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.stakingKeeper = *stakingKeeper.SetHooks(
@@ -239,6 +260,9 @@ func NewSimApp(
 		evidence.NewAppModule(app.evidenceKeeper, app.accountKeeper, app.assetKeeper),
 		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 		plugin.NewAppModule(),
+		singer.NewAppModule(app.singerKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
+		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
+		pricefee.NewAppModule(app.pricefeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 	)
 
 	// plugin.ModuleName MUST be the last
@@ -256,6 +280,9 @@ func NewSimApp(
 		supply.ModuleName,
 		genutil.ModuleName,
 		mint.ModuleName,
+		singer.ModuleName,
+		deposit.ModuleName,
+		pricefee.ModuleName,
 	)
 
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
@@ -272,6 +299,9 @@ func NewSimApp(
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.assetKeeper, app.stakingKeeper),
 		mint.NewAppModule(app.mintKeeper, app.supplyKeeper),
 		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
+		singer.NewAppModule(app.singerKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
+		deposit.NewAppModule(app.depositKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
+		pricefee.NewAppModule(app.pricefeeKeeper, app.accountKeeper, app.assetKeeper, app.supplyKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
