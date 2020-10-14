@@ -700,6 +700,29 @@ func depositReportWrongSpv(t *testing.T, wallet *simapp.Wallet, app *simapp.SimA
 	return err
 }
 
+func claimAberrangDeposit(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID,depositID string, amount types.Coin,passed bool) error {
+	signBlock(app)
+	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
+
+	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
+	So(err, ShouldBeNil)
+
+	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
+	// NewKuMsgClaimAberrant(auth sdk.AccAddress,depositID string,claimAccount AccountID,amount Coin ) KuMsgClaimAberrant
+	msg := depositTypes.NewKuMsgClaimAberrant(addAlice,depositID,accAlice,amount)
+
+	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
+	header := abci.Header{Height: app.LastBlockHeight() + 1}
+
+
+	_, _, err = simapp.SignCheckDeliver(t, app.Codec(), app.BaseApp,
+		header, accAlice, fee,
+		[]sdk.Msg{msg}, []uint64{origAuthNum}, []uint64{origAuthSeq},
+		passed, passed, wallet.PrivKey(addAlice))
+	ctxCheck.Logger().Info("singerTimeOut error log", "err", err)
+	return err
+}
+
 func judgeSpv(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID,depositID string, spvIsRight,feeToSinger,passed bool) error {
 	signBlock(app)
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
@@ -815,7 +838,7 @@ func TestDepositHandler(t *testing.T) {
 		err = checkDepositStatus(app,depositID,depositTypes.Finish)
 		So(err, ShouldBeNil) 
 	})
-	Convey("TestActiveTimeOutDeposit", t, func() {
+	Convey("TestTimeOutDeposit", t, func() {
 		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
 		err := readyForDeposit(t, wallet, app,addAlice)
 		So(err, ShouldBeNil)
@@ -874,12 +897,10 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = singerTimeOut(t, wallet, app,addAlice,spvSinger,depositID,true)
 		So(err, ShouldBeNil) 
-		// err = finishDeposit(t, wallet, app,addAlice,accAlice,depositID,true)
-		// So(err, ShouldBeNil)
 		err = checkDepositStatus(app,depositID,depositTypes.Finish)
 		So(err, ShouldBeNil) 
 	})
-	Convey("TestjudgeSpvRight", t, func() {
+	Convey("TestjudgespvRightdeposit", t, func() {
 		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
 		err := readyForDeposit(t, wallet, app,addAlice)
 		So(err, ShouldBeNil)
@@ -946,5 +967,136 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkDepositStatus(app,depositID,depositTypes.Finish)
 		So(err, ShouldBeNil) 
+	})
+	Convey("TestsingerWrongSPVClaimdeposit", t, func() {
+		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
+		err := readyForDeposit(t, wallet, app,addAlice)
+		So(err, ShouldBeNil)
+		// openfee prestorefee
+		err = openFee(t, wallet, app,addAlice,accAlice,true)
+		So(err, ShouldBeNil)
+		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
+		err= preStoreFee(t, wallet, app,addAlice,accAlice,amout1,true)
+		So(err, ShouldBeNil)
+		symbol := types.MustName("btc")
+		otherCoinDenom := types.CoinDenom(depositTypes.ModuleAccountName, symbol)
+		depositCoin := types.NewCoin(otherCoinDenom, sdk.NewInt(1000000)) 
+		err,depositID,singers := createDeposit(t, wallet, app,addAlice,accAlice,depositCoin,true)
+		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.SingerReady)
+		So(err, ShouldBeNil) 
+		//get deposit ID 
+		btcAddress := "bc1q6yrjchkkyp8yc4cqwhp0p9tysvm6luecxqt8l5"
+		for _,singer := range singers {
+			err = setDepositAddress(t, wallet, app,addAlice,singer,depositID,btcAddress,true)
+			So(err, ShouldBeNil)
+		}
+		err = checkDepositStatus(app,depositID,depositTypes.AddressReady)
+		So(err, ShouldBeNil) 
+		testByte := []byte("just for test")
+		newSpv := singerTypes.NewSpvInfo(depositID,accAlice,testByte,testByte,testByte,testByte,testByte,testByte,0,0)
+		err = submitDepositSpv(t, wallet, app,addAlice,accAlice,newSpv,true)
+		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.DepositSpvReady)
+		So(err, ShouldBeNil) 
+		for _,singer := range singers {
+			err = activeDeposit(t, wallet, app,addAlice,singer,depositID,true)
+			So(err, ShouldBeNil)
+		}
+		err = checkDepositStatus(app,depositID,depositTypes.Active)
+		So(err, ShouldBeNil) 
+		err = transferDeposit(t, wallet, app,addAlice,accAlice,accJack,depositID,true)
+		So(err, ShouldBeNil)
+		err = depositToCoin(t, wallet, app,addJack,accJack,depositID,true)
+		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.CashReady)
+		So(err, ShouldBeNil) 
+		// coinpower to coin
+		err = coinPowerToCoin(t, wallet, app,addJack,accJack,depositCoin,true)
+		So(err, ShouldBeNil)
+		err = transferCoin(t, wallet, app,addJack,accJack,accAlice,depositCoin,true)
+		So(err, ShouldBeNil)
+		claimAddress := "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+		err = depositClaimCoin(t, wallet, app,addAlice,accAlice,depositID,depositCoin,claimAddress,true)
+		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.Cashing)
+		So(err, ShouldBeNil) 
+		spvSinger := singers[0]
+		singerSpv := singerTypes.NewSpvInfo(depositID,spvSinger,testByte,testByte,testByte,testByte,testByte,testByte,0,0)
+		err = submitSingerSpv(t, wallet, app,addAlice,spvSinger,singerSpv,true)
+		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.CashOut)
+		So(err, ShouldBeNil) 
+		err = depositReportWrongSpv(t, wallet, app,addAlice,accAlice,depositID,true)
+		So(err, ShouldBeNil) 
+		accSystem :=  types.MustAccountID("test@sys")
+		err = judgeSpv(t, wallet, app,addAlice,accSystem,depositID,false,false,true)
+		So(err, ShouldBeNil) 
+		err = checkDepositStatus(app,depositID,depositTypes.Aberrant)
+		So(err, ShouldBeNil) 
+		err = coinPowerToCoin(t, wallet, app,addAlice,accAlice,depositCoin,true)
+		So(err, ShouldBeNil)
+		err = claimAberrangDeposit(t, wallet, app,addAlice,accAlice,depositID,depositCoin,true)
+		So(err, ShouldBeNil)
+	})
+	Convey("TestsingerNoSPVClaimdeposit", t, func() {
+		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
+		err := readyForDeposit(t, wallet, app,addAlice)
+		So(err, ShouldBeNil)
+		// openfee prestorefee
+		err = openFee(t, wallet, app,addAlice,accAlice,true)
+		So(err, ShouldBeNil)
+		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
+		err= preStoreFee(t, wallet, app,addAlice,accAlice,amout1,true)
+		So(err, ShouldBeNil)
+		symbol := types.MustName("btc")
+		otherCoinDenom := types.CoinDenom(depositTypes.ModuleAccountName, symbol)
+		depositCoin := types.NewCoin(otherCoinDenom, sdk.NewInt(1000000)) 
+		err,depositID,singers := createDeposit(t, wallet, app,addAlice,accAlice,depositCoin,true)
+		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.SingerReady)
+		So(err, ShouldBeNil) 
+		//get deposit ID 
+		btcAddress := "bc1q6yrjchkkyp8yc4cqwhp0p9tysvm6luecxqt8l5"
+		for _,singer := range singers {
+			err = setDepositAddress(t, wallet, app,addAlice,singer,depositID,btcAddress,true)
+			So(err, ShouldBeNil)
+		}
+		err = checkDepositStatus(app,depositID,depositTypes.AddressReady)
+		So(err, ShouldBeNil) 
+		testByte := []byte("just for test")
+		newSpv := singerTypes.NewSpvInfo(depositID,accAlice,testByte,testByte,testByte,testByte,testByte,testByte,0,0)
+		err = submitDepositSpv(t, wallet, app,addAlice,accAlice,newSpv,true)
+		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.DepositSpvReady)
+		So(err, ShouldBeNil) 
+		for _,singer := range singers {
+			err = activeDeposit(t, wallet, app,addAlice,singer,depositID,true)
+			So(err, ShouldBeNil)
+		}
+		err = checkDepositStatus(app,depositID,depositTypes.Active)
+		So(err, ShouldBeNil) 
+		err = transferDeposit(t, wallet, app,addAlice,accAlice,accJack,depositID,true)
+		So(err, ShouldBeNil)
+		err = depositToCoin(t, wallet, app,addJack,accJack,depositID,true)
+		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.CashReady)
+		So(err, ShouldBeNil) 
+		// coinpower to coin
+		err = coinPowerToCoin(t, wallet, app,addJack,accJack,depositCoin,true)
+		So(err, ShouldBeNil)
+		err = transferCoin(t, wallet, app,addJack,accJack,accAlice,depositCoin,true)
+		So(err, ShouldBeNil)
+		claimAddress := "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+		err = depositClaimCoin(t, wallet, app,addAlice,accAlice,depositID,depositCoin,claimAddress,true)
+		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.Cashing)
+		So(err, ShouldBeNil)
+		err = depositTimeOut(t, wallet, app,addAlice,accAlice,depositID,true)
+		So(err, ShouldBeNil) 
+		err = coinPowerToCoin(t, wallet, app,addAlice,accAlice,depositCoin,true)
+		So(err, ShouldBeNil)
+		err = claimAberrangDeposit(t, wallet, app,addAlice,accAlice,depositID,depositCoin,true)
+		So(err, ShouldBeNil)
 	})
 }
