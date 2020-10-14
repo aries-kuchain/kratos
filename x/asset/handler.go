@@ -32,6 +32,8 @@ func NewHandler(k keeper.AssetCoinsKeeper) msg.Handler {
 			return handleMsgUnlockCoin(ctx, k, msg)
 		case *types.MsgExerciseCoin:
 			return handleMsgExerciseCoin(ctx, k, msg)
+		case types.MsgExerciseCoin:
+			return handleMsgExerciseCoinT(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized asset message type: %T", msg)
 		}
@@ -281,6 +283,10 @@ func handleMsgUnlockCoin(ctx chainTypes.Context, k keeper.AssetCoinsKeeper, msg 
 	)
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleMsgExerciseCoinT(ctx chainTypes.Context, k keeper.AssetCoinsKeeper, msg types.MsgExerciseCoin) (*sdk.Result, error) {
+	return handleMsgExerciseCoin(ctx,k,&msg)
 }
 
 func handleMsgExerciseCoin(ctx chainTypes.Context, k keeper.AssetCoinsKeeper, msg *types.MsgExerciseCoin) (*sdk.Result, error) {

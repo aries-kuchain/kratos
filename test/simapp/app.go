@@ -445,6 +445,10 @@ func (app *SimApp) GovKeeper() *gov.Keeper {
 	return &app.govKeeper
 }
 
+func (app *SimApp) DepositKeeper() *deposit.Keeper {
+	return &app.depositKeeper
+}
+
 // GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {
 	dupMaccPerms := make(map[string][]string)

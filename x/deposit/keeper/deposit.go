@@ -29,7 +29,7 @@ func (k Keeper) SetDepositInfo(ctx sdk.Context, depositInfo types.DepositInfo) {
 
 func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Coin) (depositID string, err error) {
 	var byteDeposit []byte
-	depositId := fmt.Sprintf("%s-%s-%s", ownerAccount.String(), asset.String(), ctx.BlockHeader().Time.Format("2006-01-02-15:04:05"))
+	depositId := fmt.Sprintf("%s-%s-%s", ctx.BlockHeader().Time.Format("2006-01-02-15:04:05"), ownerAccount.String(), asset.String())
 	byteDeposit = append(byteDeposit, []byte(depositId)...)
 	depositId=hexutil.Encode(byteDeposit)
 
@@ -263,7 +263,7 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (e
 	if !depositInfo.Owner.Eq(owner) {
 		return types.ErrNotOwnerAccount
 	}
-
+	fmt.Println("xuyapeng add for test ",depositInfo.DepositChangeTime,"---",ctx.BlockHeader().Time)
 	if depositInfo.DepositChangeTime.Add(k.WaitTime(ctx)).After(ctx.BlockHeader().Time) {
 		return types.ErrNotReachWaitTime
 	}
