@@ -205,7 +205,47 @@ func createLeginCoin(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, ad
 		header, accAlice, fee,
 		[]sdk.Msg{msg}, []uint64{origAuthNum}, []uint64{origAuthSeq},
 		passed, passed, wallet.PrivKey(addAlice))
-	ctxCheck.Logger().Info("preStoreFee error log", "err", err)
+	ctxCheck.Logger().Info("createLeginCoin error log", "err", err)
+	return err
+}
+
+func prohibitLegalCoin(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount types.Coin,passed bool) error {
+	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
+	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
+	So(err, ShouldBeNil)
+
+	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
+	//NewKuMsgProhibitLegalCoin(auth sdk.AccAddress, systemAccountID AccountID, amount Coin) KuMsgProhibitLegalCoin
+	msg := depositTypes.NewKuMsgProhibitLegalCoin(addAlice, accAlice,amount)
+
+	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
+	header := abci.Header{Height: app.LastBlockHeight() + 1}
+
+	_, _, err = simapp.SignCheckDeliver(t, app.Codec(), app.BaseApp,
+		header, accAlice, fee,
+		[]sdk.Msg{msg}, []uint64{origAuthNum}, []uint64{origAuthSeq},
+		passed, passed, wallet.PrivKey(addAlice))
+	ctxCheck.Logger().Info("prohibitLegalCoin error log", "err", err)
+	return err
+}
+
+func permintLegalCoin(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount types.Coin,passed bool) error {
+	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
+	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
+	So(err, ShouldBeNil)
+
+	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
+	//NewKuMsgPermintLegalCoin(auth sdk.AccAddress, systemAccountID AccountID, amount Coin) KuMsgPermintLegalCoin
+	msg := depositTypes.NewKuMsgPermintLegalCoin(addAlice, accAlice,amount)
+
+	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
+	header := abci.Header{Height: app.LastBlockHeight() + 1}
+
+	_, _, err = simapp.SignCheckDeliver(t, app.Codec(), app.BaseApp,
+		header, accAlice, fee,
+		[]sdk.Msg{msg}, []uint64{origAuthNum}, []uint64{origAuthSeq},
+		passed, passed, wallet.PrivKey(addAlice))
+	ctxCheck.Logger().Info("permintLegalCoin error log", "err", err)
 	return err
 }
 
@@ -836,13 +876,27 @@ func TestDepositHandler(t *testing.T) {
 	wallet := simapp.NewWallet()
 	Convey("TestCreateLeginCoin", t, func() {
 		addAlice, _, _, accAlice, _, _, app := newTestApp(wallet)
+		accSystem :=  types.MustAccountID("test@sys")
 		symbol := types.MustName("btc")
 		otherCoinDenom := types.CoinDenom(depositTypes.ModuleAccountName, symbol)
 		leginCoin := types.NewCoin(otherCoinDenom, sdk.NewInt(100)) 
-		err := createLeginCoin(t, wallet, app,addAlice,accAlice,leginCoin,symbol,false)
+		err := prohibitLegalCoin(t, wallet, app,addAlice,accSystem,leginCoin,false)
 		So(err, ShouldNotBeNil)
-		accSystem :=  types.MustAccountID("test@sys")
+		err = createLeginCoin(t, wallet, app,addAlice,accAlice,leginCoin,symbol,false)
+		So(err, ShouldNotBeNil)
+		err = permintLegalCoin(t, wallet, app,addAlice,accSystem,leginCoin,false)
+		So(err, ShouldNotBeNil)
 		err = createLeginCoin(t, wallet, app,addAlice,accSystem,leginCoin,symbol,true)
+		So(err, ShouldBeNil)
+		err = permintLegalCoin(t, wallet, app,addAlice,accSystem,leginCoin,true)
+		So(err, ShouldBeNil)
+		err = prohibitLegalCoin(t, wallet, app,addAlice,accAlice,leginCoin,false)
+		So(err, ShouldNotBeNil)
+		err = prohibitLegalCoin(t, wallet, app,addAlice,accSystem,leginCoin,true)
+		So(err, ShouldBeNil)
+		err = permintLegalCoin(t, wallet, app,addAlice,accAlice,leginCoin,false)
+		So(err, ShouldNotBeNil)
+		err = permintLegalCoin(t, wallet, app,addAlice,accSystem,leginCoin,true)
 		So(err, ShouldBeNil)
 	})
 	Convey("TestNormalDeposit", t, func() {
@@ -1529,14 +1583,6 @@ func TestDepositHandler(t *testing.T) {
 	})
 	Convey("TestSomethingWrongBeforeDeposit", t, func() {
 		addAlice, _, _, accAlice, _, _, app := newTestApp(wallet)
-		// err := readyForDeposit(t, wallet, app,addAlice)
-		// So(err, ShouldBeNil)
-		// openfee prestorefee
-		// err := openFee(t, wallet, app,addAlice,accAlice,true)
-		// So(err, ShouldBeNil)
-		// amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
-		// err= preStoreFee(t, wallet, app,addAlice,accAlice,amout1,true)
-		// So(err, ShouldBeNil)
 		symbol := types.MustName("btc")
 		otherCoinDenom := types.CoinDenom(depositTypes.ModuleAccountName, symbol)
 		depositCoin := types.NewCoin(otherCoinDenom, sdk.NewInt(1000000)) 
@@ -1556,7 +1602,7 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 		err,_,_ = createDeposit(t, wallet, app,addAlice,accAlice,depositCoin,false)
 		So(err, ShouldNotBeNil)
-			//------------------------------------------------------------------------------------
+		//------------------------------------------------------------------------------------
 		singera := types.MustAccountID("singera")
 		singerb := types.MustAccountID("singerb")
 		singerc := types.MustAccountID("singerc")
@@ -1633,8 +1679,13 @@ func TestDepositHandler(t *testing.T) {
 		amountPrice := types.NewCoin(otherCoinDenom, sdk.NewInt(100)) 
 		err = setPrice(t, wallet, app,addAlice,accSystem,amountPrice,amoutPrice1,true)
 		So(err, ShouldBeNil)
+		err = prohibitLegalCoin(t, wallet, app,addAlice,accSystem,leginCoin,true)
+		So(err, ShouldBeNil)
+		err,_,_ = createDeposit(t, wallet, app,addAlice,accAlice,depositCoin,false)
+		So(err, ShouldNotBeNil)
+		err = permintLegalCoin(t, wallet, app,addAlice,accSystem,leginCoin,true)
+		So(err, ShouldBeNil)
 		err,_,_ = createDeposit(t, wallet, app,addAlice,accAlice,depositCoin,true)
 		So(err, ShouldBeNil)
-		
 	})
 }
