@@ -32,5 +32,6 @@ var (
 	ErrMortgageNotLack   = sdkerrors.Register(ModuleName, 26, "Deposit mortgage is Adequate")
 	ErrNotReachLifeCycle  = sdkerrors.Register(ModuleName, 27, "Do not Reach Deposit Life Cycle")
 	ErrSystemNotAddress  = sdkerrors.Register(ModuleName, 28, "system account must not be an address")
+	ErrPriceDoesNotFound  = sdkerrors.Register(ModuleName, 29, "can not find price for deposit coin")
 
 )

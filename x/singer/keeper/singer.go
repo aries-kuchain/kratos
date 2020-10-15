@@ -20,7 +20,7 @@ func (k Keeper) GetSingerInfo(ctx sdk.Context, singerAccount AccountID) (singerI
 	return singerInfo, true
 }
 
-func (k Keeper) GetAllSingerInfo(ctx sdk.Context, singerAccount AccountID) (singerInfos []types.SingerInfo) {
+func (k Keeper) GetAllSingerInfo(ctx sdk.Context) (singerInfos []types.SingerInfo) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.SingerInfoKey)
 	defer iterator.Close()

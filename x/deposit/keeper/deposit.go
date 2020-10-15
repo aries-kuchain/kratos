@@ -47,7 +47,10 @@ func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Co
 		return depositId, types.ErrLegalCoinNotExist
 	}
 	threshold := k.Threshold(ctx)
-	quoteAmount := k.CalQuoteAmount(ctx,asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	quoteAmount,err := k.CalQuoteAmount(ctx,asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	if err != nil {
+		return depositId,err
+	}
 	feeAmount := quoteAmount.MulRaw(k.DepositFeeRate(ctx)).QuoRaw(int64(100*threshold)).MulRaw(int64(threshold))
 	_,err = k.pricefeeKeeper.LockFee(ctx,ownerAccount,feeAmount)
 	if err != nil {
@@ -187,7 +190,10 @@ func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,as
 		return types.ErrCoinNotEqual
 	}
 	threshold := len(depositInfo.Singers)
-	quoteAmount := k.CalQuoteAmount(ctx,asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	quoteAmount,err := k.CalQuoteAmount(ctx,asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	if err != nil {
+		return err
+	}
 	feeAmount := quoteAmount.MulRaw(k.ClaimFeeRate(ctx)).QuoRaw(int64(100*threshold)).MulRaw(int64(threshold))
 	_,err = k.pricefeeKeeper.LockFee(ctx,owner,feeAmount)
 	if err != nil {
@@ -245,13 +251,13 @@ func (k Keeper) FinishDeposit(ctx sdk.Context,depositID string,owner AccountID)(
 	return k.singerKeeper.FinishDeposit(ctx,depositID)
 }
 
-func (k Keeper) CalQuoteAmount(ctx sdk.Context,base,quote Coin) sdk.Int {
+func (k Keeper) CalQuoteAmount(ctx sdk.Context,base,quote Coin) (sdk.Int,error) {
 	priceInfo,found := k.pricefeeKeeper.GetPriceInfo(ctx,base,quote)
 	if !found {
-		return sdk.ZeroInt()
+		return sdk.ZeroInt(),types.ErrPriceDoesNotFound
 	}
 
-	return base.Amount.Mul(priceInfo.Quote.Amount).Quo(priceInfo.Base.Amount)
+	return base.Amount.Mul(priceInfo.Quote.Amount).Quo(priceInfo.Base.Amount),nil
 }
 
 func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (err error) {
@@ -549,7 +555,10 @@ func  (k Keeper)  GetMortgageRatio(ctx sdk.Context,depositID string) (err error,
 		return types.ErrDepositNotExist,sdk.ZeroInt()
 	}
 
-	quoteAmount := k.CalQuoteAmount(ctx,depositInfo.Asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	quoteAmount ,err:= k.CalQuoteAmount(ctx,depositInfo.Asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	if err != nil {
+		return err,sdk.ZeroInt()
+	}
 	err,baseRatio = k.singerKeeper.GetMortgageRatio(ctx,depositID,quoteAmount)
 	return err,baseRatio
 }
@@ -564,7 +573,10 @@ func  (k Keeper) ClaimMortgageDeposit(ctx sdk.Context,depositID string,claimAcco
 		return types.ErrStatusNotCashReady
 	}
 
-	quoteAmount := k.CalQuoteAmount(ctx,depositInfo.Asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	quoteAmount,err := k.CalQuoteAmount(ctx,depositInfo.Asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	if err != nil {
+		return nil
+	}
 	err,baseRatio := k.singerKeeper.GetMortgageRatio(ctx,depositID,quoteAmount)
 	if err != nil {
 		return nil
