@@ -58,7 +58,7 @@ func (k Keeper) PermintLegalCoin(ctx sdk.Context, systemAccount AccountID, asset
 	if !constants.IsSystemAccount(name) {
 		return types.ErrNotSystemAccount
 	}
-	
+
 	legalCoin.Status = types.Permint
 	k.SetLegalCoin(ctx, legalCoin)
 	return nil

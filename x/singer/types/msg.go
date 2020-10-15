@@ -300,7 +300,10 @@ func (msg MsgSubmitSpv) ValidateBasic() error {
 	if msg.SpvInfo.SpvSubmiter.Empty() {
 		return ErrEmptySingerAccount
 	}
-
+	//depositID
+	if len(msg.SpvInfo.DepositID) == 0 {
+		return ErrEmptyDepositID
+	}
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------

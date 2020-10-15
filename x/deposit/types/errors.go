@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	ErrEmptyOwnerAccount     = sdkerrors.Register(ModuleName, 2, "empty owner account")
+	ErrEmptyOwnerAccount     = sdkerrors.Register(ModuleName, 2, "empty  account")
 	ErrBadAmount             = sdkerrors.Register(ModuleName, 3, "invalid amount")
 	ErrDepositAlreadyExist   = sdkerrors.Register(ModuleName, 4, "Deposit Already exist")
 	ErrLegalCoinAlreadyExist = sdkerrors.Register(ModuleName, 5, "Legal Coin Already exist")
@@ -33,5 +33,5 @@ var (
 	ErrNotReachLifeCycle  = sdkerrors.Register(ModuleName, 27, "Do not Reach Deposit Life Cycle")
 	ErrSystemNotAddress  = sdkerrors.Register(ModuleName, 28, "system account must not be an address")
 	ErrPriceDoesNotFound  = sdkerrors.Register(ModuleName, 29, "can not find price for deposit coin")
-
+	ErrSymbolEmpty =  sdkerrors.Register(ModuleName, 30, "symbol is empty")
 )

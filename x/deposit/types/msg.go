@@ -131,6 +131,19 @@ func (msg MsgCreateLegalCoin) ValidateBasic() error {
 	if !msg.MaxSupply.Amount.IsPositive() {
 		return ErrBadAmount
 	}
+
+	if msg.Symbol.Empty() {
+		return ErrSymbolEmpty
+	}
+	//judge  denom
+	denom := chainTypes.CoinDenom(ModuleAccountName, msg.Symbol)
+	if err := chainTypes.ValidateDenom(denom); err != nil {
+		return err
+	}
+
+	if denom != msg.MaxSupply.Denom {
+		return ErrAssetSymbolError
+	}
 	return nil
 }
 //----------------------------------------------------------------------------------------------------------------------------
@@ -523,6 +536,9 @@ func (msg MsgCashReadyDeposit) ValidateBasic() error {
 
 	if len(msg.DepositID) == 0 {
 		return ErrEmptyDepositID
+	}
+	if msg.Operator.Empty() {
+		return ErrEmptyOwnerAccount
 	}
 	return nil
 }
