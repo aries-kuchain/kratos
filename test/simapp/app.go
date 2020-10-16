@@ -453,6 +453,10 @@ func (app *SimApp) SingerKeeper() *singer.Keeper {
 	return &app.singerKeeper
 }
 
+func (app *SimApp) PriceFeeKeeper() *pricefee.Keeper {
+	return &app.pricefeeKeeper
+}
+
 // GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {
 	dupMaccPerms := make(map[string][]string)

@@ -871,6 +871,32 @@ func printDepositInfo(app *simapp.SimApp) {
 	ctxCheck.Logger().Info("allDeposit info", "allDeposit", allDeposit)
 }
 
+func checkSingerMortgage(app *simapp.SimApp,singer types.AccountID,prestoreMortgage,lockMortgage sdk.Int)(error) {
+	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
+	keeper := app.SingerKeeper()
+	singerInfo ,found:= keeper.GetSingerInfo(ctxCheck,singer)
+	if !found {
+		return sdkerrors.Wrap(sdkerrors.ErrTxDecode, "singer  not found")
+	}
+	if singerInfo.LockMortgage .Equal(lockMortgage) && singerInfo.SignatureMortgage.Equal(prestoreMortgage) {
+		return nil
+	}
+	return sdkerrors.Wrap(sdkerrors.ErrTxDecode, "singer mortgage does not match")
+}
+
+func checkFee(app *simapp.SimApp,owner types.AccountID,preStoreFee,lockFee sdk.Int) (error) {
+	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
+	keeper := app.PriceFeeKeeper()
+	feeInfo,found := keeper.GetFeeInfo(ctxCheck,owner)
+	if !found {
+		return sdkerrors.Wrap(sdkerrors.ErrTxDecode, "feeInfo  not found")
+	}
+	if feeInfo.PrestoreFee .Equal(preStoreFee) && feeInfo.LockedFee.Equal(lockFee) {
+		return nil
+	}
+	return sdkerrors.Wrap(sdkerrors.ErrTxDecode, "fee info does not match")
+}
+
 func TestDepositHandler(t *testing.T) {
 	config.SealChainConfig()
 	wallet := simapp.NewWallet()
@@ -918,6 +944,17 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkSingerDepositStatus(app,depositID,singerTypes.Open)
 		So(err, ShouldBeNil) 
+		//check singer mortgage
+		lockMortgage := depositCoin.Amount.QuoRaw(int64(2))
+		preStoreMortgage := sdk.NewInt(1000000).Sub(lockMortgage)
+		for _,singer := range singers {
+			err = checkSingerMortgage(app,singer,preStoreMortgage,lockMortgage)
+			So(err, ShouldBeNil)
+		}
+		lockedFee := depositCoin.Amount.MulRaw(int64(5)).QuoRaw(int64(100*3)) . MulRaw(int64(3))
+		preStoreFee := amout1.Amount.Sub(lockedFee)
+		err = checkFee(app,accAlice,preStoreFee,lockedFee)
+		So(err, ShouldBeNil)
 		//get deposit ID 
 		btcAddress := "bc1q6yrjchkkyp8yc4cqwhp0p9tysvm6luecxqt8l5"
 		for _,singer := range singers {
@@ -944,6 +981,13 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkSingerDepositStatus(app,depositID,singerTypes.DepositActive)
 		So(err, ShouldBeNil) 
+		singerGetFee := lockedFee.QuoRaw(int64(3))
+		for _,singer := range singers {
+			err = checkFee( app,singer,sdk.ZeroInt(),singerGetFee)
+			So(err, ShouldBeNil)
+		}
+		err = checkFee(app,accAlice,preStoreFee,sdk.ZeroInt())
+		So(err, ShouldBeNil)
 		err = transferDeposit(t, wallet, app,addAlice,accAlice,accJack,depositID,true)
 		So(err, ShouldBeNil)
 		err = depositToCoin(t, wallet, app,addJack,accJack,depositID,true)
@@ -962,6 +1006,9 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkSingerDepositStatus(app,depositID,singerTypes.Cashing)
 		So(err, ShouldBeNil) 
+		preStoreFee = preStoreFee.Sub(lockedFee)
+		err = checkFee(app,accAlice,preStoreFee,lockedFee)
+		So(err, ShouldBeNil)
 		spvSinger := singers[0]
 		singerSpv := singerTypes.NewSpvInfo(depositID,spvSinger,testByte,testByte,testByte,testByte,testByte,testByte,0,0)
 		err = submitSingerSpv(t, wallet, app,addAlice,spvSinger,singerSpv,true)
@@ -976,6 +1023,14 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkSingerDepositStatus(app,depositID,singerTypes.Close)
 		So(err, ShouldBeNil) 
+		for _,singer := range singers {
+			err = checkSingerMortgage(app,singer,sdk.NewInt(1000000),sdk.ZeroInt())
+			So(err, ShouldBeNil)
+			err = checkFee(app,singer,lockedFee.MulRaw(int64(2)).QuoRaw(int64(3)),sdk.ZeroInt())
+			So(err, ShouldBeNil)
+		}
+		err = checkFee(app,accAlice,preStoreFee,sdk.ZeroInt())
+		So(err, ShouldBeNil)
 	})
 	Convey("TestTimeOutDeposit", t, func() {
 		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
@@ -994,6 +1049,10 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 		err = checkDepositStatus(app,depositID,depositTypes.SingerReady)
 		So(err, ShouldBeNil) 
+		lockedFee := depositCoin.Amount.MulRaw(int64(5)).QuoRaw(int64(100*3)) . MulRaw(int64(3))
+		preStoreFee := amout1.Amount.Sub(lockedFee)
+		err = checkFee(app,accAlice,preStoreFee,lockedFee)
+		So(err, ShouldBeNil)
 		//get deposit ID 
 		btcAddress := "bc1q6yrjchkkyp8yc4cqwhp0p9tysvm6luecxqt8l5"
 		for _,singer := range singers {
@@ -1012,6 +1071,11 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkDepositStatus(app,depositID,depositTypes.Active)
 		So(err, ShouldBeNil) 
+		singerGetFee := lockedFee.QuoRaw(int64(3))
+		for _,singer := range singers {
+			err = checkFee( app,singer,sdk.ZeroInt(),singerGetFee)
+			So(err, ShouldBeNil)
+		}
 		err = transferDeposit(t, wallet, app,addAlice,accAlice,accJack,depositID,true)
 		So(err, ShouldBeNil)
 		err = depositToCoin(t, wallet, app,addJack,accJack,depositID,true)
@@ -1026,6 +1090,8 @@ func TestDepositHandler(t *testing.T) {
 		claimAddress := "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
 		err = depositClaimCoin(t, wallet, app,addAlice,accAlice,depositID,depositCoin,claimAddress,true)
 		So(err, ShouldBeNil)
+		preStoreFee = preStoreFee.Sub(lockedFee)
+		err = checkFee(app,accAlice,preStoreFee,lockedFee)
 		err = checkDepositStatus(app,depositID,depositTypes.Cashing)
 		So(err, ShouldBeNil) 
 		spvSinger := singers[0]
@@ -1038,6 +1104,14 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkDepositStatus(app,depositID,depositTypes.Finish)
 		So(err, ShouldBeNil) 
+		for _,singer := range singers {
+			err = checkSingerMortgage(app,singer,sdk.NewInt(1000000),sdk.ZeroInt())
+			So(err, ShouldBeNil)
+			err = checkFee(app,singer,lockedFee.MulRaw(int64(2)).QuoRaw(int64(3)),sdk.ZeroInt())
+			So(err, ShouldBeNil)
+		}
+		err = checkFee(app,accAlice,preStoreFee,sdk.ZeroInt())
+		So(err, ShouldBeNil)
 	})
 	Convey("TestjudgespvRightdeposit", t, func() {
 		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
@@ -1056,6 +1130,10 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 		err = checkDepositStatus(app,depositID,depositTypes.SingerReady)
 		So(err, ShouldBeNil) 
+		lockedFee := depositCoin.Amount.MulRaw(int64(5)).QuoRaw(int64(100*3)) . MulRaw(int64(3))
+		preStoreFee := amout1.Amount.Sub(lockedFee)
+		err = checkFee(app,accAlice,preStoreFee,lockedFee)
+		So(err, ShouldBeNil)
 		//get deposit ID 
 		btcAddress := "bc1q6yrjchkkyp8yc4cqwhp0p9tysvm6luecxqt8l5"
 		for _,singer := range singers {
@@ -1082,6 +1160,11 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkDepositStatus(app,depositID,depositTypes.Active)
 		So(err, ShouldBeNil) 
+		singerGetFee := lockedFee.QuoRaw(int64(3))
+		for _,singer := range singers {
+			err = checkFee( app,singer,sdk.ZeroInt(),singerGetFee)
+			So(err, ShouldBeNil)
+		}
 		err = transferDeposit(t, wallet, app,addAlice,accAlice,accJack,depositID,true)
 		So(err, ShouldBeNil)
 		err = depositToCoin(t, wallet, app,addJack,accJack,depositID,true)
@@ -1098,6 +1181,8 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 		err = checkDepositStatus(app,depositID,depositTypes.Cashing)
 		So(err, ShouldBeNil) 
+		preStoreFee = preStoreFee.Sub(lockedFee)
+		err = checkFee(app,accAlice,preStoreFee,lockedFee)
 		spvSinger := singers[0]
 		singerSpv := singerTypes.NewSpvInfo(depositID,spvSinger,testByte,testByte,testByte,testByte,testByte,testByte,0,0)
 		err = submitSingerSpv(t, wallet, app,addAlice,spvSinger,singerSpv,true)
@@ -1114,6 +1199,14 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkDepositStatus(app,depositID,depositTypes.Finish)
 		So(err, ShouldBeNil) 
+		for _,singer := range singers {
+			err = checkSingerMortgage(app,singer,sdk.NewInt(1000000),sdk.ZeroInt())
+			So(err, ShouldBeNil)
+			err = checkFee(app,singer,lockedFee.MulRaw(int64(2)).QuoRaw(int64(3)),sdk.ZeroInt())
+			So(err, ShouldBeNil)
+		}
+		err = checkFee(app,accAlice,preStoreFee,sdk.ZeroInt())
+		So(err, ShouldBeNil)
 	})
 	Convey("TestsingerWrongSPVClaimdeposit", t, func() {		
 		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
@@ -1187,6 +1280,20 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 		err = claimAberrangDeposit(t, wallet, app,addAlice,accAlice,depositID,depositCoin,true)
 		So(err, ShouldBeNil)
+		err = checkDepositStatus(app,depositID,depositTypes.Finish)
+		So(err, ShouldBeNil) 
+		err = checkSingerDepositStatus(app,depositID,singerTypes.Close)
+		So(err, ShouldBeNil) 
+		lockMortgage := depositCoin.Amount.QuoRaw(int64(2))
+		preStoreMortgage := sdk.NewInt(1000000).Sub(lockMortgage)
+		for _,singer := range singers {
+			err = checkSingerMortgage(app,singer,preStoreMortgage,sdk.ZeroInt())
+			So(err, ShouldBeNil)
+			err = checkFee(app,singer,sdk.ZeroInt(),sdk.ZeroInt())
+			So(err, ShouldBeNil)
+		}
+		err = checkFee(app,accAlice,amout1.Amount,sdk.ZeroInt())
+		So(err, ShouldBeNil)
 	})
 	Convey("TestsingerNoSPVClaimdeposit", t, func() {
 		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
@@ -1251,6 +1358,14 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 		err = claimAberrangDeposit(t, wallet, app,addAlice,accAlice,depositID,depositCoin,true)
 		So(err, ShouldBeNil)
+		err = checkSingerDepositStatus(app,depositID,singerTypes.Close)
+		So(err, ShouldBeNil) 
+		lockMortgage := depositCoin.Amount.QuoRaw(int64(2))
+		preStoreMortgage := sdk.NewInt(1000000).Sub(lockMortgage)
+		for _,singer := range singers {
+			err = checkSingerMortgage(app,singer,preStoreMortgage,sdk.ZeroInt())
+			So(err, ShouldBeNil)
+		}
 	})
 	Convey("TestForceDepositToCoin", t, func() {
 		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
@@ -1414,6 +1529,10 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 		err = checkDepositStatus(app,depositID,depositTypes.SingerReady)
 		So(err, ShouldBeNil) 
+		lockedFee := depositCoin.Amount.MulRaw(int64(5)).QuoRaw(int64(100*3)) . MulRaw(int64(3))
+		preStoreFee := amout1.Amount.Sub(lockedFee)
+		err = checkFee(app,accAlice,preStoreFee,lockedFee)
+		So(err, ShouldBeNil)
 		//get deposit ID 
 		btcAddress := "bc1q6yrjchkkyp8yc4cqwhp0p9tysvm6luecxqt8l5"
 		for _,singer := range singers {
@@ -1429,6 +1548,13 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkSingerDepositStatus(app,depositID,singerTypes.Close)
 		So(err, ShouldBeNil) 
+		err = checkFee(app,accAlice,preStoreFee,sdk.ZeroInt())
+		So(err, ShouldBeNil)
+		singerFee := lockedFee.QuoRaw(int64(3))
+		for _,singer := range singers {
+			err = checkFee( app,singer,singerFee,sdk.ZeroInt())
+			So(err, ShouldBeNil)
+		}
 	})	
 	Convey("TestDepositWrongSPV", t, func() {
 		addAlice, _, _, accAlice, _, _, app := newTestApp(wallet)
@@ -1471,6 +1597,11 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil) 
 		err = checkSingerDepositStatus(app,depositID,singerTypes.Close)
 		So(err, ShouldBeNil) 
+
+		for _,singer := range singers {
+			err = checkSingerMortgage(app,singer,sdk.NewInt(1000000),sdk.ZeroInt())
+			So(err, ShouldBeNil)
+		}
 	})
 	Convey("TestSomethingWrong", t, func() {
 		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
