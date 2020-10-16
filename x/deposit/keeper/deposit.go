@@ -269,7 +269,6 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (e
 	if !depositInfo.Owner.Eq(owner) {
 		return types.ErrNotOwnerAccount
 	}
-	fmt.Println("xuyapeng add for test ",depositInfo.DepositChangeTime,"---",ctx.BlockHeader().Time)
 	if depositInfo.DepositChangeTime.Add(k.WaitTime(ctx)).After(ctx.BlockHeader().Time) {
 		return types.ErrNotReachWaitTime
 	}
