@@ -168,7 +168,6 @@ func GetCmdQueryDeposit(storeName string, cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-
 func GetCmdQueryDepositBtcAddress(storeName string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "deposit-btcaddress [depositID]",

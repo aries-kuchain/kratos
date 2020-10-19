@@ -1,10 +1,10 @@
 package keeper
 
 import (
-	"github.com/KuChainNetwork/kuchain/x/singer/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/singer/external"
+	"github.com/KuChainNetwork/kuchain/x/singer/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (k Keeper) GetDepositInfo(ctx sdk.Context, depositID string) (depositInfo types.DepositInfo, found bool) {
@@ -26,20 +26,20 @@ func (k Keeper) SetDepositInfo(ctx sdk.Context, depositInfo types.DepositInfo) {
 	store.Set(types.GetDepositInfoKey(depositInfo.DepositID), b)
 }
 
-func (k Keeper) NewDepositInfo(ctx sdk.Context, depositID string,threshold int,singer types.SingerInfos,minStake sdk.Int) (err error) {
-	_,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) NewDepositInfo(ctx sdk.Context, depositID string, threshold int, singer types.SingerInfos, minStake sdk.Int) (err error) {
+	_, found := k.GetDepositInfo(ctx, depositID)
 	if found {
 		return types.ErrDepositAlreadyExist
 	}
-	depositInfo := types.NewDepositInfo(depositID,threshold,minStake)
+	depositInfo := types.NewDepositInfo(depositID, threshold, minStake)
 	depositInfo.SetSingers(singer)
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	return nil
 }
 
-func (k Keeper) GetDepositBtcAddress(ctx sdk.Context, depositID string,singer AccountID) (depositBtcAddress types.DepositBtcAddress, found bool) {
+func (k Keeper) GetDepositBtcAddress(ctx sdk.Context, depositID string, singer AccountID) (depositBtcAddress types.DepositBtcAddress, found bool) {
 	store := ctx.KVStore(k.storeKey)
-	key := types.GetDepositBtcAddressKey(depositID,singer)
+	key := types.GetDepositBtcAddressKey(depositID, singer)
 	value := store.Get(key)
 	if value == nil {
 		return depositBtcAddress, false
@@ -52,12 +52,11 @@ func (k Keeper) GetDepositBtcAddress(ctx sdk.Context, depositID string,singer Ac
 func (k Keeper) SetDepositBtcAddress(ctx sdk.Context, depositBtcAddress types.DepositBtcAddress) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalDepositBtcAddress(k.cdc, depositBtcAddress)
-	store.Set(types.GetDepositBtcAddressKey(depositBtcAddress.DepositID,depositBtcAddress.Singer), b)
+	store.Set(types.GetDepositBtcAddressKey(depositBtcAddress.DepositID, depositBtcAddress.Singer), b)
 }
 
-
-func  (k Keeper) NewDepositBtcAddress(ctx sdk.Context, depositID string,singer AccountID,btcAddress string) (err error){
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) NewDepositBtcAddress(ctx sdk.Context, depositID string, singer AccountID, btcAddress string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
@@ -70,30 +69,30 @@ func  (k Keeper) NewDepositBtcAddress(ctx sdk.Context, depositID string,singer A
 		return types.ErrDepositStatusNotOpen
 	}
 
-	depoistBtcAddress := types.NewDepositBtcAddress(depositID,singer,btcAddress)
-	k.SetDepositBtcAddress(ctx,depoistBtcAddress)
+	depoistBtcAddress := types.NewDepositBtcAddress(depositID, singer, btcAddress)
+	k.SetDepositBtcAddress(ctx, depoistBtcAddress)
 
 	return nil
 }
 
-func  (k Keeper) CheckBtcAddressReady(ctx sdk.Context, depositID string) bool {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) CheckBtcAddressReady(ctx sdk.Context, depositID string) bool {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return false
 	}
 
-	if  depositInfo.Status != types.Open {
+	if depositInfo.Status != types.Open {
 		return true
 	}
 
 	var temBtcAddress string
 
-	for _,singer := range depositInfo.Singers {
-		btcAddress,found := k.GetDepositBtcAddress(ctx,depositID,singer)
+	for _, singer := range depositInfo.Singers {
+		btcAddress, found := k.GetDepositBtcAddress(ctx, depositID, singer)
 		if !found {
 			return false
 		}
-		if len(temBtcAddress) != 0 && temBtcAddress != btcAddress.BtcAddress  {
+		if len(temBtcAddress) != 0 && temBtcAddress != btcAddress.BtcAddress {
 			return false
 		}
 		temBtcAddress = btcAddress.BtcAddress
@@ -101,73 +100,73 @@ func  (k Keeper) CheckBtcAddressReady(ctx sdk.Context, depositID string) bool {
 	return true
 }
 
-func (k Keeper) SetBtcAddressReady(ctx sdk.Context, depositID string,btcAddress string)(err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) SetBtcAddressReady(ctx sdk.Context, depositID string, btcAddress string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
-	if  depositInfo.Status != types.Open {
+	if depositInfo.Status != types.Open {
 		return types.ErrDepositStatusNotOpen
 	}
 
 	depositInfo.Status = types.AddressReady
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 
-	return k.depositKeeper.SetDepositBtcAddress(ctx,depositID,btcAddress)
+	return k.depositKeeper.SetDepositBtcAddress(ctx, depositID, btcAddress)
 }
 
 func (k Keeper) SetSpvReady(ctx sdk.Context, depositID string) (err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
-	if  depositInfo.Status != types.AddressReady {
+	if depositInfo.Status != types.AddressReady {
 		return types.ErrDepositStatusNotAddressReady
 	}
 
 	depositInfo.Status = types.SPVReady
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	return nil
 }
 
-func (k Keeper) SetActiveDeposit(ctx sdk.Context, depositID string,singerAccount AccountID) (err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) SetActiveDeposit(ctx sdk.Context, depositID string, singerAccount AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
-	if  depositInfo.Status != types.SPVReady {
+	if depositInfo.Status != types.SPVReady {
 		return types.ErrDepositStatusNotSpvReady
 	}
 
 	if !depositInfo.CheckSinger(singerAccount) {
 		return types.ErrNotDepositSInger
 	}
-	
-	depositActiveInfo := types.NewDepositActiveInfo(depositID,singerAccount)
-	k.SetDepositActiveInfo(ctx,depositActiveInfo)
+
+	depositActiveInfo := types.NewDepositActiveInfo(depositID, singerAccount)
+	k.SetDepositActiveInfo(ctx, depositActiveInfo)
 
 	return nil
 }
 
-func  (k Keeper)  CheckActiveReady(ctx sdk.Context, depositID string) (bool) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) CheckActiveReady(ctx sdk.Context, depositID string) bool {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return false
 	}
 
-	if  depositInfo.Status < types.SPVReady {
+	if depositInfo.Status < types.SPVReady {
 		return false
 	}
 
-	if  depositInfo.Status > types.SPVReady {
+	if depositInfo.Status > types.SPVReady {
 		return true
 	}
 
-	for _,singer := range depositInfo.Singers {
-		_,found := k.GetDepositActiveInfo(ctx,depositID,singer)
+	for _, singer := range depositInfo.Singers {
+		_, found := k.GetDepositActiveInfo(ctx, depositID, singer)
 		if !found {
 			return false
 		}
@@ -176,84 +175,84 @@ func  (k Keeper)  CheckActiveReady(ctx sdk.Context, depositID string) (bool) {
 	return true
 }
 
-func (k Keeper)  ActiveDeposit(ctx sdk.Context, depositID string) (err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) ActiveDeposit(ctx sdk.Context, depositID string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
-	if  depositInfo.Status != types.SPVReady {
+	if depositInfo.Status != types.SPVReady {
 		return types.ErrDepositStatusNotSpvReady
 	}
 
 	depositInfo.Status = types.DepositActive
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 
-	return k.depositKeeper.ActiveDeposit(ctx,depositID) 
+	return k.depositKeeper.ActiveDeposit(ctx, depositID)
 }
 
 func (k Keeper) ActiveSingerDeposit(ctx sdk.Context, depositID string) (err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
 	depositInfo.Status = types.DepositActive
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 
 	return nil
 }
 
-func (k Keeper)  SetClaimAddress(ctx sdk.Context, depositID string,claimAddress string) (err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) SetClaimAddress(ctx sdk.Context, depositID string, claimAddress string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
-	if  depositInfo.Status != types.DepositActive {
+	if depositInfo.Status != types.DepositActive {
 		return types.ErrDepositStatusNotActive
 	}
 
 	depositInfo.Status = types.Cashing
 	depositInfo.ClaimAddress = claimAddress
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	return nil
 }
 
 func (k Keeper) FinishDeposit(ctx sdk.Context, depositID string) (err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
-	if  depositInfo.Status != types.CashOut {
+	if depositInfo.Status != types.CashOut {
 		return types.ErrDepositStatusNotCashOut
 	}
 
 	depositInfo.Status = types.Close
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 
-	return k.unlockMortgage(ctx,depositInfo.Singers,depositInfo.MinStake)
+	return k.unlockMortgage(ctx, depositInfo.Singers, depositInfo.MinStake)
 }
 
-func (k Keeper) AberrantDeposit(ctx sdk.Context, depositID string)(err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) AberrantDeposit(ctx sdk.Context, depositID string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
 	depositInfo.Status = types.Aberrant
-	k.SetDepositInfo(ctx,depositInfo)
-	k.lockSinger(ctx,depositInfo.Singers)
+	k.SetDepositInfo(ctx, depositInfo)
+	k.lockSinger(ctx, depositInfo.Singers)
 	return nil
 }
 
-func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,singerAccount AccountID) (err error) {
+func (k Keeper) WaitTimeOut(ctx sdk.Context, depositID string, singerAccount AccountID) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
-	
+
 	if !depositInfo.CheckSinger(singerAccount) {
 		return types.ErrNotDepositSInger
 	}
@@ -263,147 +262,147 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,singerAccount Accou
 	}
 
 	if depositInfo.Status == types.AddressReady {
-		k.depositKeeper.AberrantDeposit(ctx,depositID)
+		k.depositKeeper.AberrantDeposit(ctx, depositID)
 		depositInfo.Status = types.Close
-		k.SetDepositInfo(ctx,depositInfo)
+		k.SetDepositInfo(ctx, depositInfo)
 
-		return k.unlockMortgage(ctx,depositInfo.Singers,depositInfo.MinStake)
+		return k.unlockMortgage(ctx, depositInfo.Singers, depositInfo.MinStake)
 	}
 
 	if depositInfo.Status == types.CashOut {
-		k.depositKeeper.ExternalCloseDeposit(ctx,depositID)
+		k.depositKeeper.ExternalCloseDeposit(ctx, depositID)
 		depositInfo.Status = types.Close
-		k.SetDepositInfo(ctx,depositInfo)
+		k.SetDepositInfo(ctx, depositInfo)
 
-		return k.unlockMortgage(ctx,depositInfo.Singers,depositInfo.MinStake)
+		return k.unlockMortgage(ctx, depositInfo.Singers, depositInfo.MinStake)
 	}
 	return types.ErrNotWaitStatus
 }
 
-func (k Keeper) ReportSpvWrong(ctx sdk.Context,depositID string,singerAccount AccountID) (err error) {
+func (k Keeper) ReportSpvWrong(ctx sdk.Context, depositID string, singerAccount AccountID) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
-	
+
 	if !depositInfo.CheckSinger(singerAccount) {
 		return types.ErrNotDepositSInger
 	}
 
-	if  depositInfo.Status != types.SPVReady {
+	if depositInfo.Status != types.SPVReady {
 		return types.ErrDepositStatusNotSpvReady
 	}
 
 	depositInfo.Status = types.WrongDepositSPV
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 
-	return k.depositKeeper.SetWrongDepositSpv(ctx,depositID)
+	return k.depositKeeper.SetWrongDepositSpv(ctx, depositID)
 }
 
-func (k Keeper) SetWrongSingerSpv(ctx sdk.Context, depositID string)(err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) SetWrongSingerSpv(ctx sdk.Context, depositID string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
-	if  depositInfo.Status != types.CashOut {
+	if depositInfo.Status != types.CashOut {
 		return types.ErrDepositStatusNotCashOut
 	}
 
 	depositInfo.Status = types.WrongSingerSPV
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	return nil
 }
 
-func (k Keeper) AberrantFinishDeposit(ctx sdk.Context, depositID string)(err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) AberrantFinishDeposit(ctx sdk.Context, depositID string) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
 	depositInfo.Status = types.Close
-	k.SetDepositInfo(ctx,depositInfo)
-	return k.unlockMortgage(ctx,depositInfo.Singers,depositInfo.MinStake)
+	k.SetDepositInfo(ctx, depositInfo)
+	return k.unlockMortgage(ctx, depositInfo.Singers, depositInfo.MinStake)
 }
 
-func (k Keeper) FinishDepositPunishSinger(ctx sdk.Context, depositID string,owner AccountID)(err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) FinishDepositPunishSinger(ctx sdk.Context, depositID string, owner AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 	//punish Singer
 	punishRate := k.PunishRate(ctx)
-	minStake :=  depositInfo.GetMinStake()
+	minStake := depositInfo.GetMinStake()
 	punishAmount := minStake.MulRaw(int64(punishRate)).QuoRaw(100)
-	err = k.punishSinger(ctx,depositInfo.Singers,punishAmount)
+	err = k.punishSinger(ctx, depositInfo.Singers, punishAmount)
 	if err != nil {
 		return err
 	}
-	err = k.unlockMortgage(ctx,depositInfo.Singers,minStake.Sub(punishAmount))
+	err = k.unlockMortgage(ctx, depositInfo.Singers, minStake.Sub(punishAmount))
 	if err != nil {
 		return err
 	}
 	//transfer coins to deposit owner
-	amount := chainTypes.NewCoin( external.DefaultBondDenom,punishAmount.MulRaw(int64(len(depositInfo.Singers))))
+	amount := chainTypes.NewCoin(external.DefaultBondDenom, punishAmount.MulRaw(int64(len(depositInfo.Singers))))
 	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, owner, chainTypes.NewCoins(amount))
 	if err != nil {
 		return err
 	}
 	depositInfo.Status = types.Close
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	return nil
 }
 
-func (k Keeper) FinishAberrantDeposit(ctx sdk.Context, depositID string,claimAccount AccountID)(err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) FinishAberrantDeposit(ctx sdk.Context, depositID string, claimAccount AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
-	if  depositInfo.Status != types.Aberrant {
+	if depositInfo.Status != types.Aberrant {
 		return types.ErrDepositStatusNotAberrant
 	}
 	//transfer singers mortgage to claimAccount  how much?
-	minStake :=  depositInfo.GetMinStake()
-	err = k.punishSinger(ctx,depositInfo.Singers,minStake)
+	minStake := depositInfo.GetMinStake()
+	err = k.punishSinger(ctx, depositInfo.Singers, minStake)
 	if err != nil {
 		return err
 	}
-	amount := chainTypes.NewCoin( external.DefaultBondDenom,minStake.MulRaw(int64(len(depositInfo.Singers))))
+	amount := chainTypes.NewCoin(external.DefaultBondDenom, minStake.MulRaw(int64(len(depositInfo.Singers))))
 	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, claimAccount, chainTypes.NewCoins(amount))
 	depositInfo.Status = types.Close
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	return nil
 }
 
-func (k Keeper) GetMortgageRatio(ctx sdk.Context, depositID string,baseMortgage sdk.Int) (err error,baseRate sdk.Int) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) GetMortgageRatio(ctx sdk.Context, depositID string, baseMortgage sdk.Int) (err error, baseRate sdk.Int) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
-		return types.ErrDepositNotExist,sdk.ZeroInt()
+		return types.ErrDepositNotExist, sdk.ZeroInt()
 	}
 
-	minStake :=  depositInfo.GetMinStake()
+	minStake := depositInfo.GetMinStake()
 	threshold := len(depositInfo.Singers)
-	baseRate = minStake.MulRaw(int64(threshold*100)).Quo(baseMortgage)
+	baseRate = minStake.MulRaw(int64(threshold * 100)).Quo(baseMortgage)
 
-	return nil,baseRate
+	return nil, baseRate
 }
 
-func (k Keeper) FinishLackMortgageDeposit(ctx sdk.Context, depositID string,claimAccount AccountID) (err error) {
-	depositInfo,found := k.GetDepositInfo(ctx,depositID)
+func (k Keeper) FinishLackMortgageDeposit(ctx sdk.Context, depositID string, claimAccount AccountID) (err error) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
 
 	depositInfo.Status = types.Close
-	k.SetDepositInfo(ctx,depositInfo)
-	err = k.punishSinger(ctx,depositInfo.Singers,depositInfo.MinStake)
-	if  err != nil {
+	k.SetDepositInfo(ctx, depositInfo)
+	err = k.punishSinger(ctx, depositInfo.Singers, depositInfo.MinStake)
+	if err != nil {
 		return nil
 	}
-//transfer to claimAccount
-	amount := chainTypes.NewCoin( external.DefaultBondDenom,depositInfo.MinStake.MulRaw(int64(len(depositInfo.Singers))))
+	//transfer to claimAccount
+	amount := chainTypes.NewCoin(external.DefaultBondDenom, depositInfo.MinStake.MulRaw(int64(len(depositInfo.Singers))))
 	err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, claimAccount, chainTypes.NewCoins(amount))
-	if  err != nil {
+	if err != nil {
 		return nil
 	}
 

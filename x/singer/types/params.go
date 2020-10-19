@@ -1,33 +1,32 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"fmt"
 	"github.com/KuChainNetwork/kuchain/x/singer/external"
-	yaml "gopkg.in/yaml.v2"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	yaml "gopkg.in/yaml.v2"
 	"time"
 )
 
 // Default parameter namespace
 const (
-	DefaultParamspace = ModuleName
-	DefaultMinAccessAmountByPower int64 = 1
-	DefaultWaitTime time.Duration = time.Second * 10
-	DefaultPunishRate int = 10
+	DefaultParamspace                           = ModuleName
+	DefaultMinAccessAmountByPower int64         = 1
+	DefaultWaitTime               time.Duration = time.Second * 10
+	DefaultPunishRate             int           = 10
 )
 
 var (
-	KeyMinAccessAmount     = []byte("MinAccessAmount")
-	KeyWaitTime     = []byte("waittime")
-	KeyPunishRage     = []byte("punishrate")
-
+	KeyMinAccessAmount = []byte("MinAccessAmount")
+	KeyWaitTime        = []byte("waittime")
+	KeyPunishRage      = []byte("punishrate")
 )
 
 type Params struct {
-	MinAccessAmount sdk.Int `json:"min_access_amount" yaml:"min_access_amount"`
-	WaitTime  time.Duration `json:"wait_time" yaml:"wait_time"`
-	PunishRage int `json:"punish_rate" yaml:"punish_rate"`
+	MinAccessAmount sdk.Int       `json:"min_access_amount" yaml:"min_access_amount"`
+	WaitTime        time.Duration `json:"wait_time" yaml:"wait_time"`
+	PunishRage      int           `json:"punish_rate" yaml:"punish_rate"`
 }
 
 func NewParams(
@@ -36,9 +35,9 @@ func NewParams(
 	punishRate int,
 ) Params {
 	return Params{
-		MinAccessAmount:accessAmount,
-		WaitTime:waitTime,
-		PunishRage:punishRate,
+		MinAccessAmount: accessAmount,
+		WaitTime:        waitTime,
+		PunishRage:      punishRate,
 	}
 }
 
@@ -61,7 +60,6 @@ func (p *Params) ParamSetPairs() external.ParamsSetPairs {
 		external.NewParamSetPair(KeyMinAccessAmount, &p.MinAccessAmount, validateMinAccessAmount),
 		external.NewParamSetPair(KeyWaitTime, &p.WaitTime, validateWaitTime),
 		external.NewParamSetPair(KeyPunishRage, &p.PunishRage, validatePunishRate),
-
 	}
 }
 
@@ -97,7 +95,6 @@ func (p Params) Validate() error {
 
 	return nil
 }
-
 
 func validateMinAccessAmount(i interface{}) error {
 	v, ok := i.(sdk.Int)

@@ -2,28 +2,51 @@ package keeper
 
 import (
 	//	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/KuChainNetwork/kuchain/x/singer/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
+
+func NewQuerier(keeper Keeper) sdk.Querier {
+	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
+		switch path[0] {
+		case types.QuerySingerInfo:
+			return querySingerInfo(ctx, path[1:], req, keeper)
+
+		default:
+			return nil, nil //sdk.ErrUnknownRequest("unknown bank query endpoint")
+		}
+	}
+}
 
 type QueryResResolve struct {
 	Value string `json:"value"`
 }
 
 // nolint: unparam
-func queryResolve(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Keeper) (res []byte, err error) {
-	// name := path[0]
+func querySingerInfo(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
+	var params types.QuerySingerInfoParams
+	err = k.cdc.UnmarshalJSON(req.Data, &params)
 
-	// value := keeper.ResolveName(ctx, name)
+	ctx.Logger().Debug("querySingerInfo:", params, err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
 
-	// if value == "" {
-	// 	return []byte{}, nil //sdk.ErrUnknownRequest("could not resolve name")
-	// }
+	singerInfo, found := k.GetSingerInfo(ctx, params.SingerAccount)
+	if !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "singer  do not find")
+	}
 
-	// bz, err2 := codec.MarshalJSONIndent(keeper.cdc, QueryResResolve{value})
-	// if err2 != nil {
-	// 	panic("could not marshal result to JSON")
-	// }
+	singerInfoResponse := types.NewQueryDepositMortgageRatioResponse(singerInfo.SingerAccount, singerInfo.AccessAsset, singerInfo.Status, singerInfo.SignatureMortgage, singerInfo.LockMortgage)
 
-	return nil, nil
+	bz, err := codec.MarshalJSONIndent(k.cdc, singerInfoResponse)
+	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
 }

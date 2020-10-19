@@ -62,7 +62,7 @@ func handleKuMsgRegisterSinger(ctx chainTypes.Context, k keeper.Keeper, msg type
 	if !k.ValidatorAccount(sdkCtx, msgData.SingerAccount) {
 		return nil, types.ErrUnKnowAccount
 	}
-	
+
 	k.NewSingerInfo(sdkCtx, msgData.SingerAccount)
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -111,10 +111,10 @@ func handleKuMsgActiveSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.
 	name, ok := msgData.SystemAccount.ToName()
 
 	if !ok {
-		return nil,types.ErrAccountNotAddress
+		return nil, types.ErrAccountNotAddress
 	}
 	if !constants.IsSystemAccount(name) {
-		return nil,types.ErrNotSystemAccount
+		return nil, types.ErrNotSystemAccount
 	}
 
 	if err := k.ActiveSingerInfo(sdkCtx, msgData.SingerAccount); err != nil {
@@ -149,7 +149,6 @@ func handleKuMsgBTCMortgage(ctx chainTypes.Context, k keeper.Keeper, msg types.K
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
-
 
 func handleKuMsgClaimBTCMortgate(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgClaimBTCMortgate) (*sdk.Result, error) {
 	msgData := types.MsgClaimBTCMortgate{}
@@ -191,9 +190,9 @@ func handleKuMsgClaimAccess(ctx chainTypes.Context, k keeper.Keeper, msg types.K
 		return nil, types.ErrSingerNotExists
 	}
 
-	_,err := k.SingerClaimAccess(sdkCtx,msgData.SingerAccount)
-	if  err != nil {
-		return nil,err
+	_, err := k.SingerClaimAccess(sdkCtx, msgData.SingerAccount)
+	if err != nil {
+		return nil, err
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -213,9 +212,9 @@ func handleKuMsgLogoutSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.
 		return nil, types.ErrSingerNotExists
 	}
 
-	err := k.SingerLogoutAccess(sdkCtx,msgData.SingerAccount)
-	if  err != nil {
-		return nil,err
+	err := k.SingerLogoutAccess(sdkCtx, msgData.SingerAccount)
+	if err != nil {
+		return nil, err
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -235,21 +234,20 @@ func handleKuMsgMsgSetBtcAddress(ctx chainTypes.Context, k keeper.Keeper, msg ty
 		return nil, types.ErrSingerNotExists
 	}
 
-	err := k.NewDepositBtcAddress(sdkCtx,msgData.DepoistID,msgData.SingerAccount,msgData.BtcAddress)
-	if  err != nil {
-		return nil,err
+	err := k.NewDepositBtcAddress(sdkCtx, msgData.DepoistID, msgData.SingerAccount, msgData.BtcAddress)
+	if err != nil {
+		return nil, err
 	}
 
- 	if k.CheckBtcAddressReady(sdkCtx,msgData.DepoistID) {
-		err = k.SetBtcAddressReady(sdkCtx,msgData.DepoistID,msgData.BtcAddress)
+	if k.CheckBtcAddressReady(sdkCtx, msgData.DepoistID) {
+		err = k.SetBtcAddressReady(sdkCtx, msgData.DepoistID, msgData.BtcAddress)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
-
 
 func handleKuMsgActiveDeposit(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgActiveDeposit) (*sdk.Result, error) {
 	msgData := types.MsgActiveDeposit{}
@@ -260,15 +258,15 @@ func handleKuMsgActiveDeposit(ctx chainTypes.Context, k keeper.Keeper, msg types
 	ctx.RequireAuth(msgData.SingerAccount)
 	sdkCtx := ctx.Context()
 
-	err := k.SetActiveDeposit(sdkCtx,msgData.DepositID,msgData.SingerAccount)
-	if  err != nil {
-		return nil,err
+	err := k.SetActiveDeposit(sdkCtx, msgData.DepositID, msgData.SingerAccount)
+	if err != nil {
+		return nil, err
 	}
 
-	if k.CheckActiveReady(sdkCtx,msgData.DepositID) {
-		err := k.ActiveDeposit(sdkCtx,msgData.DepositID)
+	if k.CheckActiveReady(sdkCtx, msgData.DepositID) {
+		err := k.ActiveDeposit(sdkCtx, msgData.DepositID)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
 	}
 
@@ -284,9 +282,9 @@ func handleKuMsgSubmitSpv(ctx chainTypes.Context, k keeper.Keeper, msg types.KuM
 	ctx.RequireAuth(msgData.SpvInfo.SpvSubmiter)
 	sdkCtx := ctx.Context()
 
-	err := k.NewClaimSpvInfo(sdkCtx,msgData.SpvInfo)
-	if  err != nil {
-		return nil,err
+	err := k.NewClaimSpvInfo(sdkCtx, msgData.SpvInfo)
+	if err != nil {
+		return nil, err
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -301,9 +299,9 @@ func handleKuMsgWaitTimeout(ctx chainTypes.Context, k keeper.Keeper, msg types.K
 	ctx.RequireAuth(msgData.SingerAccount)
 	sdkCtx := ctx.Context()
 
-	err := k.WaitTimeOut(sdkCtx,msgData.DepositID,msgData.SingerAccount)
-	if  err != nil {
-		return nil,err
+	err := k.WaitTimeOut(sdkCtx, msgData.DepositID, msgData.SingerAccount)
+	if err != nil {
+		return nil, err
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -318,11 +316,10 @@ func handleKuMsgReportSpvWrong(ctx chainTypes.Context, k keeper.Keeper, msg type
 	ctx.RequireAuth(msgData.SingerAccount)
 	sdkCtx := ctx.Context()
 
-	err := k.ReportSpvWrong(sdkCtx,msgData.DepositID,msgData.SingerAccount)
-	if  err != nil {
-		return nil,err
+	err := k.ReportSpvWrong(sdkCtx, msgData.DepositID, msgData.SingerAccount)
+	if err != nil {
+		return nil, err
 	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
-

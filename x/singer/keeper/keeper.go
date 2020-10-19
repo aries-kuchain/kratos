@@ -4,42 +4,42 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	"fmt"
-	"github.com/KuChainNetwork/kuchain/x/singer/types"
 	"github.com/KuChainNetwork/kuchain/x/singer/external"
+	"github.com/KuChainNetwork/kuchain/x/singer/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
+	//	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 // Keeper maintains the link to data storage and exposes getter/setter methods for the various parts of the state machine
 type Keeper struct {
 	storeKey sdk.StoreKey // Unexposed key to access store from sdk.Context
 
-	cdc           *codec.Codec // The wire codec for binary encoding/decoding.
-	bankKeeper    types.BankKeeper
-	accountKeeper types.AccountKeeper
-	supplyKeeper  types.SupplyKeeper
+	cdc            *codec.Codec // The wire codec for binary encoding/decoding.
+	bankKeeper     types.BankKeeper
+	accountKeeper  types.AccountKeeper
+	supplyKeeper   types.SupplyKeeper
 	pricefeeKeeper types.PriceFeeKeeper
-	depositKeeper types.DepositKeeper
-	paramstore         external.ParamsSubspace
+	depositKeeper  types.DepositKeeper
+	paramstore     external.ParamsSubspace
 }
 
 // NewKeeper creates new instances of the nameservice Keeper
 func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
-	sk types.SupplyKeeper, pfk types.PriceFeeKeeper,ps external.ParamsSubspace,
+	sk types.SupplyKeeper, pfk types.PriceFeeKeeper, ps external.ParamsSubspace,
 ) Keeper {
 	return Keeper{
-		storeKey:      storeKey,
-		cdc:           cdc,
-		bankKeeper:    bk,
-		accountKeeper: ak,
-		supplyKeeper:  sk,
-		pricefeeKeeper:pfk,
-		paramstore: ps.WithKeyTable(types.ParamKeyTable()),
+		storeKey:       storeKey,
+		cdc:            cdc,
+		bankKeeper:     bk,
+		accountKeeper:  ak,
+		supplyKeeper:   sk,
+		pricefeeKeeper: pfk,
+		paramstore:     ps.WithKeyTable(types.ParamKeyTable()),
 	}
 }
 
-func (k *Keeper) SetDepositKeeper(dk  types.DepositKeeper) {
+func (k *Keeper) SetDepositKeeper(dk types.DepositKeeper) {
 	k.depositKeeper = dk
 }
 
@@ -99,16 +99,4 @@ func (k Keeper) IterateAllBalances(ctx sdk.Context, cb func(sdk.AccAddress, sdk.
 	// 		break
 	// 	}
 	// }
-}
-
-func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
-		switch path[0] {
-		case types.QueryValue:
-			return nil, nil //queryResolve(ctx, path[1:], req, keeper)
-
-		default:
-			return nil, nil //sdk.ErrUnknownRequest("unknown bank query endpoint")
-		}
-	}
 }

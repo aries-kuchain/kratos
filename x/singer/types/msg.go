@@ -3,9 +3,8 @@ package types
 import (
 	//	"encoding/json"
 	//	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-	 "github.com/KuChainNetwork/kuchain/chain/hexutil"
-
 )
 
 type MsgRegisterSinger struct {
@@ -30,12 +29,13 @@ func (msg MsgRegisterSinger) ValidateBasic() error {
 	if msg.SingerAccount.Empty() {
 		return ErrEmptySingerAccount
 	}
-	_,ok := msg.SingerAccount.ToName() 
+	_, ok := msg.SingerAccount.ToName()
 	if !ok {
 		return ErrAccountNotAddress
 	}
 	return nil
 }
+
 //--------------------------------------------------------------------------------------------------------------
 type MsgPayAccess struct {
 	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
@@ -66,6 +66,7 @@ func (msg MsgPayAccess) ValidateBasic() error {
 	}
 	return nil
 }
+
 //---------------------------------------------------------------------------------------------------------------------------
 type MsgActiveSinger struct {
 	SystemAccount AccountID `json:"system_account" yaml:"system_account"`
@@ -95,6 +96,7 @@ func (msg MsgActiveSinger) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgPayBTCMortgate struct {
 	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
@@ -125,6 +127,7 @@ func (msg MsgPayBTCMortgate) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgClaimBTCMortgate struct {
 	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
@@ -155,6 +158,7 @@ func (msg MsgClaimBTCMortgate) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 
 type MsgClaimAccess struct {
@@ -181,6 +185,7 @@ func (msg MsgClaimAccess) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgLogoutSinger struct {
 	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
@@ -210,15 +215,15 @@ func (msg MsgLogoutSinger) ValidateBasic() error {
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgSetBtcAddress struct {
 	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
-	DepoistID string `json:"deposit_id" yaml:"deposit_id"`
-	BtcAddress string `json:"btc_address" yaml:"btc_address"`
+	DepoistID     string    `json:"deposit_id" yaml:"deposit_id"`
+	BtcAddress    string    `json:"btc_address" yaml:"btc_address"`
 }
 
-func NewMsgSetBtcAddress(singerAccount AccountID,depositID string,btcAddress string) MsgSetBtcAddress {
+func NewMsgSetBtcAddress(singerAccount AccountID, depositID string, btcAddress string) MsgSetBtcAddress {
 	return MsgSetBtcAddress{
 		SingerAccount: singerAccount,
-		DepoistID:depositID,
-		BtcAddress:btcAddress,
+		DepoistID:     depositID,
+		BtcAddress:    btcAddress,
 	}
 }
 
@@ -249,7 +254,7 @@ func (msg MsgSetBtcAddress) ValidateBasic() error {
 
 //-----------------------------------------------------------------------------------------------
 type MsgActiveDeposit struct {
-	DepositID string `json:"deposit_id" yaml:"deposit_id"`
+	DepositID     string    `json:"deposit_id" yaml:"deposit_id"`
 	SingerAccount AccountID `json:"singer_account" yaml:"singer_account"`
 }
 
@@ -277,13 +282,14 @@ func (msg MsgActiveDeposit) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgSubmitSpv struct {
 	SpvInfo
 }
 
 func NewMsgSubmitSpv(spvInfo SpvInfo) MsgSubmitSpv {
-	return MsgSubmitSpv{SpvInfo:spvInfo}
+	return MsgSubmitSpv{SpvInfo: spvInfo}
 }
 
 // Route should return the name of the module
@@ -306,16 +312,17 @@ func (msg MsgSubmitSpv) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgWaitTimeout struct {
-	DepositID string
+	DepositID     string
 	SingerAccount AccountID
 }
 
-func NewMsgWaitTimeout(depositID string,singerAccount AccountID,asset Coin,claimAddress []byte) MsgWaitTimeout {
+func NewMsgWaitTimeout(depositID string, singerAccount AccountID, asset Coin, claimAddress []byte) MsgWaitTimeout {
 	return MsgWaitTimeout{
-		DepositID:depositID,
-		SingerAccount:singerAccount,
+		DepositID:     depositID,
+		SingerAccount: singerAccount,
 	}
 }
 
@@ -339,16 +346,17 @@ func (msg MsgWaitTimeout) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgReportSpvWrong struct {
-	DepositID string
+	DepositID     string
 	SingerAccount AccountID
 }
 
-func NewMsgReportSpvWrong(depositID string,singerAccount AccountID,asset Coin) MsgReportSpvWrong {
+func NewMsgReportSpvWrong(depositID string, singerAccount AccountID, asset Coin) MsgReportSpvWrong {
 	return MsgReportSpvWrong{
-		DepositID:depositID,
-		SingerAccount:singerAccount,
+		DepositID:     depositID,
+		SingerAccount: singerAccount,
 	}
 }
 
@@ -366,7 +374,7 @@ func (msg MsgReportSpvWrong) ValidateBasic() error {
 	if msg.SingerAccount.Empty() {
 		return ErrEmptySingerAccount
 	}
-	
+
 	if len(msg.DepositID) == 0 {
 		return ErrEmptyDepositID
 	}

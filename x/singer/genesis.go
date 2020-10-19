@@ -10,11 +10,11 @@ import (
 
 // GenesisState - all auth state that must be provided at genesis
 type GenesisState struct {
-	Params               types.Params                `json:"params" yaml:"params"`
+	Params types.Params `json:"params" yaml:"params"`
 }
 
 // NewGenesisState - Create a new genesis state
-func NewGenesisState(params types.Params ) GenesisState {
+func NewGenesisState(params types.Params) GenesisState {
 	return GenesisState{
 		Params: params,
 	}
@@ -43,13 +43,13 @@ func ValidateGenesis(data GenesisState) error {
 // ExportGenesis - output genesis parameters
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) GenesisState {
 	return GenesisState{
-		Params:k.GetParams(ctx),
+		Params: k.GetParams(ctx),
 	}
 }
 
 // InitGenesis - store genesis parameters
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data GenesisState, supplyKeeper types.SupplyKeeper,
-	) {
+) {
 	k.SetParams(ctx, data.Params)
 
 	if err := supplyKeeper.InitModuleAccount(ctx, types.ModuleName); err != nil {

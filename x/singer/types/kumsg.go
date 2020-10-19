@@ -94,6 +94,7 @@ func (msg KuMsgActiveSinger) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //--------------------------------------------------------------------------------------------------------------------------
 type KuMsgBTCMortgage struct {
 	chainTypes.KuMsg
@@ -127,6 +128,7 @@ func (msg KuMsgBTCMortgage) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //--------------------------------------------------------------------------------------------------------------------------
 type KuMsgClaimBTCMortgate struct {
 	chainTypes.KuMsg
@@ -152,6 +154,7 @@ func (msg KuMsgClaimBTCMortgate) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //--------------------------------------------------------------------------------------------------------------------------
 
 type KuMsgClaimAccess struct {
@@ -177,6 +180,7 @@ func (msg KuMsgClaimAccess) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //--------------------------------------------------------------------------------------------------------------------------
 type KuMsgLogoutSinger struct {
 	chainTypes.KuMsg
@@ -201,20 +205,21 @@ func (msg KuMsgLogoutSinger) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //--------------------------------------------------------------------------------------------------------------------------
 type KuMsgMsgSetBtcAddress struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgMsgSetBtcAddress(auth sdk.AccAddress, singerAccount AccountID,depositID string,btcAddress string) KuMsgMsgSetBtcAddress {
+func NewKuMsgMsgSetBtcAddress(auth sdk.AccAddress, singerAccount AccountID, depositID string, btcAddress string) KuMsgMsgSetBtcAddress {
 	return KuMsgMsgSetBtcAddress{
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgSetBtcAddress{
 				SingerAccount: singerAccount,
-				DepoistID:depositID,
-				BtcAddress:btcAddress,
+				DepoistID:     depositID,
+				BtcAddress:    btcAddress,
 			}),
 		),
 	}
@@ -227,19 +232,20 @@ func (msg KuMsgMsgSetBtcAddress) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //--------------------------------------------------------------------------------------------------------------------------
 type KuMsgActiveDeposit struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgActiveDeposit(auth sdk.AccAddress, singerAccount AccountID,depositID string) KuMsgActiveDeposit {
+func NewKuMsgActiveDeposit(auth sdk.AccAddress, singerAccount AccountID, depositID string) KuMsgActiveDeposit {
 	return KuMsgActiveDeposit{
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgActiveDeposit{
 				SingerAccount: singerAccount,
-				DepositID:depositID,
+				DepositID:     depositID,
 			}),
 		),
 	}
@@ -252,18 +258,19 @@ func (msg KuMsgActiveDeposit) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //---------------------------------------------------------------------------------------------------------------------------------------------
 type KuMsgSubmitSpv struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgSubmitSpv(auth sdk.AccAddress,spvInfo SpvInfo ) KuMsgSubmitSpv {
+func NewKuMsgSubmitSpv(auth sdk.AccAddress, spvInfo SpvInfo) KuMsgSubmitSpv {
 	return KuMsgSubmitSpv{
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgSubmitSpv{
-				SpvInfo:spvInfo,
+				SpvInfo: spvInfo,
 			}),
 		),
 	}
@@ -277,19 +284,20 @@ func (msg KuMsgSubmitSpv) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+
 //---------------------------------------------------------------------------------------------------------------------------------------------
 type KuMsgWaitTimeout struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgWaitTimeout(auth sdk.AccAddress,depositID string,singerAccount AccountID ) KuMsgWaitTimeout {
+func NewKuMsgWaitTimeout(auth sdk.AccAddress, depositID string, singerAccount AccountID) KuMsgWaitTimeout {
 	return KuMsgWaitTimeout{
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgWaitTimeout{
-					DepositID:depositID,
-					SingerAccount:singerAccount,
+				DepositID:     depositID,
+				SingerAccount: singerAccount,
 			}),
 		),
 	}
@@ -304,19 +312,20 @@ func (msg KuMsgWaitTimeout) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+
 //---------------------------------------------------------------------------------------------------------------------------------------------
 type KuMsgReportSpvWrong struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgReportSpvWrong(auth sdk.AccAddress,depositID string,singerAccount AccountID ) KuMsgReportSpvWrong {
+func NewKuMsgReportSpvWrong(auth sdk.AccAddress, depositID string, singerAccount AccountID) KuMsgReportSpvWrong {
 	return KuMsgReportSpvWrong{
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgReportSpvWrong{
-					DepositID:depositID,
-					SingerAccount:singerAccount,
+				DepositID:     depositID,
+				SingerAccount: singerAccount,
 			}),
 		),
 	}

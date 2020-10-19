@@ -3,18 +3,17 @@ package cli
 import (
 	"bufio"
 	"github.com/KuChainNetwork/kuchain/chain/client/txutil"
+	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
-	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
+	paramscutils "github.com/KuChainNetwork/kuchain/x/deposit/client/utils"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	paramscutils  "github.com/KuChainNetwork/kuchain/x/deposit/client/utils"
-
 )
 
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
@@ -151,7 +150,6 @@ func GetCmdActiveSinger(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-
 func GetCmdPayMortgage(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pay-mortgage [singer-account] [amount]",
@@ -177,7 +175,6 @@ func GetCmdPayMortgage(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
 			}
 
-
 			msg := types.NewKuMsgBTCMortgage(authAccAddress, singerAccount, amount)
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
@@ -189,7 +186,6 @@ func GetCmdPayMortgage(cdc *codec.Codec) *cobra.Command {
 
 	return cmd
 }
-
 
 func GetCmdClaimMortgage(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
@@ -228,7 +224,6 @@ func GetCmdClaimMortgage(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-
 func GetCmdClaimAccess(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "claim-access [singer-account]",
@@ -260,7 +255,6 @@ func GetCmdClaimAccess(cdc *codec.Codec) *cobra.Command {
 
 	return cmd
 }
-
 
 func GetCmdLogoutSinger(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
@@ -314,7 +308,7 @@ func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
 			}
 
-			msg := types.NewKuMsgMsgSetBtcAddress(authAccAddress, singerAccount,args[0],args[2])
+			msg := types.NewKuMsgMsgSetBtcAddress(authAccAddress, singerAccount, args[0], args[2])
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -346,7 +340,7 @@ func GetCmdActiveDeposit(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
 			}
 
-			msg := types.NewKuMsgActiveDeposit(authAccAddress, singerAccount,args[0])
+			msg := types.NewKuMsgActiveDeposit(authAccAddress, singerAccount, args[0])
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -357,7 +351,6 @@ func GetCmdActiveDeposit(cdc *codec.Codec) *cobra.Command {
 
 	return cmd
 }
-
 
 func GetCmdSubmitSpv(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
@@ -384,8 +377,8 @@ func GetCmdSubmitSpv(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", spvSubmiter)
 			}
 
-			spvInfo := types.NewSpvInfo(args[1],spvSubmiter,hexutil.MustDecode(paramsSpv.Version),hexutil.MustDecode(paramsSpv.TxInputVector),hexutil.MustDecode(paramsSpv.TxOutputVector),
-				hexutil.MustDecode(paramsSpv.TxLockTime),hexutil.MustDecode(paramsSpv.MerkleProof),hexutil.MustDecode(paramsSpv.BitcoinHeaders),paramsSpv.FundingOutputIndex,paramsSpv.TxIndexInBlock,
+			spvInfo := types.NewSpvInfo(args[1], spvSubmiter, hexutil.MustDecode(paramsSpv.Version), hexutil.MustDecode(paramsSpv.TxInputVector), hexutil.MustDecode(paramsSpv.TxOutputVector),
+				hexutil.MustDecode(paramsSpv.TxLockTime), hexutil.MustDecode(paramsSpv.MerkleProof), hexutil.MustDecode(paramsSpv.BitcoinHeaders), paramsSpv.FundingOutputIndex, paramsSpv.TxIndexInBlock,
 			)
 			msg := types.NewKuMsgSubmitSpv(authAccAddress, spvInfo)
 			cliCtx = cliCtx.WithFromAccount(spvSubmiter)
@@ -419,7 +412,7 @@ func GetCmdDepostWaitTimeOut(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
 			}
 
-			msg := types.NewKuMsgWaitTimeout(authAccAddress, args[0],singerAccount)
+			msg := types.NewKuMsgWaitTimeout(authAccAddress, args[0], singerAccount)
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -451,7 +444,7 @@ func GetCmdReportWrongSpv(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", singerAccount)
 			}
 
-			msg := types.NewKuMsgReportSpvWrong(authAccAddress, args[0],singerAccount)
+			msg := types.NewKuMsgReportSpvWrong(authAccAddress, args[0], singerAccount)
 			cliCtx = cliCtx.WithFromAccount(singerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])

@@ -84,12 +84,6 @@ func queryDelegator(cliCtx context.CLIContext, endpoint string) http.HandlerFunc
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		bech32delegator := vars["delegatorAddr"]
-
-		// delegatorAddr, err := sdk.AccAddressFromBech32(bech32delegator)
-		// if err != nil {
-		// 	rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		// 	return
-		// }
 		delegatorAddr, _ := chainTypes.NewAccountIDFromStr(bech32delegator)
 
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)

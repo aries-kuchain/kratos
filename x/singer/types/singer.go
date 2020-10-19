@@ -46,7 +46,7 @@ type SingerInfo struct {
 	AccessAsset       sdk.Int      `json:"access_asset" yaml:"access_asset"`
 	Status            SingerStatus `json:"status" yaml:"status"`
 	SignatureMortgage sdk.Int      `json:"signature_mortgage" yaml:"signature_mortgage"`
-	LockMortgage sdk.Int       `json:"locked_morgage" yaml:"locked_morgage"`
+	LockMortgage      sdk.Int      `json:"locked_morgage" yaml:"locked_morgage"`
 }
 
 func NewSingerInfo(singerName AccountID) SingerInfo {
@@ -55,7 +55,7 @@ func NewSingerInfo(singerName AccountID) SingerInfo {
 		AccessAsset:       sdk.ZeroInt(),
 		Status:            InActive,
 		SignatureMortgage: sdk.ZeroInt(),
-		LockMortgage:sdk.ZeroInt(),
+		LockMortgage:      sdk.ZeroInt(),
 	}
 }
 
@@ -84,10 +84,10 @@ func (v SingerInfo) String() string {
 	out, _ := yaml.Marshal(v)
 	return string(out)
 }
+
 //---------------------------------------------------------------------------------
 type SingerInfos []SingerInfo
 
 func (s SingerInfos) Len() int           { return len(s) }
 func (s SingerInfos) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
-func (s SingerInfos) Less(i, j int) bool { return s[i].SignatureMortgage.LT(s[j].SignatureMortgage)}
-
+func (s SingerInfos) Less(i, j int) bool { return s[i].SignatureMortgage.LT(s[j].SignatureMortgage) }

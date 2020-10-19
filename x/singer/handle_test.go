@@ -1,15 +1,15 @@
 package singer_test
 
 import (
-	"testing"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	. "github.com/smartystreets/goconvey/convey"
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/KuChainNetwork/kuchain/chain/config"
 	"github.com/KuChainNetwork/kuchain/chain/constants"
 	"github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/test/simapp"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	. "github.com/smartystreets/goconvey/convey"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"testing"
 )
 
 func newTestApp(wallet *simapp.Wallet) (addAlice, addJack, addValidator sdk.AccAddress, accAlice, accJack, accValidator types.AccountID, app *simapp.SimApp) {
@@ -20,7 +20,6 @@ func newTestApp(wallet *simapp.Wallet) (addAlice, addJack, addValidator sdk.AccA
 	accAlice = types.MustAccountID("alice@ok")
 	accJack = types.MustAccountID("jack@ok")
 	accValidator = types.MustAccountID("validator@ok")
-	
 
 	resInt, succ := sdk.NewIntFromString("100000000000000000000000")
 	if !succ {
@@ -45,11 +44,11 @@ func newTestApp(wallet *simapp.Wallet) (addAlice, addJack, addValidator sdk.AccA
 	singera := types.MustAccountID("singera")
 	singerb := types.MustAccountID("singerb")
 	singerc := types.MustAccountID("singerc")
-	singerd:= types.MustAccountID("singerd")
+	singerd := types.MustAccountID("singerd")
 	singere := types.MustAccountID("singere")
 	singerf := types.MustAccountID("singerf")
 	singerg := types.MustAccountID("singerg")
-	accSystem :=  types.MustAccountID("test@sys")
+	accSystem := types.MustAccountID("test@sys")
 
 	genSingera := simapp.NewSimGenesisAccount(singera, addAlice).WithAsset(asset1)
 	genSingerb := simapp.NewSimGenesisAccount(singerb, addAlice).WithAsset(asset1)
@@ -59,7 +58,6 @@ func newTestApp(wallet *simapp.Wallet) (addAlice, addJack, addValidator sdk.AccA
 	genSingerf := simapp.NewSimGenesisAccount(singerf, addAlice).WithAsset(asset1)
 	genSingerg := simapp.NewSimGenesisAccount(singerg, addAlice).WithAsset(asset1)
 	genSystem := simapp.NewSimGenesisAccount(accSystem, addAlice).WithAsset(asset1)
-
 
 	//-------------------------------------------------------------------------------------------------------------------------------------
 
@@ -104,7 +102,7 @@ func regesterSinger(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, add
 
 	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
 
-	//NewKuMsgRegisterSinger(auth sdk.AccAddress, singerAccount AccountID) 
+	//NewKuMsgRegisterSinger(auth sdk.AccAddress, singerAccount AccountID)
 	msg := singerTypes.NewKuMsgRegisterSinger(addAlice, accAlice)
 
 	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
@@ -118,7 +116,7 @@ func regesterSinger(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, add
 	return err
 }
 
-func payAccesss(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID,amount types.Coin, passed bool) error {
+func payAccesss(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount types.Coin, passed bool) error {
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
 
 	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
@@ -126,7 +124,7 @@ func payAccesss(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlic
 
 	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
 
-	msg := singerTypes.NewKuMsgPayAccess(addAlice, accAlice,amount)
+	msg := singerTypes.NewKuMsgPayAccess(addAlice, accAlice, amount)
 
 	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
 	header := abci.Header{Height: app.LastBlockHeight() + 1}
@@ -139,7 +137,7 @@ func payAccesss(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlic
 	return err
 }
 
-func activeSinger(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice,accJack types.AccountID, passed bool) error {
+func activeSinger(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice, accJack types.AccountID, passed bool) error {
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
 
 	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
@@ -147,7 +145,7 @@ func activeSinger(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAl
 
 	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
 
-	msg := singerTypes.NewKuMsgActiveSinger(addAlice, accAlice,accJack)
+	msg := singerTypes.NewKuMsgActiveSinger(addAlice, accAlice, accJack)
 
 	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
 	header := abci.Header{Height: app.LastBlockHeight() + 1}
@@ -160,15 +158,15 @@ func activeSinger(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAl
 	return err
 }
 
-func payMortgage(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID,amount types.Coin, passed bool) error {
+func payMortgage(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount types.Coin, passed bool) error {
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
 
 	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
 	So(err, ShouldBeNil)
 
 	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
-//NewKuMsgBTCMortgage(auth sdk.AccAddress, singerAccount AccountID, amount Coin) KuMsgBTCMortgage
-	msg := singerTypes.NewKuMsgBTCMortgage(addAlice, accAlice,amount)
+	//NewKuMsgBTCMortgage(auth sdk.AccAddress, singerAccount AccountID, amount Coin) KuMsgBTCMortgage
+	msg := singerTypes.NewKuMsgBTCMortgage(addAlice, accAlice, amount)
 
 	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
 	header := abci.Header{Height: app.LastBlockHeight() + 1}
@@ -181,15 +179,15 @@ func payMortgage(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAli
 	return err
 }
 
-func claimMortgage(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID,amount types.Coin, passed bool) error {
+func claimMortgage(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount types.Coin, passed bool) error {
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
 
 	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
 	So(err, ShouldBeNil)
 
 	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
-//NewKuMsgClaimBTCMortgate(auth sdk.AccAddress, singerAccount AccountID, amount Coin) KuMsgClaimBTCMortgate
-	msg := singerTypes.NewKuMsgClaimBTCMortgate(addAlice, accAlice,amount)
+	//NewKuMsgClaimBTCMortgate(auth sdk.AccAddress, singerAccount AccountID, amount Coin) KuMsgClaimBTCMortgate
+	msg := singerTypes.NewKuMsgClaimBTCMortgate(addAlice, accAlice, amount)
 
 	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
 	header := abci.Header{Height: app.LastBlockHeight() + 1}
@@ -229,7 +227,7 @@ func logoutAcccess(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addA
 	So(err, ShouldBeNil)
 
 	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
-	//NewKuMsgLogoutSinger(auth sdk.AccAddress, singerAccount AccountID) KuMsgLogoutSinger 
+	//NewKuMsgLogoutSinger(auth sdk.AccAddress, singerAccount AccountID) KuMsgLogoutSinger
 	msg := singerTypes.NewKuMsgLogoutSinger(addAlice, accAlice)
 
 	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
@@ -244,161 +242,161 @@ func logoutAcccess(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addA
 }
 
 func TestSingerHandler(t *testing.T) {
-		config.SealChainConfig()
-		wallet := simapp.NewWallet()
+	config.SealChainConfig()
+	wallet := simapp.NewWallet()
 	Convey("TestRegisterSinger", t, func() {
 		addAlice, addJack, _, accAlice, _, _, app := newTestApp(wallet)
-		err := regesterSinger(t, wallet, app,addAlice,accAlice,true)
+		err := regesterSinger(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
-		err = regesterSinger(t, wallet, app,addAlice,accAlice,false)
+		err = regesterSinger(t, wallet, app, addAlice, accAlice, false)
 		So(err, ShouldNotBeNil)
-		err = regesterSinger(t, wallet, app,addJack,accAlice,false)
+		err = regesterSinger(t, wallet, app, addJack, accAlice, false)
 		So(err, ShouldNotBeNil)
 	})
 	Convey("TestPayAccess", t, func() {
 		addAlice, _, _, accAlice, _, _, app := newTestApp(wallet)
-		err := regesterSinger(t, wallet, app,addAlice,accAlice,true)
+		err := regesterSinger(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
 		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
 		amout2 := types.NewInt64Coin(constants.DefaultBondDenom, 1000000000000000000)
 		otherCoinDenom := types.CoinDenom(types.MustName("foo"), types.MustName("coin"))
 		otherAmount := types.NewInt64Coin(otherCoinDenom, 10000000)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout2,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout2, true)
 		So(err, ShouldBeNil)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,otherAmount,false)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, otherAmount, false)
 		So(err, ShouldNotBeNil)
 	})
 	Convey("TestActiveSinger", t, func() {
 		addAlice, _, _, accAlice, accjack, _, app := newTestApp(wallet)
-		err := regesterSinger(t, wallet, app,addAlice,accAlice,true)
+		err := regesterSinger(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
 		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
 		amout2 := types.NewInt64Coin(constants.DefaultBondDenom, 1000000000000000000)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		accSystem :=  types.MustAccountID("test@sys")
-		err = activeSinger(t, wallet, app,addAlice,accSystem,accAlice,false)
+		accSystem := types.MustAccountID("test@sys")
+		err = activeSinger(t, wallet, app, addAlice, accSystem, accAlice, false)
 		So(err, ShouldNotBeNil)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout2,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout2, true)
 		So(err, ShouldBeNil)
-		err = activeSinger(t, wallet, app,addAlice,accAlice,accAlice,false)
+		err = activeSinger(t, wallet, app, addAlice, accAlice, accAlice, false)
 		So(err, ShouldNotBeNil)
-		err = activeSinger(t, wallet, app,addAlice,accSystem,accAlice,true)
+		err = activeSinger(t, wallet, app, addAlice, accSystem, accAlice, true)
 		So(err, ShouldBeNil)
-		err = activeSinger(t, wallet, app,addAlice,accSystem,accAlice,false)
+		err = activeSinger(t, wallet, app, addAlice, accSystem, accAlice, false)
 		So(err, ShouldNotBeNil)
-		err = activeSinger(t, wallet, app,addAlice,accSystem,accjack,false)
+		err = activeSinger(t, wallet, app, addAlice, accSystem, accjack, false)
 		So(err, ShouldNotBeNil)
 	})
 	Convey("TestpayMortgage", t, func() {
 		addAlice, addJack, _, accAlice, accJack, _, app := newTestApp(wallet)
-		err := regesterSinger(t, wallet, app,addAlice,accAlice,true)
+		err := regesterSinger(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
 		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
 		amout2 := types.NewInt64Coin(constants.DefaultBondDenom, 1000000000000000000)
 		otherCoinDenom := types.CoinDenom(types.MustName("foo"), types.MustName("coin"))
 		otherAmount := types.NewInt64Coin(otherCoinDenom, 10000000)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout2,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout2, true)
 		So(err, ShouldBeNil)
-		accSystem :=  types.MustAccountID("test@sys")
-		err = activeSinger(t, wallet, app,addAlice,accSystem,accAlice,true)
+		accSystem := types.MustAccountID("test@sys")
+		err = activeSinger(t, wallet, app, addAlice, accSystem, accAlice, true)
 		So(err, ShouldBeNil)
-		err = payMortgage(t, wallet, app,addAlice,accAlice,otherAmount,false)
+		err = payMortgage(t, wallet, app, addAlice, accAlice, otherAmount, false)
 		So(err, ShouldNotBeNil)
-		err = payMortgage(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = payMortgage(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = payMortgage(t, wallet, app,addJack,accAlice,amout1,false)
+		err = payMortgage(t, wallet, app, addJack, accAlice, amout1, false)
 		So(err, ShouldNotBeNil)
-		err = payMortgage(t, wallet, app,addJack,accJack,amout1,false)
+		err = payMortgage(t, wallet, app, addJack, accJack, amout1, false)
 		So(err, ShouldNotBeNil)
-		err = regesterSinger(t, wallet, app,addJack,accJack,true)
+		err = regesterSinger(t, wallet, app, addJack, accJack, true)
 		So(err, ShouldBeNil)
-		err = payMortgage(t, wallet, app,addJack,accJack,amout1,true)
+		err = payMortgage(t, wallet, app, addJack, accJack, amout1, true)
 		So(err, ShouldBeNil)
 		resInt, succ := sdk.NewIntFromString("100000000000000000000000")
 		if !succ {
 			resInt = sdk.NewInt(10000000000000000)
 		}
 		bigAsset := types.NewCoin(constants.DefaultBondDenom, resInt)
-		err = payMortgage(t, wallet, app,addJack,accJack,bigAsset,false)
+		err = payMortgage(t, wallet, app, addJack, accJack, bigAsset, false)
 		So(err, ShouldNotBeNil)
 	})
 	Convey("TestclaimMortgage", t, func() {
 		addAlice, _, _, accAlice, _, _, app := newTestApp(wallet)
-		err := regesterSinger(t, wallet, app,addAlice,accAlice,true)
+		err := regesterSinger(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
 		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
 		amout2 := types.NewInt64Coin(constants.DefaultBondDenom, 1000000000000000000)
 		otherCoinDenom := types.CoinDenom(types.MustName("foo"), types.MustName("coin"))
 		otherAmount := types.NewInt64Coin(otherCoinDenom, 10000000)
-		err = payMortgage(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = payMortgage(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = claimMortgage(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = claimMortgage(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout2,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout2, true)
 		So(err, ShouldBeNil)
-		accSystem :=  types.MustAccountID("test@sys")
-		err = activeSinger(t, wallet, app,addAlice,accSystem,accAlice,true)
+		accSystem := types.MustAccountID("test@sys")
+		err = activeSinger(t, wallet, app, addAlice, accSystem, accAlice, true)
 		So(err, ShouldBeNil)
-		err = payMortgage(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = payMortgage(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = claimMortgage(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = claimMortgage(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = payMortgage(t, wallet, app,addAlice,accAlice,otherAmount,false)
+		err = payMortgage(t, wallet, app, addAlice, accAlice, otherAmount, false)
 		So(err, ShouldNotBeNil)
-		err = payMortgage(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = payMortgage(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = claimMortgage(t, wallet, app,addAlice,accAlice,amout2,false)
+		err = claimMortgage(t, wallet, app, addAlice, accAlice, amout2, false)
 		So(err, ShouldNotBeNil)
 	})
 	Convey("TestclaimAccess", t, func() {
 		addAlice, _, _, accAlice, _, _, app := newTestApp(wallet)
 		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
 		amout2 := types.NewInt64Coin(constants.DefaultBondDenom, 1000000000000000000)
-		err := payAccesss(t, wallet, app,addAlice,accAlice,amout1,false)
+		err := payAccesss(t, wallet, app, addAlice, accAlice, amout1, false)
 		So(err, ShouldNotBeNil)
-		err = regesterSinger(t, wallet, app,addAlice,accAlice,true)
+		err = regesterSinger(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = claimAcccess(t, wallet, app,addAlice,accAlice,false)
+		err = claimAcccess(t, wallet, app, addAlice, accAlice, false)
 		So(err, ShouldNotBeNil)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout2,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout2, true)
 		So(err, ShouldBeNil)
-		err = claimAcccess(t, wallet, app,addAlice,accAlice,true)
+		err = claimAcccess(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
-		err = claimAcccess(t, wallet, app,addAlice,accAlice,false)
+		err = claimAcccess(t, wallet, app, addAlice, accAlice, false)
 		So(err, ShouldNotBeNil)
-		accSystem :=  types.MustAccountID("test@sys")
-		err = activeSinger(t, wallet, app,addAlice,accSystem,accAlice,true)
+		accSystem := types.MustAccountID("test@sys")
+		err = activeSinger(t, wallet, app, addAlice, accSystem, accAlice, true)
 		So(err, ShouldBeNil)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = claimAcccess(t, wallet, app,addAlice,accAlice,true)
+		err = claimAcccess(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
 	})
 	Convey("TestlogoutSinger", t, func() {
 		addAlice, _, _, accAlice, _, _, app := newTestApp(wallet)
-		err := logoutAcccess(t, wallet, app,addAlice,accAlice,false)
+		err := logoutAcccess(t, wallet, app, addAlice, accAlice, false)
 		So(err, ShouldNotBeNil)
-		err = regesterSinger(t, wallet, app,addAlice,accAlice,true)
+		err = regesterSinger(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
-		err = logoutAcccess(t, wallet, app,addAlice,accAlice,false)
+		err = logoutAcccess(t, wallet, app, addAlice, accAlice, false)
 		So(err, ShouldNotBeNil)
 		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
 		amout2 := types.NewInt64Coin(constants.DefaultBondDenom, 1000000000000000000)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = logoutAcccess(t, wallet, app,addAlice,accAlice,true)
+		err = logoutAcccess(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
-		err = payAccesss(t, wallet, app,addAlice,accAlice,amout2,true)
+		err = payAccesss(t, wallet, app, addAlice, accAlice, amout2, true)
 		So(err, ShouldBeNil)
-		accSystem :=  types.MustAccountID("test@sys")
-		err = activeSinger(t, wallet, app,addAlice,accSystem,accAlice,true)
+		accSystem := types.MustAccountID("test@sys")
+		err = activeSinger(t, wallet, app, addAlice, accSystem, accAlice, true)
 		So(err, ShouldBeNil)
-		err = logoutAcccess(t, wallet, app,addAlice,accAlice,true)
+		err = logoutAcccess(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
 	})
 }
