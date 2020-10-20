@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func queryDelegator(cliCtx context.CLIContext, endpoint string) http.HandlerFunc {
+func querySingerInfo(cliCtx context.CLIContext, endpoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		bech32delegator := vars["singerAccount"]

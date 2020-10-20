@@ -27,3 +27,20 @@ func (v QuerySingerInfoResponse) String() string {
 	out, _ := yaml.Marshal(v)
 	return string(out)
 }
+
+type QueryAllDepositResponse struct {
+	DepositInfos []DepositInfo  `json:"all_deposit_info" yaml:"all_deposit_info"`
+}
+
+func NewQueryAllDepositResponse(depositInfos []DepositInfo) QueryAllDepositResponse{
+	var result QueryAllDepositResponse
+	for _,depositInfo := range depositInfos {
+		result.DepositInfos = append(result.DepositInfos,depositInfo)
+	}
+	return result
+}
+
+func (v QueryAllDepositResponse) String() string {
+	out, _ := yaml.Marshal(v)
+	return string(out)
+}

@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	//	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,7 +13,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		switch path[0] {
 		case types.QuerySingerInfo:
 			return querySingerInfo(ctx, path[1:], req, keeper)
-
+		case types.QueryAllDeposit:
+			return queryAllDeposit(ctx, path[1:], req, keeper)
 		default:
 			return nil, nil //sdk.ErrUnknownRequest("unknown bank query endpoint")
 		}
@@ -43,6 +43,18 @@ func querySingerInfo(ctx sdk.Context, path []string, req abci.RequestQuery, k Ke
 	singerInfoResponse := types.NewQueryDepositMortgageRatioResponse(singerInfo.SingerAccount, singerInfo.AccessAsset, singerInfo.Status, singerInfo.SignatureMortgage, singerInfo.LockMortgage)
 
 	bz, err := codec.MarshalJSONIndent(k.cdc, singerInfoResponse)
+	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+func queryAllDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
+	depositInfos := k.GetAllDeposit(ctx)
+
+	allDepositInfoResponse := types.NewQueryAllDepositResponse(depositInfos)
+	bz, err := codec.MarshalJSONIndent(k.cdc, allDepositInfoResponse)
 	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())

@@ -26,6 +26,19 @@ func (k Keeper) SetDepositInfo(ctx sdk.Context, depositInfo types.DepositInfo) {
 	store.Set(types.GetDepositInfoKey(depositInfo.DepositID), b)
 }
 
+func (k Keeper) GetAllDeposit(ctx sdk.Context) (depositInfos []types.DepositInfo) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.DepositInfoKey)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		depositInfo := types.MustUnmarshalDepositInfo(k.cdc, iterator.Value())
+		depositInfos = append(depositInfos, depositInfo)
+	}
+
+	return depositInfos
+}
+
 func (k Keeper) NewDepositInfo(ctx sdk.Context, depositID string, threshold int, singer types.SingerInfos, minStake sdk.Int) (err error) {
 	_, found := k.GetDepositInfo(ctx, depositID)
 	if found {

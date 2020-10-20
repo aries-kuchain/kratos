@@ -4,6 +4,7 @@ import ()
 
 const (
 	QuerySingerInfo = "singer_info"
+	QueryAllDeposit = "all_deposit"
 )
 
 type QuerySingerInfoParams struct {
