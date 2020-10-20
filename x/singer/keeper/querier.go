@@ -15,6 +15,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return querySingerInfo(ctx, path[1:], req, keeper)
 		case types.QueryAllDeposit:
 			return queryAllDeposit(ctx, path[1:], req, keeper)
+		case types.QueryDepositInfo:
+			return queryAllDeposit(ctx, path[1:], req, keeper)
 		default:
 			return nil, nil //sdk.ErrUnknownRequest("unknown bank query endpoint")
 		}
@@ -50,11 +52,37 @@ func querySingerInfo(ctx sdk.Context, path []string, req abci.RequestQuery, k Ke
 
 	return bz, nil
 }
+
 func queryAllDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
 	depositInfos := k.GetAllDeposit(ctx)
 
 	allDepositInfoResponse := types.NewQueryAllDepositResponse(depositInfos)
 	bz, err := codec.MarshalJSONIndent(k.cdc, allDepositInfoResponse)
+	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func queryDepositInfo(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
+	var params types.QueryDepositInfoParams
+	err = k.cdc.UnmarshalJSON(req.Data, &params)
+
+	ctx.Logger().Debug("querySingerInfo:", params, err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	depositInfo, found := k.GetDepositInfo(ctx, params.DepositID)
+	if !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "singer  do not find")
+	}
+
+//	singerInfoResponse := types.NewQueryDepositMortgageRatioResponse(singerInfo.SingerAccount, singerInfo.AccessAsset, singerInfo.Status, singerInfo.SignatureMortgage, singerInfo.LockMortgage)
+
+	bz, err := codec.MarshalJSONIndent(k.cdc, depositInfo)
 	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())

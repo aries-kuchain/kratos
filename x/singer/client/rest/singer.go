@@ -21,7 +21,7 @@ func querySingerInfo(cliCtx context.CLIContext, endpoint string) http.HandlerFun
 			return
 		}
 
-		params := types.NewQueryDepositParams(singerAccount)
+		params := types.NewQuerySingerInfoParams(singerAccount)
 
 		bz, err := cliCtx.Codec.MarshalJSON(params)
 		if err != nil {

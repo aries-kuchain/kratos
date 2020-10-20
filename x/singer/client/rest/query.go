@@ -14,8 +14,12 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		singerInfoHandlerFn(cliCtx),
 	).Methods("GET")
 	r.HandleFunc(
-		"/singer/allDeposit",
+		"/singer/alldeposit",
 		allDepositHandlerFn(cliCtx),
+	).Methods("GET")
+	r.HandleFunc(
+		"/singer/{depositID}/depositinfo",
+		depositInfoHandlerFn(cliCtx),
 	).Methods("GET")
 }
 
@@ -25,4 +29,8 @@ func singerInfoHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 
 func allDepositHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return queryAllDeposit(cliCtx, fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryAllDeposit))
+}
+
+func depositInfoHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
+	return queryDepositInfo(cliCtx, fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryDepositInfo))
 }
