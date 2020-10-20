@@ -34,6 +34,16 @@ func NewQueryAllDepositWithOwnerResponse(depositInfos []DepositInfo, ownerAccoun
 	return result
 }
 
+func NewQueryAllDepositWithCashReadyResponse(depositInfos []DepositInfo) QueryAllDepositResponse {
+	var result QueryAllDepositResponse
+	for _, depositInfo := range depositInfos {
+		if  depositInfo.Status == CashReady {
+			result.DepositInfos = append(result.DepositInfos, depositInfo)
+		}
+	}
+	return result
+}
+
 func (v QueryAllDepositResponse) String() string {
 	out, _ := yaml.Marshal(v)
 	return string(out)

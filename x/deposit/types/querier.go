@@ -7,6 +7,8 @@ const (
 	QueryAllDeposit                 = "all_deposit"
 	QueryDepositInfo                = "deposit_info"
 	QueryUserDeposit                = "user_deposit"
+	QueryCashReadyDeposit                = "cashready_deposit"
+
 )
 
 type QueryDepositParams struct {

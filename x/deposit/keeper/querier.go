@@ -22,6 +22,8 @@ func NewQuerier(k Keeper) sdk.Querier {
 			return queryDepositInfo(ctx, path[1:], req, k)
 		case types.QueryUserDeposit:
 			return queryUserDeposit(ctx, path[1:], req, k)
+		case types.QueryCashReadyDeposit:
+			return queryCashReadyDeposit(ctx, path[1:], req, k)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown query path: %s", path[0])
 		}
@@ -101,6 +103,18 @@ func queryUserDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, k K
 	reponse := types.NewQueryAllDepositWithOwnerResponse(depositInfos, params.OwerAccount)
 	bz, err := codec.MarshalJSONIndent(k.cdc, reponse)
 	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func queryCashReadyDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
+	depositInfos := k.GetAllDepositInfo(ctx)
+	reponse := types.NewQueryAllDepositWithCashReadyResponse(depositInfos)
+	bz, err := codec.MarshalJSONIndent(k.cdc, reponse)
+	ctx.Logger().Debug("queryAllDeposit:", bz, "err:", err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
