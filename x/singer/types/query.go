@@ -40,6 +40,20 @@ func NewQueryAllDepositResponse(depositInfos []DepositInfo) QueryAllDepositRespo
 	return result
 }
 
+func NewQuerySingerDepositResponse(depositInfos []DepositInfo,singerAccount AccountID) QueryAllDepositResponse{
+	var result QueryAllDepositResponse
+	for _,depositInfo := range depositInfos {
+		for _,depositSinger := range depositInfo.Singers {
+			if depositSinger.Eq(singerAccount) {
+				result.DepositInfos = append(result.DepositInfos,depositInfo)
+			}
+		}
+		
+	}
+	return result
+}
+
+
 func (v QueryAllDepositResponse) String() string {
 	out, _ := yaml.Marshal(v)
 	return string(out)
