@@ -5,13 +5,13 @@ import (
 	//"github.com/KuChainNetwork/kuchain/chain/client/flags"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
-//	"github.com/cosmos/cosmos-sdk/client"
+	//	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 	"strings"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // GetCmdQueryValidator implements the validator query command.
@@ -84,13 +84,13 @@ $ %s query pricefee fee jack
 				return sdkerrors.Wrap(err, "quote parse error")
 			}
 
-			res, _, err := cliCtx.QueryStore(types.GetPriceInfoKey(base,quote), storeName)
+			res, _, err := cliCtx.QueryStore(types.GetPriceInfoKey(base, quote), storeName)
 			if err != nil {
 				return err
 			}
 
 			if len(res) == 0 {
-				return fmt.Errorf("no price found with base %s,quote %s", base,quote)
+				return fmt.Errorf("no price found with base %s,quote %s", base, quote)
 
 			}
 

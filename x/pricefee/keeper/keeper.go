@@ -1,39 +1,35 @@
 package keeper
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-//	"github.com/cosmos/cosmos-sdk/x/bank"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-//	"github.com/xuyp1991/cosaccount/x/easystore/types"
-	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
 	"fmt"
-	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	//	abci "github.com/tendermint/tendermint/abci/types"
 )
+
 // Keeper maintains the link to data storage and exposes getter/setter methods for the various parts of the state machine
 type Keeper struct {
+	storeKey sdk.StoreKey // Unexposed key to access store from sdk.Context
 
-	storeKey  sdk.StoreKey // Unexposed key to access store from sdk.Context
-
-	cdc  *codec.Codec // The wire codec for binary encoding/decoding.
+	cdc *codec.Codec // The wire codec for binary encoding/decoding.
 
 	bankKeeper    types.BankKeeper
 	accountKeeper types.AccountKeeper
 	supplyKeeper  types.SupplyKeeper
-
 }
 
 // NewKeeper creates new instances of the nameservice Keeper
-func NewKeeper( storeKey sdk.StoreKey, cdc  *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
+func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
 	sk types.SupplyKeeper,
-	) Keeper {
+) Keeper {
 	return Keeper{
-	//	coinKeeper: coinKeeper,
-		storeKey:   storeKey,
-		cdc:        cdc,
-		bankKeeper: bk,
-		accountKeeper:ak,
-		supplyKeeper:sk,
+		//	coinKeeper: coinKeeper,
+		storeKey:      storeKey,
+		cdc:           cdc,
+		bankKeeper:    bk,
+		accountKeeper: ak,
+		supplyKeeper:  sk,
 	}
 }
 
@@ -46,7 +42,6 @@ func RegisterInvariants(ir sdk.InvariantRegistry, bk Keeper) {
 	ir.RegisterRoute(types.ModuleName, "nonnegative-outstanding",
 		NonnegativeBalanceInvariant(bk))
 }
-
 
 // NonnegativeBalanceInvariant checks that all accounts in the application have non-negative balances
 func NonnegativeBalanceInvariant(bk Keeper) sdk.Invariant {
@@ -78,36 +73,8 @@ func NonnegativeBalanceInvariant(bk Keeper) sdk.Invariant {
 // denominations that are provided to a callback. If true is returned from the
 // callback, iteration is halted.
 func (k Keeper) IterateAllBalances(ctx sdk.Context, cb func(sdk.AccAddress, sdk.Coin) bool) {
-	// store := ctx.KVStore(k.storeKey)
-	// balancesStore := prefix.NewStore(store, types.BalancesPrefix)
 
-	// iterator := balancesStore.Iterator(nil, nil)
-	// defer iterator.Close()
-
-	// for ; iterator.Valid(); iterator.Next() {
-	// 	address := types.AddressFromBalancesStore(iterator.Key())
-
-	// 	var balance sdk.Coin
-	// 	k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &balance)
-
-	// 	if cb(address, balance) {
-	// 		break
-	// 	}
-	// }
 }
-
-func NewQuerier(keeper Keeper) sdk.Querier {
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
-		switch path[0] {
-		case types.QueryValue:
-			return nil,nil//queryResolve(ctx, path[1:], req, keeper)
-
-		default:
-			return nil, nil//sdk.ErrUnknownRequest("unknown bank query endpoint")
-		}
-	}
-}
-
 
 // Sets the entire Whois metadata struct for a name
 func (k Keeper) SetStoredata(ctx sdk.Context, name string, storedata types.Storedata) {
@@ -153,7 +120,7 @@ func (k Keeper) SetOwner(ctx sdk.Context, name string, owner sdk.AccAddress) {
 }
 
 // SetOwner - sets the current owner of a name
-func (k Keeper) Setvalue(ctx sdk.Context, name string, value string,owner sdk.AccAddress) {
+func (k Keeper) Setvalue(ctx sdk.Context, name string, value string, owner sdk.AccAddress) {
 	storedata := k.GetStoreData(ctx, name)
 	storedata.Owner = owner
 	storedata.Value = value

@@ -1,28 +1,26 @@
 package types
 
 import (
-	"time"
 	"github.com/cosmos/cosmos-sdk/codec"
 	yaml "gopkg.in/yaml.v2"
+	"time"
 )
 
 type PriceInfo struct {
-	Base Coin
-	Quote Coin
+	Base       Coin
+	Quote      Coin
 	RecordTime time.Time
-	Remark string
+	Remark     string
 }
 
-func NewPriceInfo(base,quote Coin,remark string) PriceInfo {
+func NewPriceInfo(base, quote Coin, remark string) PriceInfo {
 	return PriceInfo{
-		Base:base,
-		Quote:quote,
-		RecordTime:time.Now().UTC(),
-		Remark:remark,
+		Base:       base,
+		Quote:      quote,
+		RecordTime: time.Now().UTC(),
+		Remark:     remark,
 	}
 }
-
-
 
 // return the redelegation
 func MustMarshalPriceInfo(cdc *codec.Codec, priceInfo PriceInfo) []byte {

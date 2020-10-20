@@ -16,13 +16,12 @@ import (
 	"github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/test/simapp"
 	priceFeeTypes "github.com/KuChainNetwork/kuchain/x/pricefee/types"
-
 	// stakingTypes "github.com/KuChainNetwork/kuchain/x/staking/types"
 	// "github.com/tendermint/tendermint/crypto"
 	// "github.com/tendermint/tendermint/crypto/ed25519"
 )
 
-func newTestApp(wallet *simapp.Wallet) (addAlice, addJack, addValidator sdk.AccAddress, accAlice, accJack, accValidator,addAccount types.AccountID, app *simapp.SimApp) {
+func newTestApp(wallet *simapp.Wallet) (addAlice, addJack, addValidator sdk.AccAddress, accAlice, accJack, accValidator, addAccount types.AccountID, app *simapp.SimApp) {
 	addAlice = wallet.NewAccAddress()
 	addJack = wallet.NewAccAddress()
 	addValidator = wallet.NewAccAddress()
@@ -55,8 +54,7 @@ func newTestApp(wallet *simapp.Wallet) (addAlice, addJack, addValidator sdk.AccA
 	genAddAccount := simapp.NewSimGenesisAccount(addAccount, addAlice).WithAsset(asset1)
 	gensysAccount := simapp.NewSimGenesisAccount(accSystem, addAlice).WithAsset(asset1)
 
-
-	genAccs := simapp.NewGenesisAccounts(wallet.GetRootAuth(), genAlice, genJack, genValidator,genAddAccount,gensysAccount)
+	genAccs := simapp.NewGenesisAccounts(wallet.GetRootAuth(), genAlice, genJack, genValidator, genAddAccount, gensysAccount)
 	app = simapp.SetupWithGenesisAccounts(genAccs)
 
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
@@ -77,7 +75,7 @@ func newTestApp(wallet *simapp.Wallet) (addAlice, addJack, addValidator sdk.AccA
 	So(genValidator.GetID().Eq(accountValidator.GetID()), ShouldBeTrue)
 	So(genValidator.GetAuth().Equals(accountValidator.GetAuth()), ShouldBeTrue)
 
-	return addAlice, addJack, addValidator, accAlice, accJack, accValidator,addAccount, app
+	return addAlice, addJack, addValidator, accAlice, accJack, accValidator, addAccount, app
 }
 
 func openFee(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, passed bool) error {
@@ -100,14 +98,14 @@ func openFee(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice s
 	return err
 }
 
-func preStoreFee(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount types.Coin,passed bool) error {
+func preStoreFee(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount types.Coin, passed bool) error {
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
 
 	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
 	So(err, ShouldBeNil)
 
 	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
-	msg := priceFeeTypes.NewKuMsgPrestoreFee(addAlice, accAlice,amount)
+	msg := priceFeeTypes.NewKuMsgPrestoreFee(addAlice, accAlice, amount)
 
 	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
 	header := abci.Header{Height: app.LastBlockHeight() + 1}
@@ -120,7 +118,7 @@ func preStoreFee(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAli
 	return err
 }
 
-func claimFee(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount types.Coin,passed bool) error {
+func claimFee(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount types.Coin, passed bool) error {
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
 
 	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
@@ -128,7 +126,7 @@ func claimFee(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice 
 
 	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
 	//NewKuMsgClaimFee(auth sdk.AccAddress, owner AccountID, amount Coin) KuMsgClaimFee
-	msg := priceFeeTypes.NewKuMsgClaimFee(addAlice, accAlice,amount)
+	msg := priceFeeTypes.NewKuMsgClaimFee(addAlice, accAlice, amount)
 
 	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
 	header := abci.Header{Height: app.LastBlockHeight() + 1}
@@ -141,7 +139,7 @@ func claimFee(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice 
 	return err
 }
 
-func setPrice(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount1,amout2 types.Coin,passed bool) error {
+func setPrice(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice sdk.AccAddress, accAlice types.AccountID, amount1, amout2 types.Coin, passed bool) error {
 	ctxCheck := app.BaseApp.NewContext(true, abci.Header{Height: app.LastBlockHeight() + 1})
 
 	origAuthSeq, origAuthNum, err := app.AccountKeeper().GetAuthSequence(ctxCheck, addAlice)
@@ -149,7 +147,7 @@ func setPrice(t *testing.T, wallet *simapp.Wallet, app *simapp.SimApp, addAlice 
 
 	ctxCheck.Logger().Info("auth nums", "seq", origAuthSeq, "num", origAuthNum)
 	//NewKuMsgSetPrice(auth sdk.AccAddress, systemAccount AccountID, base,quote Coin,remark string) KuMsgSetPrice
-	msg := priceFeeTypes.NewKuMsgSetPrice(addAlice, accAlice,amount1,amout2,"")
+	msg := priceFeeTypes.NewKuMsgSetPrice(addAlice, accAlice, amount1, amout2, "")
 
 	fee := types.Coins{types.NewInt64Coin(constants.DefaultBondDenom, 1000000)}
 	header := abci.Header{Height: app.LastBlockHeight() + 1}
@@ -166,62 +164,62 @@ func TestPriceFeeHandler(t *testing.T) {
 	config.SealChainConfig()
 	wallet := simapp.NewWallet()
 	Convey("TestOpenFee", t, func() {
-		addAlice, _, _, accAlice, _, _, addAccount,app := newTestApp(wallet)
-		err:= openFee(t, wallet, app,addAlice,accAlice,true)
+		addAlice, _, _, accAlice, _, _, addAccount, app := newTestApp(wallet)
+		err := openFee(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
-		err= openFee(t, wallet, app,addAlice,accAlice,false)
+		err = openFee(t, wallet, app, addAlice, accAlice, false)
 		So(err, ShouldNotBeNil)
-		//address 
-		err= openFee(t, wallet, app,addAlice,addAccount,true)
+		//address
+		err = openFee(t, wallet, app, addAlice, addAccount, true)
 		So(err, ShouldBeNil)
 	})
 	Convey("TestPreStoreFee", t, func() {
-		addAlice, _, _, accAlice, _, _, addAccount,app := newTestApp(wallet)
+		addAlice, _, _, accAlice, _, _, addAccount, app := newTestApp(wallet)
 		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
-		err:= preStoreFee(t, wallet, app,addAlice,accAlice,amout1,false)
+		err := preStoreFee(t, wallet, app, addAlice, accAlice, amout1, false)
 		So(err, ShouldNotBeNil)
-		err= openFee(t, wallet, app,addAlice,accAlice,true)
+		err = openFee(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
-		err= preStoreFee(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = preStoreFee(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err= preStoreFee(t, wallet, app,addAlice,addAccount,amout1,false)
+		err = preStoreFee(t, wallet, app, addAlice, addAccount, amout1, false)
 		So(err, ShouldNotBeNil)
 		resInt, succ := sdk.NewIntFromString("100000000000000000000000")
 		if !succ {
 			resInt = sdk.NewInt(10000000000000000)
 		}
 		bigAsset := types.NewCoin(constants.DefaultBondDenom, resInt)
-		err= preStoreFee(t, wallet, app,addAlice,accAlice,bigAsset,false)
+		err = preStoreFee(t, wallet, app, addAlice, accAlice, bigAsset, false)
 		So(err, ShouldNotBeNil)
 	})
 	Convey("TestPreStoreFee", t, func() {
-		addAlice, _, _, accAlice, _, _, addAccount,app := newTestApp(wallet)
+		addAlice, _, _, accAlice, _, _, addAccount, app := newTestApp(wallet)
 		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
 		amout2 := types.NewInt64Coin(constants.DefaultBondDenom, 100000000)
-		err := openFee(t, wallet, app,addAlice,accAlice,true)
+		err := openFee(t, wallet, app, addAlice, accAlice, true)
 		So(err, ShouldBeNil)
-		err= preStoreFee(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = preStoreFee(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
-		err = claimFee(t, wallet, app,addAlice,addAccount,amout1,false)
+		err = claimFee(t, wallet, app, addAlice, addAccount, amout1, false)
 		So(err, ShouldNotBeNil)
-		err = claimFee(t, wallet, app,addAlice,accAlice,amout2,false)
+		err = claimFee(t, wallet, app, addAlice, accAlice, amout2, false)
 		So(err, ShouldNotBeNil)
-		err = claimFee(t, wallet, app,addAlice,accAlice,amout1,true)
+		err = claimFee(t, wallet, app, addAlice, accAlice, amout1, true)
 		So(err, ShouldBeNil)
 	})
 	Convey("TestPreStoreFee", t, func() {
-		addAlice, _, _, accAlice, _, _, _,app := newTestApp(wallet)
+		addAlice, _, _, accAlice, _, _, _, app := newTestApp(wallet)
 		amout1 := types.NewInt64Coin(constants.DefaultBondDenom, 10000000)
 		otherCoinDenom := types.CoinDenom(types.MustName("foo"), types.MustName("coin"))
 		amout2 := types.NewInt64Coin(otherCoinDenom, 100000000)
-		err := setPrice(t, wallet, app,addAlice,accAlice,amout1,amout2,false)
+		err := setPrice(t, wallet, app, addAlice, accAlice, amout1, amout2, false)
 		So(err, ShouldNotBeNil)
 		accSystem := types.MustAccountID("test@sys")
-		err = setPrice(t, wallet, app,addAlice,accSystem,amout1,amout2,true)
+		err = setPrice(t, wallet, app, addAlice, accSystem, amout1, amout2, true)
 		So(err, ShouldBeNil)
-		err = setPrice(t, wallet, app,addAlice,accSystem,amout1,amout1,false)
+		err = setPrice(t, wallet, app, addAlice, accSystem, amout1, amout1, false)
 		So(err, ShouldNotBeNil)
-		err = setPrice(t, wallet, app,addAlice,accSystem,amout1,amout2,true)
+		err = setPrice(t, wallet, app, addAlice, accSystem, amout1, amout2, true)
 		So(err, ShouldBeNil)
 	})
 }

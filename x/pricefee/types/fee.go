@@ -7,19 +7,18 @@ import (
 )
 
 type FeeInfo struct {
-	Owner AccountID
+	Owner       AccountID
 	PrestoreFee sdk.Int
-    LockedFee  sdk.Int
+	LockedFee   sdk.Int
 }
 
-func NewFeeInfo (owner AccountID) FeeInfo {
-	return FeeInfo {
-		Owner:owner,
-		PrestoreFee:sdk.ZeroInt(),
-		LockedFee:sdk.ZeroInt(),
+func NewFeeInfo(owner AccountID) FeeInfo {
+	return FeeInfo{
+		Owner:       owner,
+		PrestoreFee: sdk.ZeroInt(),
+		LockedFee:   sdk.ZeroInt(),
 	}
 }
-
 
 // return the redelegation
 func MustMarshalFeeInfo(cdc *codec.Codec, feeInfo FeeInfo) []byte {

@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"github.com/KuChainNetwork/kuchain/chain/client/txutil"
 	"github.com/KuChainNetwork/kuchain/x/pricefee/types"
-//	"github.com/cosmos/cosmos-sdk/client"
+	//	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -49,7 +49,6 @@ func GetCmdOpenFee(cdc *codec.Codec) *cobra.Command {
 
 	return flags.PostCommands(cmd)[0]
 }
-
 
 func GetCmdPreStoreFee(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
@@ -125,7 +124,6 @@ func GetCmdClaimFee(cdc *codec.Codec) *cobra.Command {
 
 }
 
-
 func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-price [system-account] [base] [quote] [remark]",
@@ -156,7 +154,7 @@ func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", systemAccount)
 			}
 
-			msg := types.NewKuMsgSetPrice(authAccAddress, systemAccount, base,quote,args[3])
+			msg := types.NewKuMsgSetPrice(authAccAddress, systemAccount, base, quote, args[3])
 			cliCtx = cliCtx.WithFromAccount(systemAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[0])

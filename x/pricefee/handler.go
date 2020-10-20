@@ -29,7 +29,6 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 	}
 }
 
-
 func handleKuMsgOpenFee(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgOpenFee) (*sdk.Result, error) {
 	msgData := types.MsgOpenFee{}
 	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
@@ -44,14 +43,13 @@ func handleKuMsgOpenFee(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsg
 		return nil, types.ErrFeeInfoExist
 	}
 
-	err := k.NewFeeInfo(sdkCtx,msgData.Owner)
+	err := k.NewFeeInfo(sdkCtx, msgData.Owner)
 	if err != nil {
-		return nil,err
-	} 
+		return nil, err
+	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
-
 
 func handleKuMsgPrestoreFee(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMsgPrestoreFee) (*sdk.Result, error) {
 	msgData := types.MsgPrestoreFee{}
@@ -63,10 +61,10 @@ func handleKuMsgPrestoreFee(ctx chainTypes.Context, k keeper.Keeper, msg types.K
 
 	sdkCtx := ctx.Context()
 
-	_,err := k.PreStoreFee(sdkCtx,msgData.Owner,msgData.Amount)
+	_, err := k.PreStoreFee(sdkCtx, msgData.Owner, msgData.Amount)
 	if err != nil {
-		return nil,err
-	} 
+		return nil, err
+	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
@@ -81,10 +79,10 @@ func handleKuMsgClaimFee(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMs
 
 	sdkCtx := ctx.Context()
 
-	_,err := k.ClaimFee(sdkCtx,msgData.Owner,msgData.Amount)
+	_, err := k.ClaimFee(sdkCtx, msgData.Owner, msgData.Amount)
 	if err != nil {
-		return nil,err
-	} 
+		return nil, err
+	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
@@ -99,10 +97,10 @@ func handleKuMsgSetPrice(ctx chainTypes.Context, k keeper.Keeper, msg types.KuMs
 
 	sdkCtx := ctx.Context()
 
-	err := k.SetPrice(sdkCtx,msgData)
+	err := k.SetPrice(sdkCtx, msgData)
 	if err != nil {
-		return nil,err
-	} 
+		return nil, err
+	}
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }

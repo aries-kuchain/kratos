@@ -1,10 +1,9 @@
 package types
 
 import (
-
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-
 )
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgOpenFee struct {
 	Owner AccountID `json:"owner" yaml:"owner"`
@@ -30,14 +29,15 @@ func (msg MsgOpenFee) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgPrestoreFee struct {
-	Owner AccountID `json:"owner" yaml:"owner"`
-	Amount Coin`json:"amount" yaml:"amount"`
+	Owner  AccountID `json:"owner" yaml:"owner"`
+	Amount Coin      `json:"amount" yaml:"amount"`
 }
 
-func NewMsgPrestoreFee(owner AccountID,amount Coin) MsgPrestoreFee {
-	return MsgPrestoreFee{Owner: owner,Amount:amount}
+func NewMsgPrestoreFee(owner AccountID, amount Coin) MsgPrestoreFee {
+	return MsgPrestoreFee{Owner: owner, Amount: amount}
 }
 
 // Route should return the name of the module
@@ -60,14 +60,15 @@ func (msg MsgPrestoreFee) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgClaimFee struct {
-	Owner AccountID `json:"owner" yaml:"owner"`
-	Amount Coin`json:"amount" yaml:"amount"`
+	Owner  AccountID `json:"owner" yaml:"owner"`
+	Amount Coin      `json:"amount" yaml:"amount"`
 }
 
-func NewMsgClaimFee(owner AccountID,amount Coin) MsgClaimFee {
-	return MsgClaimFee{Owner: owner,Amount:amount}
+func NewMsgClaimFee(owner AccountID, amount Coin) MsgClaimFee {
+	return MsgClaimFee{Owner: owner, Amount: amount}
 }
 
 // Route should return the name of the module
@@ -90,16 +91,17 @@ func (msg MsgClaimFee) ValidateBasic() error {
 	}
 	return nil
 }
+
 //---------------------------------------------------------------------------------------------------------------------------------------
 type MsgSetPrice struct {
 	SystemAccount AccountID `json:"system_account" yaml:"system_account"`
-	Base Coin`json:"base" yaml:"base"`
-	Quote Coin`json:"quote" yaml:"quote"`
-	Remark string`json:"remark" yaml:"remark"`
+	Base          Coin      `json:"base" yaml:"base"`
+	Quote         Coin      `json:"quote" yaml:"quote"`
+	Remark        string    `json:"remark" yaml:"remark"`
 }
 
-func NewMsgSetPrice(systemAccount AccountID,base,quote Coin,remark string) MsgSetPrice {
-	return MsgSetPrice{SystemAccount: systemAccount,Base:base,Quote:quote,Remark:remark}
+func NewMsgSetPrice(systemAccount AccountID, base, quote Coin, remark string) MsgSetPrice {
+	return MsgSetPrice{SystemAccount: systemAccount, Base: base, Quote: quote, Remark: remark}
 }
 
 // Route should return the name of the module

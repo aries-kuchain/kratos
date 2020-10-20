@@ -3,12 +3,11 @@ package keeper
 // DONTCOVER
 
 import (
-//	"fmt"
+	//	"fmt"
 
 	"github.com/KuChainNetwork/kuchain/x/gov/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
-
 
 // AllInvariants runs all invariants of the governance module
 func AllInvariants(keeper Keeper, bk types.BankKeeper) sdk.Invariant {
@@ -21,8 +20,8 @@ func AllInvariants(keeper Keeper, bk types.BankKeeper) sdk.Invariant {
 // pricefee amounts held on store
 func ModuleAccountInvariant(keeper Keeper, bk types.BankKeeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-//		var expectedDeposits Coins
+		//		var expectedDeposits Coins
 
-		return "",true
+		return "", true
 	}
 }

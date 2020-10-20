@@ -34,20 +34,21 @@ func (msg KuMsgOpenFee) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //------------------------------------------------------------------------------------------------------------------------------------
 type KuMsgPrestoreFee struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgPrestoreFee(auth sdk.AccAddress, owner AccountID,amount Coin) KuMsgPrestoreFee {
+func NewKuMsgPrestoreFee(auth sdk.AccAddress, owner AccountID, amount Coin) KuMsgPrestoreFee {
 	return KuMsgPrestoreFee{
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithTransfer(owner, ModuleAccountID, chainTypes.Coins{amount}),
 			msg.WithData(Cdc(), &MsgPrestoreFee{
-				Owner: owner,
-				Amount:amount,
+				Owner:  owner,
+				Amount: amount,
 			}),
 		),
 	}
@@ -66,6 +67,7 @@ func (msg KuMsgPrestoreFee) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //------------------------------------------------------------------------------------------------------------------------------------
 type KuMsgClaimFee struct {
 	chainTypes.KuMsg
@@ -77,8 +79,8 @@ func NewKuMsgClaimFee(auth sdk.AccAddress, owner AccountID, amount Coin) KuMsgCl
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgClaimFee{
-				Owner: owner,
-				Amount:        amount,
+				Owner:  owner,
+				Amount: amount,
 			}),
 		),
 	}
@@ -91,20 +93,21 @@ func (msg KuMsgClaimFee) ValidateBasic() error {
 	}
 	return msgData.ValidateBasic()
 }
+
 //------------------------------------------------------------------------------------------------------------------------------------
 type KuMsgSetPrice struct {
 	chainTypes.KuMsg
 }
 
-func NewKuMsgSetPrice(auth sdk.AccAddress, systemAccount AccountID, base,quote Coin,remark string) KuMsgSetPrice {
+func NewKuMsgSetPrice(auth sdk.AccAddress, systemAccount AccountID, base, quote Coin, remark string) KuMsgSetPrice {
 	return KuMsgSetPrice{
 		*msg.MustNewKuMsg(
 			RouterKeyName,
 			msg.WithAuth(auth),
 			msg.WithData(Cdc(), &MsgSetPrice{
 				SystemAccount: systemAccount,
-				Base:        base,
-				Quote:        quote,
+				Base:          base,
+				Quote:         quote,
 				Remark:        remark,
 			}),
 		),
