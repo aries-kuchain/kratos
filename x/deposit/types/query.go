@@ -27,7 +27,7 @@ type QueryAllDepositResponse struct {
 func NewQueryAllDepositWithOwnerResponse(depositInfos []DepositInfo, ownerAccount AccountID) QueryAllDepositResponse {
 	var result QueryAllDepositResponse
 	for _, depositInfo := range depositInfos {
-		if depositInfo.Owner.Eq(ownerAccount) {
+		if depositInfo.Owner.Eq(ownerAccount)  &&  depositInfo.Status != Finish && depositInfo.Status != CashReady{
 			result.DepositInfos = append(result.DepositInfos, depositInfo)
 		}
 	}

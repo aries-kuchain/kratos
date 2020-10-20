@@ -44,7 +44,7 @@ func NewQuerySingerDepositResponse(depositInfos []DepositInfo,singerAccount Acco
 	var result QueryAllDepositResponse
 	for _,depositInfo := range depositInfos {
 		for _,depositSinger := range depositInfo.Singers {
-			if depositSinger.Eq(singerAccount) {
+			if depositSinger.Eq(singerAccount) &&  depositInfo.Status != Close {
 				result.DepositInfos = append(result.DepositInfos,depositInfo)
 			}
 		}
