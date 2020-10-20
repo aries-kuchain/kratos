@@ -4,8 +4,8 @@ package types
 
 import (
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
-	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
 	priceTypes "github.com/KuChainNetwork/kuchain/x/pricefee/types"
+	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
 
 	"github.com/KuChainNetwork/kuchain/x/account/exported"
 	supplyexported "github.com/KuChainNetwork/kuchain/x/supply/exported"
@@ -43,25 +43,24 @@ type SupplyKeeper interface {
 }
 
 type PriceFeeKeeper interface {
-	GetPriceInfo(ctx sdk.Context, base,quote Coin) (priceInfo priceTypes.PriceInfo, found bool)
+	GetPriceInfo(ctx sdk.Context, base, quote Coin) (priceInfo priceTypes.PriceInfo, found bool)
 	NewFeeInfo(ctx sdk.Context, owner AccountID) (err error)
-	LockFee(ctx sdk.Context, owner AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error)
-	TransferFee(ctx sdk.Context, from,to AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error)
-	UnLockFee(ctx sdk.Context, owner AccountID,amount sdk.Int) (totalPreStoreFee sdk.Int,err error)
+	LockFee(ctx sdk.Context, owner AccountID, amount sdk.Int) (totalPreStoreFee sdk.Int, err error)
+	TransferFee(ctx sdk.Context, from, to AccountID, amount sdk.Int) (totalPreStoreFee sdk.Int, err error)
+	UnLockFee(ctx sdk.Context, owner AccountID, amount sdk.Int) (totalPreStoreFee sdk.Int, err error)
 }
 
 type SingerKeeper interface {
-	PickSinger(ctx sdk.Context,depositID string,minStake sdk.Int,threshold int) (pickedSingerInfo  singerTypes.SingerInfos,err error)
+	PickSinger(ctx sdk.Context, depositID string, minStake sdk.Int, threshold int) (pickedSingerInfo singerTypes.SingerInfos, err error)
 	SetSpvReady(ctx sdk.Context, depositID string) (err error)
-	SetClaimAddress(ctx sdk.Context, depositID string,claimAddress string) (err error) 
-	FinishDeposit(ctx sdk.Context, depositID string) (err error) 
-	AberrantDeposit(ctx sdk.Context, depositID string)(err error)
+	SetClaimAddress(ctx sdk.Context, depositID string, claimAddress string) (err error)
+	FinishDeposit(ctx sdk.Context, depositID string) (err error)
+	AberrantDeposit(ctx sdk.Context, depositID string) (err error)
 	ActiveSingerDeposit(ctx sdk.Context, depositID string) (err error)
-	SetWrongSingerSpv(ctx sdk.Context, depositID string)(err error)
-	AberrantFinishDeposit(ctx sdk.Context, depositID string)(err error)
-	FinishDepositPunishSinger(ctx sdk.Context, depositID string,owner AccountID)(err error)
-	FinishAberrantDeposit(ctx sdk.Context, depositID string,claimAccount AccountID)(err error)
-	GetMortgageRatio(ctx sdk.Context, depositID string,baseMortgage sdk.Int) (err error,baseRate sdk.Int)
-	FinishLackMortgageDeposit(ctx sdk.Context, depositID string,claimAccount AccountID) (err error)
+	SetWrongSingerSpv(ctx sdk.Context, depositID string) (err error)
+	AberrantFinishDeposit(ctx sdk.Context, depositID string) (err error)
+	FinishDepositPunishSinger(ctx sdk.Context, depositID string, owner AccountID) (err error)
+	FinishAberrantDeposit(ctx sdk.Context, depositID string, claimAccount AccountID) (err error)
+	GetMortgageRatio(ctx sdk.Context, depositID string, baseMortgage sdk.Int) (err error, baseRate sdk.Int)
+	FinishLackMortgageDeposit(ctx sdk.Context, depositID string, claimAccount AccountID) (err error)
 }
-

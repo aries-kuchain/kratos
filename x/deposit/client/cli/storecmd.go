@@ -9,13 +9,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/chain/hexutil"
+	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
+	paramscutils "github.com/KuChainNetwork/kuchain/x/deposit/client/utils"
+	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	paramscutils  "github.com/KuChainNetwork/kuchain/x/deposit/client/utils"
-	singerTypes	"github.com/KuChainNetwork/kuchain/x/singer/types"
-
-
 )
 
 func GetCmdPermintLegalCoin(cdc *codec.Codec) *cobra.Command {
@@ -194,8 +192,8 @@ func GetCmdSubmitSpv(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", spvSubmiter)
 			}
 
-			spvInfo := singerTypes.NewSpvInfo(args[1],spvSubmiter,hexutil.MustDecode(paramsSpv.Version),hexutil.MustDecode(paramsSpv.TxInputVector),hexutil.MustDecode(paramsSpv.TxOutputVector),
-				hexutil.MustDecode(paramsSpv.TxLockTime),hexutil.MustDecode(paramsSpv.MerkleProof),hexutil.MustDecode(paramsSpv.BitcoinHeaders),paramsSpv.FundingOutputIndex,paramsSpv.TxIndexInBlock,
+			spvInfo := singerTypes.NewSpvInfo(args[1], spvSubmiter, hexutil.MustDecode(paramsSpv.Version), hexutil.MustDecode(paramsSpv.TxInputVector), hexutil.MustDecode(paramsSpv.TxOutputVector),
+				hexutil.MustDecode(paramsSpv.TxLockTime), hexutil.MustDecode(paramsSpv.MerkleProof), hexutil.MustDecode(paramsSpv.BitcoinHeaders), paramsSpv.FundingOutputIndex, paramsSpv.TxIndexInBlock,
 			)
 			msg := types.NewKuMsgSubmitSpv(authAccAddress, spvInfo)
 			cliCtx = cliCtx.WithFromAccount(spvSubmiter)
@@ -234,7 +232,7 @@ func GetCmdTransferDeposit(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", fromAccount)
 			}
 
-			msg := types.NewKuMsgTransferDeposit(authAccAddress, args[0],fromAccount, toAccount, args[3])
+			msg := types.NewKuMsgTransferDeposit(authAccAddress, args[0], fromAccount, toAccount, args[3])
 			cliCtx = cliCtx.WithFromAccount(fromAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -261,13 +259,12 @@ func GetCmdDepositToCoin(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrap(err, "validator account id error")
 			}
 
-		
 			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, ownerAccount)
 			if err != nil {
 				return sdkerrors.Wrapf(err, "query account %s auth error", ownerAccount)
 			}
 
-			msg := types.NewKuMsgDepositToCoin(authAccAddress, args[0],ownerAccount)
+			msg := types.NewKuMsgDepositToCoin(authAccAddress, args[0], ownerAccount)
 			cliCtx = cliCtx.WithFromAccount(ownerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -278,7 +275,6 @@ func GetCmdDepositToCoin(cdc *codec.Codec) *cobra.Command {
 
 	return flags.PostCommands(cmd)[0]
 }
-
 
 func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
@@ -305,7 +301,7 @@ func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrap(err, "amount parse error")
 			}
 
-			msg := types.NewKuMsgDepositClaimCoin(authAccAddress,args[0], ownerAccount,asset,args[3])
+			msg := types.NewKuMsgDepositClaimCoin(authAccAddress, args[0], ownerAccount, asset, args[3])
 			cliCtx = cliCtx.WithFromAccount(ownerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -332,13 +328,12 @@ func GetCmdFinishDeposit(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrap(err, "validator account id error")
 			}
 
-		
 			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, ownerAccount)
 			if err != nil {
 				return sdkerrors.Wrapf(err, "query account %s auth error", ownerAccount)
 			}
 
-			msg := types.NewKuMsgFinishDeposit(authAccAddress, args[0],ownerAccount)
+			msg := types.NewKuMsgFinishDeposit(authAccAddress, args[0], ownerAccount)
 			cliCtx = cliCtx.WithFromAccount(ownerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -370,7 +365,7 @@ func GetCmdDepostWaitTimeOut(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", ownerAccount)
 			}
 
-			msg := types.NewKuMsgWaitTimeout(authAccAddress, args[0],ownerAccount)
+			msg := types.NewKuMsgWaitTimeout(authAccAddress, args[0], ownerAccount)
 			cliCtx = cliCtx.WithFromAccount(ownerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -402,7 +397,7 @@ func GetReportSingerWrongSpv(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", ownerAccount)
 			}
 
-			msg := types.NewKuMsgReportWrongSpv(authAccAddress, args[0],ownerAccount)
+			msg := types.NewKuMsgReportWrongSpv(authAccAddress, args[0], ownerAccount)
 			cliCtx = cliCtx.WithFromAccount(ownerAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -437,7 +432,7 @@ func GetJudgeSpv(cdc *codec.Codec) *cobra.Command {
 			spvIsRight := args[2] == "1"
 			feeToSinger := args[3] == "1"
 
-			msg := types.NewKuMsgJudgeDepositSpv(authAccAddress, args[0],systemAccount,spvIsRight,feeToSinger)
+			msg := types.NewKuMsgJudgeDepositSpv(authAccAddress, args[0], systemAccount, spvIsRight, feeToSinger)
 			cliCtx = cliCtx.WithFromAccount(systemAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -474,7 +469,7 @@ func GetCmdClaimAberrant(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrap(err, "amount parse error")
 			}
 
-			msg := types.NewKuMsgClaimAberrant(authAccAddress,args[0], claimAccount,asset)
+			msg := types.NewKuMsgClaimAberrant(authAccAddress, args[0], claimAccount, asset)
 			cliCtx = cliCtx.WithFromAccount(claimAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -511,7 +506,7 @@ func GetCmdClaimMortgage(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrap(err, "amount parse error")
 			}
 
-			msg := types.NewKuMsgClaimMortgage(authAccAddress,args[0], claimAccount,asset)
+			msg := types.NewKuMsgClaimMortgage(authAccAddress, args[0], claimAccount, asset)
 			cliCtx = cliCtx.WithFromAccount(claimAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])
@@ -543,7 +538,7 @@ func GetCmdCashReadyDeposit(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", operatorAccount)
 			}
 
-			msg := types.NewKuMsgCashReadyDeposit(authAccAddress,args[0], operatorAccount)
+			msg := types.NewKuMsgCashReadyDeposit(authAccAddress, args[0], operatorAccount)
 			cliCtx = cliCtx.WithFromAccount(operatorAccount)
 			if txBldr.FeePayer().Empty() {
 				txBldr = txBldr.WithPayer(args[1])

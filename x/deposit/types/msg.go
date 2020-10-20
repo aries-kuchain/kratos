@@ -1,10 +1,9 @@
 package types
 
 import (
+	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
-	"github.com/KuChainNetwork/kuchain/chain/hexutil"
-
 )
 
 //--------------------------------------------------------------------------------------------------------------
@@ -146,13 +145,14 @@ func (msg MsgCreateLegalCoin) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgSubmitSpv struct {
 	singerTypes.SpvInfo
 }
 
 func NewMsgSubmitSpv(spvInfo singerTypes.SpvInfo) MsgSubmitSpv {
-	return MsgSubmitSpv{SpvInfo:spvInfo}
+	return MsgSubmitSpv{SpvInfo: spvInfo}
 }
 
 // Route should return the name of the module
@@ -176,20 +176,21 @@ func (msg MsgSubmitSpv) ValidateBasic() error {
 
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgTransferDeposit struct {
 	DepositID string
-	From AccountID
-	To AccountID
-	Memo string
+	From      AccountID
+	To        AccountID
+	Memo      string
 }
 
-func NewMsgTransferDeposit(depositID string,from,to AccountID,memo string) MsgTransferDeposit {
+func NewMsgTransferDeposit(depositID string, from, to AccountID, memo string) MsgTransferDeposit {
 	return MsgTransferDeposit{
-		DepositID:depositID,
-		From:from,
-		To:to,
-		Memo:memo,
+		DepositID: depositID,
+		From:      from,
+		To:        to,
+		Memo:      memo,
 	}
 }
 
@@ -217,16 +218,17 @@ func (msg MsgTransferDeposit) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgDepositToCoin struct {
 	DepositID string
-	Owner AccountID
+	Owner     AccountID
 }
 
-func NewMsgDepositToCoin(depositID string,owner AccountID) MsgDepositToCoin {
+func NewMsgDepositToCoin(depositID string, owner AccountID) MsgDepositToCoin {
 	return MsgDepositToCoin{
-		DepositID:depositID,
-		Owner:owner,
+		DepositID: depositID,
+		Owner:     owner,
 	}
 }
 
@@ -250,20 +252,21 @@ func (msg MsgDepositToCoin) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgDepositClaimCoin struct {
-	DepositID string
-	Owner AccountID
-	Asset Coin
+	DepositID    string
+	Owner        AccountID
+	Asset        Coin
 	ClaimAddress string
 }
 
-func NewMsgDepositClaimCoin(depositID string,owner AccountID,asset Coin,claimAddress string) MsgDepositClaimCoin {
+func NewMsgDepositClaimCoin(depositID string, owner AccountID, asset Coin, claimAddress string) MsgDepositClaimCoin {
 	return MsgDepositClaimCoin{
-		DepositID:depositID,
-		Owner:owner,
-		Asset:asset,
-		ClaimAddress:claimAddress,
+		DepositID:    depositID,
+		Owner:        owner,
+		Asset:        asset,
+		ClaimAddress: claimAddress,
 	}
 }
 
@@ -295,16 +298,17 @@ func (msg MsgDepositClaimCoin) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgFinishDeposit struct {
 	DepositID string
-	Owner AccountID
+	Owner     AccountID
 }
 
-func NewMsgFinishDeposit(depositID string,owner AccountID,asset Coin,claimAddress []byte) MsgFinishDeposit {
+func NewMsgFinishDeposit(depositID string, owner AccountID, asset Coin, claimAddress []byte) MsgFinishDeposit {
 	return MsgFinishDeposit{
-		DepositID:depositID,
-		Owner:owner,
+		DepositID: depositID,
+		Owner:     owner,
 	}
 }
 
@@ -328,16 +332,17 @@ func (msg MsgFinishDeposit) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgWaitTimeout struct {
 	DepositID string
-	Owner AccountID
+	Owner     AccountID
 }
 
-func NewMsgWaitTimeout(depositID string,owner AccountID,asset Coin) MsgWaitTimeout {
+func NewMsgWaitTimeout(depositID string, owner AccountID, asset Coin) MsgWaitTimeout {
 	return MsgWaitTimeout{
-		DepositID:depositID,
-		Owner:owner,
+		DepositID: depositID,
+		Owner:     owner,
 	}
 }
 
@@ -361,16 +366,17 @@ func (msg MsgWaitTimeout) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgReportWrongSpv struct {
 	DepositID string
-	Owner AccountID
+	Owner     AccountID
 }
 
-func NewMsgReportWrongSpv(depositID string,owner AccountID,asset Coin ) MsgReportWrongSpv {
+func NewMsgReportWrongSpv(depositID string, owner AccountID, asset Coin) MsgReportWrongSpv {
 	return MsgReportWrongSpv{
-		DepositID:depositID,
-		Owner:owner,
+		DepositID: depositID,
+		Owner:     owner,
 	}
 }
 
@@ -394,20 +400,21 @@ func (msg MsgReportWrongSpv) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgJudgeDepositSpv struct {
-	DepositID string
+	DepositID     string
 	SystemAccount AccountID
-	SpvIsRight	bool
-	FeeToSinger bool
+	SpvIsRight    bool
+	FeeToSinger   bool
 }
 
-func NewMsgJudgeDepositSpv(depositID string,systemAccount AccountID,asset Coin,spvIsRight bool,feeToSinger bool) MsgJudgeDepositSpv {
+func NewMsgJudgeDepositSpv(depositID string, systemAccount AccountID, asset Coin, spvIsRight bool, feeToSinger bool) MsgJudgeDepositSpv {
 	return MsgJudgeDepositSpv{
-		DepositID:depositID,
-		SystemAccount:systemAccount,
-		SpvIsRight:spvIsRight,
-		FeeToSinger:feeToSinger,
+		DepositID:     depositID,
+		SystemAccount: systemAccount,
+		SpvIsRight:    spvIsRight,
+		FeeToSinger:   feeToSinger,
 	}
 }
 
@@ -431,18 +438,19 @@ func (msg MsgJudgeDepositSpv) ValidateBasic() error {
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgClaimAberrant struct {
-	DepositID string
+	DepositID    string
 	ClaimAccount AccountID
-	Amount	Coin
+	Amount       Coin
 }
 
-func NewMsgClaimAberrant(depositID string,claimAccount AccountID,amount Coin) MsgClaimAberrant {
+func NewMsgClaimAberrant(depositID string, claimAccount AccountID, amount Coin) MsgClaimAberrant {
 	return MsgClaimAberrant{
-		DepositID:depositID,
-		ClaimAccount:claimAccount,
-		Amount:amount,
+		DepositID:    depositID,
+		ClaimAccount: claimAccount,
+		Amount:       amount,
 	}
 }
 
@@ -464,24 +472,25 @@ func (msg MsgClaimAberrant) ValidateBasic() error {
 	if len(msg.DepositID) == 0 {
 		return ErrEmptyDepositID
 	}
-	
+
 	if !msg.Amount.Amount.IsPositive() {
 		return ErrBadAmount
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgClaimMortgage struct {
-	DepositID string
+	DepositID    string
 	ClaimAccount AccountID
-	Amount	Coin
+	Amount       Coin
 }
 
-func NewMsgClaimMortgage(depositID string,claimAccount AccountID,amount Coin) MsgClaimMortgage {
+func NewMsgClaimMortgage(depositID string, claimAccount AccountID, amount Coin) MsgClaimMortgage {
 	return MsgClaimMortgage{
-		DepositID:depositID,
-		ClaimAccount:claimAccount,
-		Amount:amount,
+		DepositID:    depositID,
+		ClaimAccount: claimAccount,
+		Amount:       amount,
 	}
 }
 
@@ -503,22 +512,23 @@ func (msg MsgClaimMortgage) ValidateBasic() error {
 	if len(msg.DepositID) == 0 {
 		return ErrEmptyDepositID
 	}
-	
+
 	if !msg.Amount.Amount.IsPositive() {
 		return ErrBadAmount
 	}
 	return nil
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 type MsgCashReadyDeposit struct {
 	DepositID string
 	Operator  AccountID
 }
 
-func NewMsgCashReadyDeposit(depositID string,operator AccountID) MsgCashReadyDeposit {
+func NewMsgCashReadyDeposit(depositID string, operator AccountID) MsgCashReadyDeposit {
 	return MsgCashReadyDeposit{
-		DepositID:depositID,
-		Operator:operator,
+		DepositID: depositID,
+		Operator:  operator,
 	}
 }
 

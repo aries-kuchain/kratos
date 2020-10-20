@@ -1,10 +1,10 @@
 package types
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-	yaml "gopkg.in/yaml.v2"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	yaml "gopkg.in/yaml.v2"
 	"time"
 )
 
@@ -21,8 +21,8 @@ const (
 	Cashing         DepositStatus = 7
 	CashOut         DepositStatus = 8
 	Finish          DepositStatus = 9
-	Aberrant    DepositStatus = 10
-	WrongDepositSPV  DepositStatus = 11
+	Aberrant        DepositStatus = 10
+	WrongDepositSPV DepositStatus = 11
 	WrongSingerSPV  DepositStatus = 12
 
 	DepositTypeInit            = "Init"
@@ -34,9 +34,9 @@ const (
 	DepositTypeCashing         = "Cashing"
 	DepositTypeCashOut         = "CashOut"
 	DepositTypeFinish          = "Finish"
-	DepositTypeAberrant          = "Aberrant"
-	DepositTypeWrongDepositSPV          = "WrongDepositSPV"
-	DepositTypeWrongSingerSPV          = "WrongSingerSPV"
+	DepositTypeAberrant        = "Aberrant"
+	DepositTypeWrongDepositSPV = "WrongDepositSPV"
+	DepositTypeWrongSingerSPV  = "WrongSingerSPV"
 )
 
 // Equal compares two BondStatus instances
@@ -72,15 +72,15 @@ func (b DepositStatus) String() string {
 }
 
 type DepositInfo struct {
-	DepositID       string //用户名，时间，数额等等
-	Owner           AccountID
-	Asset           Coin
-	Singers         []AccountID
-	DepositAddress  string
-	WithDrawAddress string
-	Status          DepositStatus
-	CurrentFee sdk.Int
-	TotalFee sdk.Int
+	DepositID         string //用户名，时间，数额等等
+	Owner             AccountID
+	Asset             Coin
+	Singers           []AccountID
+	DepositAddress    string
+	WithDrawAddress   string
+	Status            DepositStatus
+	CurrentFee        sdk.Int
+	TotalFee          sdk.Int
 	DepositChangeTime time.Time
 }
 
@@ -121,8 +121,8 @@ func (v DepositInfo) String() string {
 }
 
 func (v *DepositInfo) SetSingers(pickedSingers singerTypes.SingerInfos) {
-	for _,singerInfo := range pickedSingers {
-		v.Singers = append(v.Singers ,singerInfo.SingerAccount)
+	for _, singerInfo := range pickedSingers {
+		v.Singers = append(v.Singers, singerInfo.SingerAccount)
 	}
 	v.Status = SingerReady
 }
@@ -136,16 +136,16 @@ const (
 )
 
 type LegalCoin struct {
-	Symbol  Name `json:"symbol" yaml:"symbol"`
-	Asset  Coin `json:"asset" yaml:"asset"`
+	Symbol Name            `json:"symbol" yaml:"symbol"`
+	Asset  Coin            `json:"asset" yaml:"asset"`
 	Status LegalCoinStatus `json:"status" yaml:"status"`
 }
 
-func NewLegalCoin(asset Coin,symbol Name) LegalCoin {
+func NewLegalCoin(asset Coin, symbol Name) LegalCoin {
 	return LegalCoin{
 		Asset:  asset,
 		Status: Permint,
-		Symbol:symbol,
+		Symbol: symbol,
 	}
 }
 

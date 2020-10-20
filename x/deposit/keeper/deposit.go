@@ -1,11 +1,11 @@
 package keeper
 
 import (
+	"fmt"
+	"github.com/KuChainNetwork/kuchain/chain/hexutil"
+	"github.com/KuChainNetwork/kuchain/x/deposit/external"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"fmt"
-	"github.com/KuChainNetwork/kuchain/x/deposit/external"
-	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 )
 
 func (k Keeper) GetDepositInfo(ctx sdk.Context, depositID string) (depositInfo types.DepositInfo, found bool) {
@@ -31,7 +31,7 @@ func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Co
 	var byteDeposit []byte
 	depositId := fmt.Sprintf("%s-%s-%s", ctx.BlockHeader().Time.Format("2006-01-02-15:04:05"), ownerAccount.String(), asset.String())
 	byteDeposit = append(byteDeposit, []byte(depositId)...)
-	depositId=hexutil.Encode(byteDeposit)
+	depositId = hexutil.Encode(byteDeposit)
 
 	_, found := k.GetDepositInfo(ctx, depositId)
 	if found {
@@ -47,21 +47,21 @@ func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Co
 		return depositId, types.ErrLegalCoinNotExist
 	}
 	threshold := k.Threshold(ctx)
-	quoteAmount,err := k.CalQuoteAmount(ctx,asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	quoteAmount, err := k.CalQuoteAmount(ctx, asset, Coin{Denom: external.DefaultBondDenom, Amount: sdk.NewInt(1)})
 	if err != nil {
-		return depositId,err
+		return depositId, err
 	}
-	feeAmount := quoteAmount.MulRaw(k.DepositFeeRate(ctx)).QuoRaw(int64(100*threshold)).MulRaw(int64(threshold))
-	_,err = k.pricefeeKeeper.LockFee(ctx,ownerAccount,feeAmount)
+	feeAmount := quoteAmount.MulRaw(k.DepositFeeRate(ctx)).QuoRaw(int64(100 * threshold)).MulRaw(int64(threshold))
+	_, err = k.pricefeeKeeper.LockFee(ctx, ownerAccount, feeAmount)
 	if err != nil {
-		return depositId,err
+		return depositId, err
 	}
 	depositInfo := types.NewDepositInfo(depositId, ownerAccount, asset)
-	eachMortgage := quoteAmount.MulRaw(k.MortgageRage(ctx)).QuoRaw(int64(100*threshold))
-	pickedSingers,err := k.singerKeeper.PickSinger(ctx,depositId,eachMortgage,threshold)
+	eachMortgage := quoteAmount.MulRaw(k.MortgageRage(ctx)).QuoRaw(int64(100 * threshold))
+	pickedSingers, err := k.singerKeeper.PickSinger(ctx, depositId, eachMortgage, threshold)
 
 	if err != nil {
-		return depositId,err
+		return depositId, err
 	}
 	depositInfo.CurrentFee = feeAmount
 	depositInfo.TotalFee = feeAmount
@@ -83,7 +83,7 @@ func (k Keeper) GetAllDepositInfo(ctx sdk.Context) (depositInfos []types.Deposit
 	return depositInfos
 }
 
-func (k Keeper) SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress string)(err error) {
+func (k Keeper) SetDepositBtcAddress(ctx sdk.Context, depositID string, btcAddress string) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -95,11 +95,11 @@ func (k Keeper) SetDepositBtcAddress(ctx sdk.Context,depositID string,btcAddress
 
 	depositInfo.DepositAddress = btcAddress
 	depositInfo.Status = types.AddressReady
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	return nil
 }
 
-func (k Keeper) ActiveDeposit(ctx sdk.Context,depositID string) (err error) {
+func (k Keeper) ActiveDeposit(ctx sdk.Context, depositID string) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -111,19 +111,19 @@ func (k Keeper) ActiveDeposit(ctx sdk.Context,depositID string) (err error) {
 
 	threshold := len(depositInfo.Singers)
 
-	for _,singerAccount := range depositInfo.Singers {
-		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
+	for _, singerAccount := range depositInfo.Singers {
+		_, err := k.pricefeeKeeper.TransferFee(ctx, depositInfo.Owner, singerAccount, depositInfo.CurrentFee.QuoRaw(int64(threshold)))
 		if err != nil {
 			return err
 		}
 	}
 	depositInfo.CurrentFee = sdk.ZeroInt()
 	depositInfo.Status = types.Active
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	return nil
 }
 
-func (k Keeper) TransferDeposit(ctx sdk.Context,depositID string,from,to AccountID) (err error) {
+func (k Keeper) TransferDeposit(ctx sdk.Context, depositID string, from, to AccountID) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -138,12 +138,12 @@ func (k Keeper) TransferDeposit(ctx sdk.Context,depositID string,from,to Account
 	}
 
 	depositInfo.Owner = to
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 
 	return nil
 }
 
-func (k Keeper) DepositToCoin(ctx sdk.Context,depositID string,owner AccountID) (err error) {
+func (k Keeper) DepositToCoin(ctx sdk.Context, depositID string, owner AccountID) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -158,25 +158,25 @@ func (k Keeper) DepositToCoin(ctx sdk.Context,depositID string,owner AccountID) 
 	}
 
 	depositInfo.Status = types.CashReady
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 
-	legalCoin,found := k.GetLegalCoin(ctx,depositInfo.Asset)
+	legalCoin, found := k.GetLegalCoin(ctx, depositInfo.Asset)
 	if !found {
 		return types.ErrLegalCoinNotExist
 	}
 
-	err = k.bankKeeper.Issue(ctx,types.ModuleAccountName,legalCoin.Symbol,depositInfo.Asset)
+	err = k.bankKeeper.Issue(ctx, types.ModuleAccountName, legalCoin.Symbol, depositInfo.Asset)
 	if err != nil {
 		return err
 	}
-	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx, types.ModuleName, Coins{depositInfo.Asset})
 	if err != nil {
 		return err
 	}
-	return k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,owner,Coins{depositInfo.Asset})
+	return k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, owner, Coins{depositInfo.Asset})
 }
 
-func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,asset Coin,claimAddress string) (err error) {
+func (k Keeper) ClaimDeposit(ctx sdk.Context, depositID string, owner AccountID, asset Coin, claimAddress string) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -190,17 +190,17 @@ func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,as
 		return types.ErrCoinNotEqual
 	}
 	threshold := len(depositInfo.Singers)
-	quoteAmount,err := k.CalQuoteAmount(ctx,asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	quoteAmount, err := k.CalQuoteAmount(ctx, asset, Coin{Denom: external.DefaultBondDenom, Amount: sdk.NewInt(1)})
 	if err != nil {
 		return err
 	}
-	feeAmount := quoteAmount.MulRaw(k.ClaimFeeRate(ctx)).QuoRaw(int64(100*threshold)).MulRaw(int64(threshold))
-	_,err = k.pricefeeKeeper.LockFee(ctx,owner,feeAmount)
+	feeAmount := quoteAmount.MulRaw(k.ClaimFeeRate(ctx)).QuoRaw(int64(100 * threshold)).MulRaw(int64(threshold))
+	_, err = k.pricefeeKeeper.LockFee(ctx, owner, feeAmount)
 	if err != nil {
 		return err
 	}
 
-	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx, types.ModuleName, Coins{depositInfo.Asset})
 	if err != nil {
 		return err
 	}
@@ -210,11 +210,11 @@ func (k Keeper) ClaimDeposit(ctx sdk.Context,depositID string,owner AccountID,as
 	depositInfo.Owner = owner
 	depositInfo.CurrentFee = feeAmount
 	depositInfo.TotalFee = depositInfo.TotalFee.Add(feeAmount)
-	k.SetDepositInfo(ctx,depositInfo)
-	return k.singerKeeper.SetClaimAddress(ctx,depositID,claimAddress)
+	k.SetDepositInfo(ctx, depositInfo)
+	return k.singerKeeper.SetClaimAddress(ctx, depositID, claimAddress)
 }
 
-func (k Keeper) FinishDeposit(ctx sdk.Context,depositID string,owner AccountID)(err error) {
+func (k Keeper) FinishDeposit(ctx sdk.Context, depositID string, owner AccountID) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -229,43 +229,43 @@ func (k Keeper) FinishDeposit(ctx sdk.Context,depositID string,owner AccountID)(
 	}
 	threshold := len(depositInfo.Singers)
 
-	for _,singerAccount := range depositInfo.Singers {
-		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
+	for _, singerAccount := range depositInfo.Singers {
+		_, err := k.pricefeeKeeper.TransferFee(ctx, depositInfo.Owner, singerAccount, depositInfo.CurrentFee.QuoRaw(int64(threshold)))
 		if err != nil {
 			return err
 		}
-		_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,depositInfo.TotalFee.QuoRaw(3))
+		_, err = k.pricefeeKeeper.UnLockFee(ctx, singerAccount, depositInfo.TotalFee.QuoRaw(3))
 		if err != nil {
 			return err
 		}
 	}
 
 	depositInfo.Status = types.Finish
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	//销毁代币
-	err = k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+	err = k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
 	if err != nil {
 		return err
 	}
 
-	return k.singerKeeper.FinishDeposit(ctx,depositID)
+	return k.singerKeeper.FinishDeposit(ctx, depositID)
 }
 
-func (k Keeper) CalQuoteAmount(ctx sdk.Context,base,quote Coin) (sdk.Int,error) {
-	priceInfo,found := k.pricefeeKeeper.GetPriceInfo(ctx,base,quote)
+func (k Keeper) CalQuoteAmount(ctx sdk.Context, base, quote Coin) (sdk.Int, error) {
+	priceInfo, found := k.pricefeeKeeper.GetPriceInfo(ctx, base, quote)
 	if !found {
-		return sdk.ZeroInt(),types.ErrPriceDoesNotFound
+		return sdk.ZeroInt(), types.ErrPriceDoesNotFound
 	}
 
-	return base.Amount.Mul(priceInfo.Quote.Amount).Quo(priceInfo.Base.Amount),nil
+	return base.Amount.Mul(priceInfo.Quote.Amount).Quo(priceInfo.Base.Amount), nil
 }
 
-func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (err error) {
+func (k Keeper) WaitTimeOut(ctx sdk.Context, depositID string, owner AccountID) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
-	
+
 	if !depositInfo.Owner.Eq(owner) {
 		return types.ErrNotOwnerAccount
 	}
@@ -274,51 +274,51 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context,depositID string,owner AccountID) (e
 	}
 
 	if depositInfo.Status == types.SingerReady {
-		_,err = k.pricefeeKeeper.UnLockFee(ctx,depositInfo.Owner,depositInfo.CurrentFee)
+		_, err = k.pricefeeKeeper.UnLockFee(ctx, depositInfo.Owner, depositInfo.CurrentFee)
 		if err != nil {
 			return err
 		}
 
 		depositInfo.Status = types.Finish
-		k.SetDepositInfo(ctx,depositInfo)
-		return k.singerKeeper.FinishDepositPunishSinger(ctx,depositID,depositInfo.Owner)
+		k.SetDepositInfo(ctx, depositInfo)
+		return k.singerKeeper.FinishDepositPunishSinger(ctx, depositID, depositInfo.Owner)
 	}
 
 	if depositInfo.Status == types.DepositSpvReady {
 		depositInfo.Status = types.Active
-		k.SetDepositInfo(ctx,depositInfo)
+		k.SetDepositInfo(ctx, depositInfo)
 
 		threshold := len(depositInfo.Singers)
 
-		for _,singerAccount := range depositInfo.Singers {
-			_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
+		for _, singerAccount := range depositInfo.Singers {
+			_, err := k.pricefeeKeeper.TransferFee(ctx, depositInfo.Owner, singerAccount, depositInfo.CurrentFee.QuoRaw(int64(threshold)))
 			if err != nil {
 				return err
 			}
 		}
-		return k.singerKeeper.ActiveSingerDeposit(ctx,depositID)
+		return k.singerKeeper.ActiveSingerDeposit(ctx, depositID)
 	}
 
 	if depositInfo.Status == types.Cashing {
-		err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,owner,Coins{depositInfo.Asset})
+		err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, owner, Coins{depositInfo.Asset})
 		if err != nil {
 			return err
 		}
-		_,err = k.pricefeeKeeper.UnLockFee(ctx,depositInfo.Owner,depositInfo.CurrentFee)
+		_, err = k.pricefeeKeeper.UnLockFee(ctx, depositInfo.Owner, depositInfo.CurrentFee)
 		if err != nil {
 			return err
 		}
 		depositInfo.TotalFee = depositInfo.TotalFee.Sub(depositInfo.CurrentFee)
 		depositInfo.CurrentFee = sdk.ZeroInt()
 		depositInfo.Status = types.Aberrant
-		k.SetDepositInfo(ctx,depositInfo)
-		return k.singerKeeper.AberrantDeposit(ctx,depositID)
+		k.SetDepositInfo(ctx, depositInfo)
+		return k.singerKeeper.AberrantDeposit(ctx, depositID)
 	}
 
-	return  types.ErrNotWaitStatus
+	return types.ErrNotWaitStatus
 }
 
-func (k Keeper) AberrantDeposit(ctx sdk.Context,depositID string) (err error) {
+func (k Keeper) AberrantDeposit(ctx sdk.Context, depositID string) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -330,23 +330,23 @@ func (k Keeper) AberrantDeposit(ctx sdk.Context,depositID string) (err error) {
 
 	threshold := len(depositInfo.Singers)
 
-	for _,singerAccount := range depositInfo.Singers {
-		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
+	for _, singerAccount := range depositInfo.Singers {
+		_, err := k.pricefeeKeeper.TransferFee(ctx, depositInfo.Owner, singerAccount, depositInfo.CurrentFee.QuoRaw(int64(threshold)))
 		if err != nil {
 			return err
 		}
-		_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,depositInfo.TotalFee.QuoRaw(3))
+		_, err = k.pricefeeKeeper.UnLockFee(ctx, singerAccount, depositInfo.TotalFee.QuoRaw(3))
 		if err != nil {
 			return err
 		}
 	}
 
 	depositInfo.Status = types.Finish
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	return nil
 }
 
-func  (k Keeper) ExternalCloseDeposit(ctx sdk.Context,depositID string) (err error) {
+func (k Keeper) ExternalCloseDeposit(ctx sdk.Context, depositID string) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -358,39 +358,39 @@ func  (k Keeper) ExternalCloseDeposit(ctx sdk.Context,depositID string) (err err
 
 	threshold := len(depositInfo.Singers)
 
-	for _,singerAccount := range depositInfo.Singers {
-		_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,depositInfo.CurrentFee.QuoRaw(int64(threshold)))
+	for _, singerAccount := range depositInfo.Singers {
+		_, err := k.pricefeeKeeper.TransferFee(ctx, depositInfo.Owner, singerAccount, depositInfo.CurrentFee.QuoRaw(int64(threshold)))
 		if err != nil {
 			return err
 		}
-		_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,depositInfo.TotalFee.QuoRaw(3))
+		_, err = k.pricefeeKeeper.UnLockFee(ctx, singerAccount, depositInfo.TotalFee.QuoRaw(3))
 		if err != nil {
 			return err
 		}
 	}
 
 	depositInfo.Status = types.Finish
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 	//销毁代币
-	return k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+	return k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
 }
 
-func  (k Keeper) SetWrongDepositSpv(ctx sdk.Context,depositID string) (err error) {
+func (k Keeper) SetWrongDepositSpv(ctx sdk.Context, depositID string) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
 	}
-	
+
 	if depositInfo.Status != types.DepositSpvReady {
 		return types.ErrDepositNotExist
 	}
 	depositInfo.Status = types.WrongDepositSPV
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 
 	return nil
 }
 
-func  (k Keeper) ReportWrongSingerSpv(ctx sdk.Context,depositID string,owner AccountID) (err error) {
+func (k Keeper) ReportWrongSingerSpv(ctx sdk.Context, depositID string, owner AccountID) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -405,11 +405,11 @@ func  (k Keeper) ReportWrongSingerSpv(ctx sdk.Context,depositID string,owner Acc
 	}
 
 	depositInfo.Status = types.WrongSingerSPV
-	k.SetDepositInfo(ctx,depositInfo)
-	return k.singerKeeper.SetWrongSingerSpv(ctx,depositID)
+	k.SetDepositInfo(ctx, depositInfo)
+	return k.singerKeeper.SetWrongSingerSpv(ctx, depositID)
 }
 
-func  (k Keeper) JudgeSpvRight(ctx sdk.Context,depositID string,systemAccount AccountID,spvIsRight bool,feeToSinger bool) (err error) {
+func (k Keeper) JudgeSpvRight(ctx sdk.Context, depositID string, systemAccount AccountID, spvIsRight bool, feeToSinger bool) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -418,59 +418,59 @@ func  (k Keeper) JudgeSpvRight(ctx sdk.Context,depositID string,systemAccount Ac
 	if depositInfo.Status == types.WrongDepositSPV {
 		if spvIsRight {
 			depositInfo.Status = types.Active
-			err = k.singerKeeper.ActiveSingerDeposit(ctx,depositID)
-				if err != nil {
-					return err
-				}
+			err = k.singerKeeper.ActiveSingerDeposit(ctx, depositID)
+			if err != nil {
+				return err
+			}
 		} else {
 			depositInfo.Status = types.Finish
-			k.singerKeeper.AberrantFinishDeposit(ctx,depositID)
+			k.singerKeeper.AberrantFinishDeposit(ctx, depositID)
 		}
 
 		if feeToSinger {
 			threshold := len(depositInfo.Singers)
 			singerFee := depositInfo.CurrentFee.QuoRaw(int64(threshold))
-			for _,singerAccount := range depositInfo.Singers {
-				_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,singerFee)
+			for _, singerAccount := range depositInfo.Singers {
+				_, err := k.pricefeeKeeper.TransferFee(ctx, depositInfo.Owner, singerAccount, singerFee)
 				if err != nil {
 					return err
 				}
 				if !spvIsRight {
 					//unlock
-					k.pricefeeKeeper.UnLockFee(ctx,singerAccount,singerFee)
+					k.pricefeeKeeper.UnLockFee(ctx, singerAccount, singerFee)
 				}
 			}
 			depositInfo.CurrentFee = sdk.ZeroInt()
 		} else {
 			//返还费用给用户
-			k.pricefeeKeeper.UnLockFee(ctx,depositInfo.Owner,depositInfo.TotalFee)
+			k.pricefeeKeeper.UnLockFee(ctx, depositInfo.Owner, depositInfo.TotalFee)
 			depositInfo.CurrentFee = sdk.ZeroInt()
 			depositInfo.TotalFee = sdk.ZeroInt()
 		}
-		k.SetDepositInfo(ctx,depositInfo)
+		k.SetDepositInfo(ctx, depositInfo)
 
-	} else if  depositInfo.Status == types.WrongSingerSPV {
+	} else if depositInfo.Status == types.WrongSingerSPV {
 		if spvIsRight {
 			//正常close
 			depositInfo.Status = types.Finish
 			//销毁代币
-			err = k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+			err = k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
 			if err != nil {
 				return err
 			}
 
-			err = k.singerKeeper.AberrantFinishDeposit(ctx,depositID)
+			err = k.singerKeeper.AberrantFinishDeposit(ctx, depositID)
 			if err != nil {
 				return err
 			}
 		} else {
 			//SPVtimeout
-			err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,depositInfo.Owner,Coins{depositInfo.Asset})
+			err = k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositInfo.Owner, Coins{depositInfo.Asset})
 			if err != nil {
 				return err
 			}
 			depositInfo.Status = types.Aberrant
-			err = k.singerKeeper.AberrantDeposit(ctx,depositID)
+			err = k.singerKeeper.AberrantDeposit(ctx, depositID)
 			if err != nil {
 				return err
 			}
@@ -480,12 +480,12 @@ func  (k Keeper) JudgeSpvRight(ctx sdk.Context,depositID string,systemAccount Ac
 			threshold := len(depositInfo.Singers)
 			singerFee := depositInfo.CurrentFee.QuoRaw(int64(threshold))
 			unlockFee := depositInfo.TotalFee.QuoRaw(int64(threshold))
-			for _,singerAccount := range depositInfo.Singers {
-				_,err := k.pricefeeKeeper.TransferFee(ctx,depositInfo.Owner,singerAccount,singerFee)
+			for _, singerAccount := range depositInfo.Singers {
+				_, err := k.pricefeeKeeper.TransferFee(ctx, depositInfo.Owner, singerAccount, singerFee)
 				if err != nil {
 					return err
 				}
-				_,err = k.pricefeeKeeper.UnLockFee(ctx,singerAccount,unlockFee)
+				_, err = k.pricefeeKeeper.UnLockFee(ctx, singerAccount, unlockFee)
 				if err != nil {
 					return err
 				}
@@ -493,22 +493,22 @@ func  (k Keeper) JudgeSpvRight(ctx sdk.Context,depositID string,systemAccount Ac
 			depositInfo.CurrentFee = sdk.ZeroInt()
 			depositInfo.TotalFee = sdk.ZeroInt()
 		} else {
-			_,err = k.pricefeeKeeper.UnLockFee(ctx,depositInfo.Owner,depositInfo.CurrentFee)
+			_, err = k.pricefeeKeeper.UnLockFee(ctx, depositInfo.Owner, depositInfo.CurrentFee)
 			if err != nil {
 				return err
 			}
-			depositInfo.TotalFee = 	depositInfo.TotalFee.Sub(depositInfo.CurrentFee)
+			depositInfo.TotalFee = depositInfo.TotalFee.Sub(depositInfo.CurrentFee)
 			depositInfo.CurrentFee = sdk.ZeroInt()
 
 		}
-		k.SetDepositInfo(ctx,depositInfo)
+		k.SetDepositInfo(ctx, depositInfo)
 	} else {
 		return types.ErrNotJudgeStatus
 	}
 	return nil
 }
 
-func  (k Keeper) ClaimAberrantDeposit(ctx sdk.Context,depositID string,claimAccount AccountID) (err error) {
+func (k Keeper) ClaimAberrantDeposit(ctx sdk.Context, depositID string, claimAccount AccountID) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -518,51 +518,51 @@ func  (k Keeper) ClaimAberrantDeposit(ctx sdk.Context,depositID string,claimAcco
 		return types.ErrStatusNotAberrant
 	}
 
-	err = k.singerKeeper.FinishAberrantDeposit(ctx,depositID,claimAccount)
-	if  err != nil {
-		return 
+	err = k.singerKeeper.FinishAberrantDeposit(ctx, depositID, claimAccount)
+	if err != nil {
+		return
 	}
 	depositInfo.Status = types.Finish
 	//handle fee to claimAccount
 	threshold := len(depositInfo.Singers)
 	unlockFee := depositInfo.TotalFee.QuoRaw(int64(threshold))
 
-	for _,singerAccount := range depositInfo.Singers {
-		_,err := k.pricefeeKeeper.TransferFee(ctx,singerAccount,claimAccount,unlockFee)
+	for _, singerAccount := range depositInfo.Singers {
+		_, err := k.pricefeeKeeper.TransferFee(ctx, singerAccount, claimAccount, unlockFee)
 		if err != nil {
 			return err
 		}
 	}
 
-	_,err = k.pricefeeKeeper.UnLockFee(ctx,claimAccount,depositInfo.TotalFee)
+	_, err = k.pricefeeKeeper.UnLockFee(ctx, claimAccount, depositInfo.TotalFee)
 	if err != nil {
 		return err
 	}
 
 	depositInfo.TotalFee = sdk.ZeroInt()
-	k.SetDepositInfo(ctx,depositInfo)
-	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	k.SetDepositInfo(ctx, depositInfo)
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx, types.ModuleName, Coins{depositInfo.Asset})
 	if err != nil {
 		return err
 	}
-	return k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
+	return k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
 }
 
-func  (k Keeper)  GetMortgageRatio(ctx sdk.Context,depositID string) (err error,baseRatio sdk.Int) {
+func (k Keeper) GetMortgageRatio(ctx sdk.Context, depositID string) (err error, baseRatio sdk.Int) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
-		return types.ErrDepositNotExist,sdk.ZeroInt()
+		return types.ErrDepositNotExist, sdk.ZeroInt()
 	}
 
-	quoteAmount ,err:= k.CalQuoteAmount(ctx,depositInfo.Asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	quoteAmount, err := k.CalQuoteAmount(ctx, depositInfo.Asset, Coin{Denom: external.DefaultBondDenom, Amount: sdk.NewInt(1)})
 	if err != nil {
-		return err,sdk.ZeroInt()
+		return err, sdk.ZeroInt()
 	}
-	err,baseRatio = k.singerKeeper.GetMortgageRatio(ctx,depositID,quoteAmount)
-	return err,baseRatio
+	err, baseRatio = k.singerKeeper.GetMortgageRatio(ctx, depositID, quoteAmount)
+	return err, baseRatio
 }
 
-func  (k Keeper) ClaimMortgageDeposit(ctx sdk.Context,depositID string,claimAccount AccountID) (err error) {
+func (k Keeper) ClaimMortgageDeposit(ctx sdk.Context, depositID string, claimAccount AccountID) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -572,11 +572,11 @@ func  (k Keeper) ClaimMortgageDeposit(ctx sdk.Context,depositID string,claimAcco
 		return types.ErrStatusNotCashReady
 	}
 
-	quoteAmount,err := k.CalQuoteAmount(ctx,depositInfo.Asset,Coin{Denom:external.DefaultBondDenom,Amount:sdk.NewInt(1)})
+	quoteAmount, err := k.CalQuoteAmount(ctx, depositInfo.Asset, Coin{Denom: external.DefaultBondDenom, Amount: sdk.NewInt(1)})
 	if err != nil {
 		return nil
 	}
-	err,baseRatio := k.singerKeeper.GetMortgageRatio(ctx,depositID,quoteAmount)
+	err, baseRatio := k.singerKeeper.GetMortgageRatio(ctx, depositID, quoteAmount)
 	if err != nil {
 		return nil
 	}
@@ -584,15 +584,15 @@ func  (k Keeper) ClaimMortgageDeposit(ctx sdk.Context,depositID string,claimAcco
 		return types.ErrMortgageNotLack
 	}
 
-	err = k.singerKeeper.FinishLackMortgageDeposit(ctx,depositID,claimAccount)
+	err = k.singerKeeper.FinishLackMortgageDeposit(ctx, depositID, claimAccount)
 	if err != nil {
 		return nil
 	}
 
 	threshold := len(depositInfo.Singers)
 	unlockFee := depositInfo.TotalFee.QuoRaw(int64(threshold))
-	for _,singerAccount := range depositInfo.Singers {
-		_,err := k.pricefeeKeeper.UnLockFee(ctx,singerAccount,unlockFee)
+	for _, singerAccount := range depositInfo.Singers {
+		_, err := k.pricefeeKeeper.UnLockFee(ctx, singerAccount, unlockFee)
 		if err != nil {
 			return err
 		}
@@ -600,16 +600,16 @@ func  (k Keeper) ClaimMortgageDeposit(ctx sdk.Context,depositID string,claimAcco
 
 	depositInfo.TotalFee = sdk.ZeroInt()
 	depositInfo.Status = types.Finish
-	k.SetDepositInfo(ctx,depositInfo)
-	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	k.SetDepositInfo(ctx, depositInfo)
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx, types.ModuleName, Coins{depositInfo.Asset})
 	if err != nil {
 		return err
 	}
-	return k.supplyKeeper.BurnCoins(ctx,types.ModuleAccountID,Coins{depositInfo.Asset})
-	
+	return k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
+
 }
 
-func  (k Keeper)  CashReadyDeposit(ctx sdk.Context,depositID string) (err error) {
+func (k Keeper) CashReadyDeposit(ctx sdk.Context, depositID string) (err error) {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
 		return types.ErrDepositNotExist
@@ -625,20 +625,20 @@ func  (k Keeper)  CashReadyDeposit(ctx sdk.Context,depositID string) (err error)
 	}
 
 	depositInfo.Status = types.CashReady
-	k.SetDepositInfo(ctx,depositInfo)
+	k.SetDepositInfo(ctx, depositInfo)
 
-	legalCoin,found := k.GetLegalCoin(ctx,depositInfo.Asset)
+	legalCoin, found := k.GetLegalCoin(ctx, depositInfo.Asset)
 	if !found {
 		return types.ErrLegalCoinNotExist
 	}
 
-	err = k.bankKeeper.Issue(ctx,types.ModuleAccountName,legalCoin.Symbol,depositInfo.Asset)
+	err = k.bankKeeper.Issue(ctx, types.ModuleAccountName, legalCoin.Symbol, depositInfo.Asset)
 	if err != nil {
 		return err
 	}
-	err = k.supplyKeeper.ModuleCoinsToPower(ctx,types.ModuleName,Coins{depositInfo.Asset})
+	err = k.supplyKeeper.ModuleCoinsToPower(ctx, types.ModuleName, Coins{depositInfo.Asset})
 	if err != nil {
 		return err
 	}
-	return k.supplyKeeper.SendCoinsFromModuleToAccount(ctx,types.ModuleName,depositInfo.Owner,Coins{depositInfo.Asset})
+	return k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositInfo.Owner, Coins{depositInfo.Asset})
 }

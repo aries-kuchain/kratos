@@ -1,43 +1,40 @@
 package keeper
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"fmt"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	//abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/external"
-
 )
 
 // Keeper maintains the link to data storage and exposes getter/setter methods for the various parts of the state machine
 type Keeper struct {
 	storeKey sdk.StoreKey // Unexposed key to access store from sdk.Context
 
-	cdc           *codec.Codec // The wire codec for binary encoding/decoding.
-	bankKeeper    types.BankKeeper
-	accountKeeper types.AccountKeeper
-	supplyKeeper  types.SupplyKeeper
+	cdc            *codec.Codec // The wire codec for binary encoding/decoding.
+	bankKeeper     types.BankKeeper
+	accountKeeper  types.AccountKeeper
+	supplyKeeper   types.SupplyKeeper
 	pricefeeKeeper types.PriceFeeKeeper
-	singerKeeper types.SingerKeeper
-	paramstore         external.ParamsSubspace
-
+	singerKeeper   types.SingerKeeper
+	paramstore     external.ParamsSubspace
 }
-
 
 // NewKeeper creates new instances of the nameservice Keeper
 func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec, bk types.BankKeeper, ak types.AccountKeeper,
-	sk types.SupplyKeeper, pfk types.PriceFeeKeeper,srk  types.SingerKeeper,ps external.ParamsSubspace,
+	sk types.SupplyKeeper, pfk types.PriceFeeKeeper, srk types.SingerKeeper, ps external.ParamsSubspace,
 ) Keeper {
 	return Keeper{
-		storeKey:      storeKey,
-		cdc:           cdc,
-		bankKeeper:    bk,
-		accountKeeper: ak,
-		supplyKeeper:  sk,
-		singerKeeper:srk,
-		pricefeeKeeper:pfk,
-		paramstore: ps.WithKeyTable(types.ParamKeyTable()),
+		storeKey:       storeKey,
+		cdc:            cdc,
+		bankKeeper:     bk,
+		accountKeeper:  ak,
+		supplyKeeper:   sk,
+		singerKeeper:   srk,
+		pricefeeKeeper: pfk,
+		paramstore:     ps.WithKeyTable(types.ParamKeyTable()),
 	}
 }
 
@@ -94,5 +91,3 @@ func (k Keeper) IterateAllBalances(ctx sdk.Context, cb func(sdk.AccAddress, sdk.
 	// 	}
 	// }
 }
-
-

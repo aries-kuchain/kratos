@@ -1,7 +1,5 @@
 package deposit
 
-// nolint
-
 import (
 	"github.com/KuChainNetwork/kuchain/x/deposit/keeper"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"

@@ -83,7 +83,7 @@ func (k Keeper) CreateLegalCoin(ctx sdk.Context, systemAccount AccountID, asset 
 	if err != nil {
 		return err
 	}
-	legalCoin := types.NewLegalCoin(asset,symbol)
+	legalCoin := types.NewLegalCoin(asset, symbol)
 	k.SetLegalCoin(ctx, legalCoin)
 	return nil
 }

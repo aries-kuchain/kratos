@@ -3,8 +3,8 @@ package types
 import (
 	"fmt"
 	"github.com/KuChainNetwork/kuchain/x/singer/external"
-	yaml "gopkg.in/yaml.v2"
 	"github.com/cosmos/cosmos-sdk/codec"
+	yaml "gopkg.in/yaml.v2"
 	"time"
 )
 
@@ -12,37 +12,35 @@ import (
 const (
 	DefaultParamspace = ModuleName
 
-	DefaultMortgageRate = 150
-	DefaultDepositFeeRate = 5
-	DefaultClaimFeeRate = 5
-	DefaultThreshold = 3
+	DefaultMortgageRate     = 150
+	DefaultDepositFeeRate   = 5
+	DefaultClaimFeeRate     = 5
+	DefaultThreshold        = 3
 	DefaultLackMortgageRate = 110
 
-	DefaultWaitTime time.Duration = time.Second * 10//3 days
-	DefaultDepositLifeCycle time.Duration = time.Second * 10//0.5 years
+	DefaultWaitTime         time.Duration = time.Second * 10 //3 days
+	DefaultDepositLifeCycle time.Duration = time.Second * 10 //0.5 years
 
 )
 
 var (
 	KeyMortgageRate     = []byte("mortgagerate")
-	KeyDepositFeeRate     = []byte("depositfeerate")
+	KeyDepositFeeRate   = []byte("depositfeerate")
 	KeyClaimFeeRate     = []byte("claimfeerate")
-	KeyThreshold     = []byte("threshold")
-	KeyWaitTime     = []byte("waittime")
-	KeyLackMortgageRate     = []byte("lackmortgagerate")
-	KeyDepositLifeCycle     = []byte("depositlifecycle")
-
+	KeyThreshold        = []byte("threshold")
+	KeyWaitTime         = []byte("waittime")
+	KeyLackMortgageRate = []byte("lackmortgagerate")
+	KeyDepositLifeCycle = []byte("depositlifecycle")
 )
 
-
 type Params struct {
-	MortgageRate int64 `json:"mortgate_rage" yaml:"mortgate_rage"`
-	DepositFeeRate int64 `json:"deposit_fee_rate" yaml:"deposit_fee_rate"`
-	ClaimFeeRate int64  `json:"claim_fee_rate" yaml:"claim_fee_rate"`
-	Threshold int `json:"threshold" yaml:"threshold"`
-	WaitTime  time.Duration `json:"wait_time" yaml:"wait_time"`
-	LackMortgageRate int64 `json:"lack_mortgate_rage" yaml:"lack_mortgate_rage"`
-	DepositLifeCycle  time.Duration `json:"deposit_life_cycle" yaml:"deposit_life_cycle"`
+	MortgageRate     int64         `json:"mortgate_rage" yaml:"mortgate_rage"`
+	DepositFeeRate   int64         `json:"deposit_fee_rate" yaml:"deposit_fee_rate"`
+	ClaimFeeRate     int64         `json:"claim_fee_rate" yaml:"claim_fee_rate"`
+	Threshold        int           `json:"threshold" yaml:"threshold"`
+	WaitTime         time.Duration `json:"wait_time" yaml:"wait_time"`
+	LackMortgageRate int64         `json:"lack_mortgate_rage" yaml:"lack_mortgate_rage"`
+	DepositLifeCycle time.Duration `json:"deposit_life_cycle" yaml:"deposit_life_cycle"`
 }
 
 func NewParams(
@@ -55,13 +53,13 @@ func NewParams(
 	depositLifeCycle time.Duration,
 ) Params {
 	return Params{
-		MortgageRate:mortgageRage,
-		DepositFeeRate:depositFeeRate,
-		ClaimFeeRate:claimFeeRate,
-		Threshold:threshold,
-		WaitTime:waitTime,
-		LackMortgageRate:lackMortgageRage,
-		DepositLifeCycle:depositLifeCycle,
+		MortgageRate:     mortgageRage,
+		DepositFeeRate:   depositFeeRate,
+		ClaimFeeRate:     claimFeeRate,
+		Threshold:        threshold,
+		WaitTime:         waitTime,
+		LackMortgageRate: lackMortgageRage,
+		DepositLifeCycle: depositLifeCycle,
 	}
 }
 
@@ -134,7 +132,6 @@ func (p Params) Validate() error {
 	}
 	return nil
 }
-
 
 func validateMortgageRate(i interface{}) error {
 	v, ok := i.(int64)

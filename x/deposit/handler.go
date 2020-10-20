@@ -1,13 +1,13 @@
 package deposit
 
 import (
+	"github.com/KuChainNetwork/kuchain/chain/constants"
 	"github.com/KuChainNetwork/kuchain/chain/msg"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/keeper"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/KuChainNetwork/kuchain/chain/constants"
 )
 
 func NewHandler(k keeper.Keeper) msg.Handler {
@@ -144,7 +144,7 @@ func handleKuMsgTransferDeposit(ctx chainTypes.Context, keeper keeper.Keeper, ms
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.TransferDeposit(sdkCtx, msgData.DepositID,msgData.From,msgData.To); err != nil {
+	if err := keeper.TransferDeposit(sdkCtx, msgData.DepositID, msgData.From, msgData.To); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -160,7 +160,7 @@ func handleKuMsgDepositToCoin(ctx chainTypes.Context, keeper keeper.Keeper, msg 
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.DepositToCoin(sdkCtx, msgData.DepositID,msgData.Owner); err != nil {
+	if err := keeper.DepositToCoin(sdkCtx, msgData.DepositID, msgData.Owner); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -176,7 +176,7 @@ func handleKuMsgDepositClaimCoin(ctx chainTypes.Context, keeper keeper.Keeper, m
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.ClaimDeposit(sdkCtx, msgData.DepositID,msgData.Owner,msgData.Asset,msgData.ClaimAddress); err != nil {
+	if err := keeper.ClaimDeposit(sdkCtx, msgData.DepositID, msgData.Owner, msgData.Asset, msgData.ClaimAddress); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -192,7 +192,7 @@ func handleKuMsgFinishDeposit(ctx chainTypes.Context, keeper keeper.Keeper, msg 
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.FinishDeposit(sdkCtx, msgData.DepositID,msgData.Owner); err != nil {
+	if err := keeper.FinishDeposit(sdkCtx, msgData.DepositID, msgData.Owner); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -208,7 +208,7 @@ func handleKuMsgWaitTimeout(ctx chainTypes.Context, keeper keeper.Keeper, msg ty
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.WaitTimeOut(sdkCtx, msgData.DepositID,msgData.Owner); err != nil {
+	if err := keeper.WaitTimeOut(sdkCtx, msgData.DepositID, msgData.Owner); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -224,7 +224,7 @@ func handleKuMsgReportWrongSpv(ctx chainTypes.Context, keeper keeper.Keeper, msg
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.ReportWrongSingerSpv(sdkCtx, msgData.DepositID,msgData.Owner); err != nil {
+	if err := keeper.ReportWrongSingerSpv(sdkCtx, msgData.DepositID, msgData.Owner); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -238,17 +238,17 @@ func handleKuMsgJudgeDepositSpv(ctx chainTypes.Context, keeper keeper.Keeper, ms
 
 	name, ok := msgData.SystemAccount.ToName()
 	if !ok {
-		return nil,types.ErrSystemNotAddress
+		return nil, types.ErrSystemNotAddress
 	}
 	if !constants.IsSystemAccount(name) {
-		return nil,types.ErrNotSystemAccount
+		return nil, types.ErrNotSystemAccount
 	}
 
 	ctx.RequireAuth(msgData.SystemAccount)
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.JudgeSpvRight(sdkCtx, msgData.DepositID,msgData.SystemAccount,msgData.SpvIsRight,msgData.FeeToSinger); err != nil {
+	if err := keeper.JudgeSpvRight(sdkCtx, msgData.DepositID, msgData.SystemAccount, msgData.SpvIsRight, msgData.FeeToSinger); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -264,7 +264,7 @@ func handleKuMsgClaimAberrant(ctx chainTypes.Context, keeper keeper.Keeper, msg 
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.ClaimAberrantDeposit(sdkCtx, msgData.DepositID,msgData.ClaimAccount); err != nil {
+	if err := keeper.ClaimAberrantDeposit(sdkCtx, msgData.DepositID, msgData.ClaimAccount); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
@@ -280,7 +280,7 @@ func handleKuMsgClaimMortgage(ctx chainTypes.Context, keeper keeper.Keeper, msg 
 
 	sdkCtx := ctx.Context()
 
-	if err := keeper.ClaimMortgageDeposit(sdkCtx, msgData.DepositID,msgData.ClaimAccount); err != nil {
+	if err := keeper.ClaimMortgageDeposit(sdkCtx, msgData.DepositID, msgData.ClaimAccount); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil

@@ -9,11 +9,11 @@ import (
 
 // GenesisState - all auth state that must be provided at genesis
 type GenesisState struct {
-	Params               types.Params                `json:"params" yaml:"params"`
+	Params types.Params `json:"params" yaml:"params"`
 }
 
 // NewGenesisState - Create a new genesis state
-func NewGenesisState(params types.Params ) GenesisState {
+func NewGenesisState(params types.Params) GenesisState {
 	return GenesisState{
 		Params: params,
 	}
@@ -23,6 +23,7 @@ func NewGenesisState(params types.Params ) GenesisState {
 func DefaultGenesisState() GenesisState {
 	return NewGenesisState(types.DefaultParams())
 }
+
 // ValidateGenesis performs basic validation of bank genesis data returning an
 // error for any failed validation criteria.
 func (g GenesisState) ValidateGenesis(bz json.RawMessage) error {
@@ -37,7 +38,7 @@ func ValidateGenesis(data GenesisState) error {
 // ExportGenesis - output genesis parameters
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) GenesisState {
 	return GenesisState{
-		Params:k.GetParams(ctx),
+		Params: k.GetParams(ctx),
 	}
 }
 

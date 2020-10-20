@@ -123,7 +123,6 @@ func GetCmdQueryAllLegalCoin(storeName string, cdc *codec.Codec) *cobra.Command 
 	}
 }
 
-
 func GetCmdQueryDepositSpv(storeName string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "deposit-spv [depositID]",
