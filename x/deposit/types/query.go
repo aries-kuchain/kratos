@@ -44,6 +44,16 @@ func NewQueryAllDepositWithCashReadyResponse(depositInfos []DepositInfo) QueryAl
 	return result
 }
 
+func NewQueryAllDepositWithAberrantResponse(depositInfos []DepositInfo) QueryAllDepositResponse {
+	var result QueryAllDepositResponse
+	for _, depositInfo := range depositInfos {
+		if  depositInfo.Status == Aberrant {
+			result.DepositInfos = append(result.DepositInfos, depositInfo)
+		}
+	}
+	return result
+}
+
 func (v QueryAllDepositResponse) String() string {
 	out, _ := yaml.Marshal(v)
 	return string(out)

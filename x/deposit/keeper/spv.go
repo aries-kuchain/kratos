@@ -41,6 +41,13 @@ func (k Keeper) NewSpvInfo(ctx sdk.Context, spvInfo singerTypes.SpvInfo) (err er
 	k.SetSpvInfo(ctx, spvInfo)
 	depositInfo.Status = types.DepositSpvReady
 	k.SetDepositInfo(ctx, depositInfo)
+		ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeSunmitSpv,
+			sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+			sdk.NewAttribute(types.AttributeKeyOwner, depositInfo.Owner.String()),
+		),
+	})
 	return k.singerKeeper.SetSpvReady(ctx, spvInfo.DepositID)
 }
 

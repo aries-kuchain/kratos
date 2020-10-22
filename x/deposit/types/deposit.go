@@ -71,11 +71,18 @@ func (b DepositStatus) String() string {
 	}
 }
 
+type AccountIDs []AccountID
+
+func (v AccountIDs) String() string {
+	out, _ := yaml.Marshal(v)
+	return string(out)
+}
+
 type DepositInfo struct {
 	DepositID         string //用户名，时间，数额等等
 	Owner             AccountID
 	Asset             Coin
-	Singers           []AccountID
+	Singers           AccountIDs
 	DepositAddress    string
 	WithDrawAddress   string
 	Status            DepositStatus

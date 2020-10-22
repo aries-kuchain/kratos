@@ -24,6 +24,8 @@ func NewQuerier(k Keeper) sdk.Querier {
 			return queryUserDeposit(ctx, path[1:], req, k)
 		case types.QueryCashReadyDeposit:
 			return queryCashReadyDeposit(ctx, path[1:], req, k)
+		case types.QueryAberrantDeposit:
+			return queryAberrantDeposit(ctx, path[1:], req, k)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown query path: %s", path[0])
 		}
@@ -34,7 +36,7 @@ func queryQueryDepositMortgageRatio(ctx sdk.Context, path []string, req abci.Req
 	var params types.QueryDepositParams
 	err := k.cdc.UnmarshalJSON(req.Data, &params)
 
-	ctx.Logger().Debug("queryValidatorOutstandingRewards:", params, err)
+	ctx.Logger().Debug("queryQueryDepositMortgageRatio:", params, err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -47,7 +49,7 @@ func queryQueryDepositMortgageRatio(ctx sdk.Context, path []string, req abci.Req
 	depositMortgageRatio := types.NewQueryDepositMortgageRatioResponse(params.DepositID, baseRatio)
 
 	bz, err := codec.MarshalJSONIndent(k.cdc, depositMortgageRatio)
-	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
+	ctx.Logger().Debug("queryQueryDepositMortgageRatio:", bz, "err:", err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -70,7 +72,7 @@ func queryDepositInfo(ctx sdk.Context, path []string, req abci.RequestQuery, k K
 	var params types.QueryDepositParams
 	err = k.cdc.UnmarshalJSON(req.Data, &params)
 
-	ctx.Logger().Debug("querySingerInfo:", params, err)
+	ctx.Logger().Debug("queryDepositInfo:", params, err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -81,7 +83,7 @@ func queryDepositInfo(ctx sdk.Context, path []string, req abci.RequestQuery, k K
 	}
 
 	bz, err := codec.MarshalJSONIndent(k.cdc, depositInfo)
-	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
+	ctx.Logger().Debug("queryDepositInfo:", bz, "err:", err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -93,7 +95,7 @@ func queryUserDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, k K
 	var params types.QueryUserDepositParams
 	err = k.cdc.UnmarshalJSON(req.Data, &params)
 
-	ctx.Logger().Debug("querySingerInfo:", params, err)
+	ctx.Logger().Debug("queryUserDeposit:", params, err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -102,7 +104,7 @@ func queryUserDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, k K
 
 	reponse := types.NewQueryAllDepositWithOwnerResponse(depositInfos, params.OwerAccount)
 	bz, err := codec.MarshalJSONIndent(k.cdc, reponse)
-	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
+	ctx.Logger().Debug("queryUserDeposit:", bz, "err:", err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -114,7 +116,19 @@ func queryCashReadyDeposit(ctx sdk.Context, path []string, req abci.RequestQuery
 	depositInfos := k.GetAllDepositInfo(ctx)
 	reponse := types.NewQueryAllDepositWithCashReadyResponse(depositInfos)
 	bz, err := codec.MarshalJSONIndent(k.cdc, reponse)
-	ctx.Logger().Debug("queryAllDeposit:", bz, "err:", err)
+	ctx.Logger().Debug("queryCashReadyDeposit:", bz, "err:", err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func queryAberrantDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
+	depositInfos := k.GetAllDepositInfo(ctx)
+	reponse := types.NewQueryAllDepositWithAberrantResponse(depositInfos)
+	bz, err := codec.MarshalJSONIndent(k.cdc, reponse)
+	ctx.Logger().Debug("queryAberrantDeposit:", bz, "err:", err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

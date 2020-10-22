@@ -7,7 +7,6 @@ import (
 
 type (
 	AccountID  = types.AccountID
-	AccountIDs = types.AccountIDes
 	Dec        = sdk.Dec
 	Coin       = types.Coin
 	Coins      = types.Coins

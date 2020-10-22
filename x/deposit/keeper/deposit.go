@@ -67,6 +67,18 @@ func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Co
 	depositInfo.TotalFee = feeAmount
 	depositInfo.SetSingers(pickedSingers)
 	k.SetDepositInfo(ctx, depositInfo)
+	//Event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeCreateDeposit,
+			sdk.NewAttribute(types.AttributeKeyDepositID,depositId),
+			sdk.NewAttribute(types.AttributeKeyOwner, depositInfo.Owner.String()),
+			sdk.NewAttribute(types.AttributeKeySinger, depositInfo.Singers.String()),
+			sdk.NewAttribute(types.AttributeKeyAsset, depositInfo.Asset.String()),
+			sdk.NewAttribute(types.AttributeKeyMinStake, eachMortgage.String()),
+			sdk.NewAttribute(types.AttributeKeyFee, feeAmount.String()),
+		),
+	})
 	return depositId, nil
 }
 

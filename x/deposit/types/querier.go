@@ -8,6 +8,7 @@ const (
 	QueryDepositInfo                = "deposit_info"
 	QueryUserDeposit                = "user_deposit"
 	QueryCashReadyDeposit                = "cashready_deposit"
+	QueryAberrantDeposit                = "aberrant_deposit"
 
 )
 
