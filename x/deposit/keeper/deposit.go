@@ -151,7 +151,14 @@ func (k Keeper) TransferDeposit(ctx sdk.Context, depositID string, from, to Acco
 
 	depositInfo.Owner = to
 	k.SetDepositInfo(ctx, depositInfo)
-
+//	//Event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeTransferDeposit,
+			sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+			sdk.NewAttribute(types.AttributeKeyOwner, depositInfo.Owner.String()),
+		),
+	})
 	return nil
 }
 
@@ -185,6 +192,15 @@ func (k Keeper) DepositToCoin(ctx sdk.Context, depositID string, owner AccountID
 	if err != nil {
 		return err
 	}
+	//Event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeDepositToCoin,
+			sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+			sdk.NewAttribute(types.AttributeKeyOwner, depositInfo.Owner.String()),
+			sdk.NewAttribute(types.AttributeKeyAsset, depositInfo.Asset.String()),
+		),
+	})
 	return k.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, owner, Coins{depositInfo.Asset})
 }
 
@@ -223,7 +239,21 @@ func (k Keeper) ClaimDeposit(ctx sdk.Context, depositID string, owner AccountID,
 	depositInfo.CurrentFee = feeAmount
 	depositInfo.TotalFee = depositInfo.TotalFee.Add(feeAmount)
 	k.SetDepositInfo(ctx, depositInfo)
-	return k.singerKeeper.SetClaimAddress(ctx, depositID, claimAddress)
+
+	err = k.singerKeeper.SetClaimAddress(ctx, depositID, claimAddress)
+	if err != nil {
+		return err
+	}
+	// Event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeClaimDeposit,
+			sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+			sdk.NewAttribute(types.AttributeKeyOwner, depositInfo.Owner.String()),
+			sdk.NewAttribute(types.AttributeKeyAsset, depositInfo.Asset.String()),
+		),
+	})
+	return  nil
 }
 
 func (k Keeper) FinishDeposit(ctx sdk.Context, depositID string, owner AccountID) (err error) {
@@ -254,13 +284,24 @@ func (k Keeper) FinishDeposit(ctx sdk.Context, depositID string, owner AccountID
 
 	depositInfo.Status = types.Finish
 	k.SetDepositInfo(ctx, depositInfo)
-	//销毁代币
+	//BurnCoins
 	err = k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
 	if err != nil {
 		return err
 	}
 
-	return k.singerKeeper.FinishDeposit(ctx, depositID)
+	err = k.singerKeeper.FinishDeposit(ctx, depositID)
+	if err != nil {
+		return err
+	}
+	// Event
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeFinishDeposit,
+			sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+		),
+	})
+	return nil
 }
 
 func (k Keeper) CalQuoteAmount(ctx sdk.Context, base, quote Coin) (sdk.Int, error) {
@@ -293,7 +334,17 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context, depositID string, owner AccountID) 
 
 		depositInfo.Status = types.Finish
 		k.SetDepositInfo(ctx, depositInfo)
-		return k.singerKeeper.FinishDepositPunishSinger(ctx, depositID, depositInfo.Owner)
+		err = k.singerKeeper.FinishDepositPunishSinger(ctx, depositID, depositInfo.Owner)
+		if err != nil {
+			return err
+		}
+		ctx.EventManager().EmitEvents(sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeFinishDeposit,
+				sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+			),
+		})
+		return nil
 	}
 
 	if depositInfo.Status == types.DepositSpvReady {
@@ -308,7 +359,17 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context, depositID string, owner AccountID) 
 				return err
 			}
 		}
-		return k.singerKeeper.ActiveSingerDeposit(ctx, depositID)
+		err = k.singerKeeper.ActiveSingerDeposit(ctx, depositID)
+		if err != nil {
+			return err
+		}
+		ctx.EventManager().EmitEvents(sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeActiveDeposit,
+				sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+			),
+		})
+		return nil
 	}
 
 	if depositInfo.Status == types.Cashing {
@@ -320,11 +381,26 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context, depositID string, owner AccountID) 
 		if err != nil {
 			return err
 		}
+		feeAmount := depositInfo.CurrentFee
 		depositInfo.TotalFee = depositInfo.TotalFee.Sub(depositInfo.CurrentFee)
 		depositInfo.CurrentFee = sdk.ZeroInt()
 		depositInfo.Status = types.Aberrant
 		k.SetDepositInfo(ctx, depositInfo)
-		return k.singerKeeper.AberrantDeposit(ctx, depositID)
+		err = k.singerKeeper.AberrantDeposit(ctx, depositID)
+		if err != nil {
+			return err
+		}
+		ctx.EventManager().EmitEvents(sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeAberrantDeposit,
+				sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+				sdk.NewAttribute(types.AttributeKeyOwner, depositInfo.Owner.String()),
+				sdk.NewAttribute(types.AttributeKeySinger, depositInfo.Singers.String()),
+				sdk.NewAttribute(types.AttributeKeyAsset, depositInfo.Asset.String()),
+				sdk.NewAttribute(types.AttributeKeyFee, feeAmount.String()),
+			),
+		})
+		return nil
 	}
 
 	return types.ErrNotWaitStatus
@@ -383,7 +459,7 @@ func (k Keeper) ExternalCloseDeposit(ctx sdk.Context, depositID string) (err err
 
 	depositInfo.Status = types.Finish
 	k.SetDepositInfo(ctx, depositInfo)
-	//销毁代币
+	//BurnCoins
 	return k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
 }
 
@@ -418,7 +494,17 @@ func (k Keeper) ReportWrongSingerSpv(ctx sdk.Context, depositID string, owner Ac
 
 	depositInfo.Status = types.WrongSingerSPV
 	k.SetDepositInfo(ctx, depositInfo)
-	return k.singerKeeper.SetWrongSingerSpv(ctx, depositID)
+	err = k.singerKeeper.SetWrongSingerSpv(ctx, depositID)
+	if err != nil {
+		return err
+	}
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeWrongSingerSpv,
+			sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+		),
+	})
+	return nil
 }
 
 func (k Keeper) JudgeSpvRight(ctx sdk.Context, depositID string, systemAccount AccountID, spvIsRight bool, feeToSinger bool) (err error) {
@@ -557,7 +643,18 @@ func (k Keeper) ClaimAberrantDeposit(ctx sdk.Context, depositID string, claimAcc
 	if err != nil {
 		return err
 	}
-	return k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
+
+	err = k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
+	if err != nil {
+		return err
+	}
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeClaimAberrantDeposit,
+			sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+		),
+	})
+	return nil
 }
 
 func (k Keeper) GetMortgageRatio(ctx sdk.Context, depositID string) (err error, baseRatio sdk.Int) {
@@ -617,8 +714,15 @@ func (k Keeper) ClaimMortgageDeposit(ctx sdk.Context, depositID string, claimAcc
 	if err != nil {
 		return err
 	}
-	return k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
+	err = k.supplyKeeper.BurnCoins(ctx, types.ModuleAccountID, Coins{depositInfo.Asset})
 
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeClaimMortgageDeposit,
+			sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
+		),
+	})
+	return nil
 }
 
 func (k Keeper) CashReadyDeposit(ctx sdk.Context, depositID string) (err error) {
