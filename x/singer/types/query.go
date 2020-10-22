@@ -29,30 +29,29 @@ func (v QuerySingerInfoResponse) String() string {
 }
 
 type QueryAllDepositResponse struct {
-	DepositInfos []DepositInfo  `json:"all_deposit_info" yaml:"all_deposit_info"`
+	DepositInfos []DepositInfo `json:"all_deposit_info" yaml:"all_deposit_info"`
 }
 
-func NewQueryAllDepositResponse(depositInfos []DepositInfo) QueryAllDepositResponse{
+func NewQueryAllDepositResponse(depositInfos []DepositInfo) QueryAllDepositResponse {
 	var result QueryAllDepositResponse
-	for _,depositInfo := range depositInfos {
-		result.DepositInfos = append(result.DepositInfos,depositInfo)
+	for _, depositInfo := range depositInfos {
+		result.DepositInfos = append(result.DepositInfos, depositInfo)
 	}
 	return result
 }
 
-func NewQuerySingerDepositResponse(depositInfos []DepositInfo,singerAccount AccountID) QueryAllDepositResponse{
+func NewQuerySingerDepositResponse(depositInfos []DepositInfo, singerAccount AccountID) QueryAllDepositResponse {
 	var result QueryAllDepositResponse
-	for _,depositInfo := range depositInfos {
-		for _,depositSinger := range depositInfo.Singers {
-			if depositSinger.Eq(singerAccount) &&  depositInfo.Status != Close {
-				result.DepositInfos = append(result.DepositInfos,depositInfo)
+	for _, depositInfo := range depositInfos {
+		for _, depositSinger := range depositInfo.Singers {
+			if depositSinger.Eq(singerAccount) && depositInfo.Status != Close {
+				result.DepositInfos = append(result.DepositInfos, depositInfo)
 			}
 		}
-		
+
 	}
 	return result
 }
-
 
 func (v QueryAllDepositResponse) String() string {
 	out, _ := yaml.Marshal(v)

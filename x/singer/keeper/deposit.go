@@ -279,7 +279,11 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context, depositID string, singerAccount Acc
 		depositInfo.Status = types.Close
 		k.SetDepositInfo(ctx, depositInfo)
 
-		return k.unlockMortgage(ctx, depositInfo.Singers, depositInfo.MinStake)
+		err = k.unlockMortgage(ctx, depositInfo.Singers, depositInfo.MinStake)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	if depositInfo.Status == types.CashOut {
@@ -287,7 +291,12 @@ func (k Keeper) WaitTimeOut(ctx sdk.Context, depositID string, singerAccount Acc
 		depositInfo.Status = types.Close
 		k.SetDepositInfo(ctx, depositInfo)
 
-		return k.unlockMortgage(ctx, depositInfo.Singers, depositInfo.MinStake)
+		err = k.unlockMortgage(ctx, depositInfo.Singers, depositInfo.MinStake)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 	return types.ErrNotWaitStatus
 }

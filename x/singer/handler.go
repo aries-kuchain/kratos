@@ -64,7 +64,12 @@ func handleKuMsgRegisterSinger(ctx chainTypes.Context, k keeper.Keeper, msg type
 	}
 
 	k.NewSingerInfo(sdkCtx, msgData.SingerAccount)
-
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeRegisterSinger,
+			sdk.NewAttribute(types.AttributeKeySingerAccount, msgData.SingerAccount.String()),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
@@ -90,7 +95,13 @@ func handleKuMsgPayAccess(ctx chainTypes.Context, k keeper.Keeper, msg types.KuM
 	if err != nil {
 		return nil, err
 	}
-
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypePayAccess,
+			sdk.NewAttribute(types.AttributeKeySingerAccount, msgData.SingerAccount.String()),
+			sdk.NewAttribute(types.AttributeKeyAmount, msgData.Amount.String()),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
@@ -120,7 +131,12 @@ func handleKuMsgActiveSinger(ctx chainTypes.Context, k keeper.Keeper, msg types.
 	if err := k.ActiveSingerInfo(sdkCtx, msgData.SingerAccount); err != nil {
 		return nil, err
 	}
-
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeActiveSinger,
+			sdk.NewAttribute(types.AttributeKeySingerAccount, msgData.SingerAccount.String()),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
@@ -146,7 +162,13 @@ func handleKuMsgBTCMortgage(ctx chainTypes.Context, k keeper.Keeper, msg types.K
 	if err != nil {
 		return nil, err
 	}
-
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypePayMortgage,
+			sdk.NewAttribute(types.AttributeKeySingerAccount, msgData.SingerAccount.String()),
+			sdk.NewAttribute(types.AttributeKeyAmount, msgData.Amount.String()),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
@@ -172,7 +194,13 @@ func handleKuMsgClaimBTCMortgate(ctx chainTypes.Context, k keeper.Keeper, msg ty
 	if err != nil {
 		return nil, err
 	}
-
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeClaimMortgage,
+			sdk.NewAttribute(types.AttributeKeySingerAccount, msgData.SingerAccount.String()),
+			sdk.NewAttribute(types.AttributeKeyAmount, msgData.Amount.String()),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
@@ -245,6 +273,13 @@ func handleKuMsgMsgSetBtcAddress(ctx chainTypes.Context, k keeper.Keeper, msg ty
 			return nil, err
 		}
 	}
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeSetAddress,
+			sdk.NewAttribute(types.AttributeKeyDepositID, msgData.DepoistID),
+			sdk.NewAttribute(types.AttributeKeySingerAccount, msgData.SingerAccount.String()),
+		),
+	})
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
@@ -269,7 +304,13 @@ func handleKuMsgActiveDeposit(ctx chainTypes.Context, k keeper.Keeper, msg types
 			return nil, err
 		}
 	}
-
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeActiveDeposit,
+			sdk.NewAttribute(types.AttributeKeyDepositID, msgData.DepositID),
+			sdk.NewAttribute(types.AttributeKeySingerAccount, msgData.SingerAccount.String()),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
@@ -286,7 +327,13 @@ func handleKuMsgSubmitSpv(ctx chainTypes.Context, k keeper.Keeper, msg types.KuM
 	if err != nil {
 		return nil, err
 	}
-
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeSubmitSpv,
+			sdk.NewAttribute(types.AttributeKeyDepositID, msgData.DepositID),
+			sdk.NewAttribute(types.AttributeKeySingerAccount, msgData.SpvInfo.SpvSubmiter.String()),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
@@ -303,7 +350,12 @@ func handleKuMsgWaitTimeout(ctx chainTypes.Context, k keeper.Keeper, msg types.K
 	if err != nil {
 		return nil, err
 	}
-
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeFinishDeposit,
+			sdk.NewAttribute(types.AttributeKeyDepositID, msgData.DepositID),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
@@ -320,6 +372,11 @@ func handleKuMsgReportSpvWrong(ctx chainTypes.Context, k keeper.Keeper, msg type
 	if err != nil {
 		return nil, err
 	}
-
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeWrongDepositSpv,
+			sdk.NewAttribute(types.AttributeKeyDepositID, msgData.DepositID),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 )
+
 func queryAllDeposit(cliCtx context.CLIContext, endpoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -30,7 +31,7 @@ func queryAllDeposit(cliCtx context.CLIContext, endpoint string) http.HandlerFun
 func queryDepositInfo(cliCtx context.CLIContext, endpoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		bech32deposit:= vars["depositID"]
+		bech32deposit := vars["depositID"]
 
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {

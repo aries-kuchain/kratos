@@ -145,6 +145,13 @@ func (k Keeper) SingerClaimAccess(ctx sdk.Context, singerAccount AccountID) (tot
 
 	singer.AccessAsset = singer.AccessAsset.Sub(amount.Amount)
 	k.SetSingerInfo(ctx, singer)
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeClaimAccess,
+			sdk.NewAttribute(types.AttributeKeySingerAccount, singerAccount.String()),
+			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
+		),
+	})
 	return singer.AccessAsset, nil
 }
 
@@ -177,6 +184,13 @@ func (k Keeper) SingerLogoutAccess(ctx sdk.Context, singerAccount AccountID) (er
 	singer.AccessAsset = sdk.ZeroInt()
 	singer.Status = types.InActive
 	k.SetSingerInfo(ctx, singer)
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeLogoutSinger,
+			sdk.NewAttribute(types.AttributeKeySingerAccount, singerAccount.String()),
+			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
+		),
+	})
 	return nil
 }
 

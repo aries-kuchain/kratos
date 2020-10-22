@@ -101,7 +101,7 @@ func querySingerDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, k
 	}
 
 	depositInfos := k.GetAllDeposit(ctx)
-	allDepositInfoResponse := types.NewQuerySingerDepositResponse(depositInfos,params.SingerAccount)
+	allDepositInfoResponse := types.NewQuerySingerDepositResponse(depositInfos, params.SingerAccount)
 
 	bz, err := codec.MarshalJSONIndent(k.cdc, allDepositInfoResponse)
 	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
