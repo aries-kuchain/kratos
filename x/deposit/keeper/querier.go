@@ -26,6 +26,8 @@ func NewQuerier(k Keeper) sdk.Querier {
 			return queryCashReadyDeposit(ctx, path[1:], req, k)
 		case types.QueryAberrantDeposit:
 			return queryAberrantDeposit(ctx, path[1:], req, k)
+		case types.QueryDepositSpv:
+			return queryDepositSpv(ctx, path[1:], req, k)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown query path: %s", path[0])
 		}
@@ -79,7 +81,7 @@ func queryDepositInfo(ctx sdk.Context, path []string, req abci.RequestQuery, k K
 
 	depositInfo, found := k.GetDepositInfo(ctx, params.DepositID)
 	if !found {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "singer  do not find")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "depositInfo  do not find")
 	}
 
 	bz, err := codec.MarshalJSONIndent(k.cdc, depositInfo)
@@ -129,6 +131,29 @@ func queryAberrantDeposit(ctx sdk.Context, path []string, req abci.RequestQuery,
 	reponse := types.NewQueryAllDepositWithAberrantResponse(depositInfos)
 	bz, err := codec.MarshalJSONIndent(k.cdc, reponse)
 	ctx.Logger().Debug("queryAberrantDeposit:", bz, "err:", err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func queryDepositSpv(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
+	var params types.QueryDepositParams
+	err = k.cdc.UnmarshalJSON(req.Data, &params)
+
+	ctx.Logger().Debug("queryDepositSpv:", params, err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	depositSpv, found := k.GetDepositSpv(ctx, params.DepositID)
+	if !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "DepositSpv  do not find")
+	}
+
+	bz, err := codec.MarshalJSONIndent(k.cdc, depositSpv)
+	ctx.Logger().Debug("queryDepositSpv:", bz, "err:", err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

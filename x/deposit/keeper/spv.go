@@ -6,9 +6,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (k Keeper) GetSpvInfo(ctx sdk.Context, depositID string, singerAccount AccountID) (spvInfo singerTypes.SpvInfo, found bool) {
+func (k Keeper) GetSpvInfo(ctx sdk.Context, depositID string, ownerAccount AccountID) (spvInfo singerTypes.SpvInfo, found bool) {
 	store := ctx.KVStore(k.storeKey)
-	key := types.GetDepositSingerSpvKey(depositID, singerAccount)
+	key := types.GetDepositSingerSpvKey(depositID, ownerAccount)
 	value := store.Get(key)
 	if value == nil {
 		return spvInfo, false
@@ -41,7 +41,7 @@ func (k Keeper) NewSpvInfo(ctx sdk.Context, spvInfo singerTypes.SpvInfo) (err er
 	k.SetSpvInfo(ctx, spvInfo)
 	depositInfo.Status = types.DepositSpvReady
 	k.SetDepositInfo(ctx, depositInfo)
-		ctx.EventManager().EmitEvents(sdk.Events{
+	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeSunmitSpv,
 			sdk.NewAttribute(types.AttributeKeyDepositID,depositInfo.DepositID),
@@ -49,6 +49,19 @@ func (k Keeper) NewSpvInfo(ctx sdk.Context, spvInfo singerTypes.SpvInfo) (err er
 		),
 	})
 	return k.singerKeeper.SetSpvReady(ctx, spvInfo.DepositID)
+}
+
+func (k Keeper) GetDepositSpv(ctx sdk.Context, depositID string)(spvInfo singerTypes.SpvInfo,found bool) {
+
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.GetDepositSpvKey(depositID))
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		red := singerTypes.MustUnmarshalSpvInfo(k.cdc, iterator.Value())
+		return red,true
+	}
+	return spvInfo,false
 }
 
 func (k Keeper) SetCashOut(ctx sdk.Context, depositID string) (err error) {
