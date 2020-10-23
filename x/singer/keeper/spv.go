@@ -23,6 +23,22 @@ func (k Keeper) SetSpvInfo(ctx sdk.Context, spvInfo types.SpvInfo) {
 	store.Set(types.GetDepositSingerSpvKey(spvInfo.DepositID, spvInfo.SpvSubmiter), b)
 }
 
+func (k Keeper) GetDepositClaimSpv(ctx sdk.Context, depositID string ) (result []types.SpvInfo) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return nil
+	}
+
+	for _, singer := range depositInfo.Singers {
+		spvInfo, found := k.GetSpvInfo(ctx, depositID, singer)
+		if !found {
+			continue
+		}
+		result = append(result,spvInfo)
+	}
+	return result
+}
+
 func (k Keeper) GetDepositActiveInfo(ctx sdk.Context, depositID string, singerAccount AccountID) (depositActiveInfo types.DepositActiveInfo, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetDepositSingerActiveKey(depositID, singerAccount)

@@ -100,9 +100,9 @@ func (v DepositInfo) CheckSinger(singerAccount AccountID) bool {
 
 //--------------------------------------------------------------------------------------------------
 type DepositBtcAddress struct {
-	DepositID  string
-	Singer     AccountID
-	BtcAddress string
+	DepositID  string	`json:"deposit_id" yaml:"deposit_id"`
+	Singer     AccountID	`json:"singer" yaml:"singer"`
+	BtcAddress string	`json:"btc_address" yaml:"btc_address"`
 }
 
 func NewDepositBtcAddress(depositID string, singer AccountID, btcAddress string) DepositBtcAddress {

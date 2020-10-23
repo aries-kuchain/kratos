@@ -8,17 +8,17 @@ import (
 type SpvInfo struct {
 	DepositID          string    `json:"deposit_id" yaml:"deposit_id"`
 	SpvSubmiter        AccountID `json:"spv_submiter" yaml:"spv_submiter"`
-	Version            []byte    `json:"version" yaml:"version"`
-	TxInputVector      []byte    `json:"tx_input_vector" yaml:"tx_input_vector"`
-	TxOutputVector     []byte    `json:"tx_output_vector" yaml:"tx_output_vector"`
-	TxLockTime         []byte    `json:"tx_lock_time" yaml:"tx_lock_time"`
+	Version            string    `json:"version" yaml:"version"`
+	TxInputVector      string    `json:"tx_input_vector" yaml:"tx_input_vector"`
+	TxOutputVector     string    `json:"tx_output_vector" yaml:"tx_output_vector"`
+	TxLockTime         string    `json:"tx_lock_time" yaml:"tx_lock_time"`
 	FundingOutputIndex int       `json:"funding_output_index" yaml:"funding_output_index"`
-	MerkleProof        []byte    `json:"merkle_proof" yaml:"merkle_proof"`
+	MerkleProof        string    `json:"merkle_proof" yaml:"merkle_proof"`
 	TxIndexInBlock     int       `json:"tx_index_in_blocl" yaml:"tx_index_in_blocl"`
-	BitcoinHeaders     []byte    `json:"bit_coin_headers" yaml:"bit_coin_headers"`
+	BitcoinHeaders     string    `json:"bit_coin_headers" yaml:"bit_coin_headers"`
 }
 
-func NewSpvInfo(depositID string, spvSubminter AccountID, version, txInputVector, txOutputVector, txLockTime, merkleProof, bitcoinHeaders []byte, fundingOupputIndex, txIndexInBlock int) SpvInfo {
+func NewSpvInfo(depositID string, spvSubminter AccountID, version, txInputVector, txOutputVector, txLockTime, merkleProof, bitcoinHeaders string, fundingOupputIndex, txIndexInBlock int) SpvInfo {
 	return SpvInfo{
 		DepositID:          depositID,
 		SpvSubmiter:        spvSubminter,
@@ -57,13 +57,13 @@ func (v SpvInfo) String() string {
 	return fmt.Sprintf(`DepositID:%s\n
 		SpvSubmiter:%s\n
 		Version:%s\n
-		TxInputVector:%x\n
-		TxOutputVector:%x\n
-		TxLockTime:%x\n
+		TxInputVector:%s\n
+		TxOutputVector:%s\n
+		TxLockTime:%s\n
 		FundingOutputIndex:%d\n
-		MerkleProof:%x\n
-		TxIndexInBlock:%x\n
-		BitcoinHeaders:%x\n
+		MerkleProof:%s\n
+		TxIndexInBlock:%s\n
+		BitcoinHeaders:%s\n
 		`, v.DepositID,
 		v.SpvSubmiter.String(),
 		v.Version,

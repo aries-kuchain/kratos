@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/KuChainNetwork/kuchain/chain/hexutil"
+//	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	paramscutils "github.com/KuChainNetwork/kuchain/x/deposit/client/utils"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
@@ -192,8 +192,8 @@ func GetCmdSubmitSpv(cdc *codec.Codec) *cobra.Command {
 				return sdkerrors.Wrapf(err, "query account %s auth error", spvSubmiter)
 			}
 
-			spvInfo := singerTypes.NewSpvInfo(args[1], spvSubmiter, hexutil.MustDecode(paramsSpv.Version), hexutil.MustDecode(paramsSpv.TxInputVector), hexutil.MustDecode(paramsSpv.TxOutputVector),
-				hexutil.MustDecode(paramsSpv.TxLockTime), hexutil.MustDecode(paramsSpv.MerkleProof), hexutil.MustDecode(paramsSpv.BitcoinHeaders), paramsSpv.FundingOutputIndex, paramsSpv.TxIndexInBlock,
+			spvInfo := singerTypes.NewSpvInfo(args[1], spvSubmiter, paramsSpv.Version, paramsSpv.TxInputVector, paramsSpv.TxOutputVector,
+				paramsSpv.TxLockTime, paramsSpv.MerkleProof, paramsSpv.BitcoinHeaders, paramsSpv.FundingOutputIndex, paramsSpv.TxIndexInBlock,
 			)
 			msg := types.NewKuMsgSubmitSpv(authAccAddress, spvInfo)
 			cliCtx = cliCtx.WithFromAccount(spvSubmiter)
