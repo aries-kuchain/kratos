@@ -57,3 +57,10 @@ func (v QueryAllDepositResponse) String() string {
 	out, _ := yaml.Marshal(v)
 	return string(out)
 }
+
+type QueryDepositAddressReponse []DepositBtcAddress
+
+func (v QueryDepositAddressReponse) String() string {
+	out, _ := yaml.Marshal(v)
+	return string(out)
+}

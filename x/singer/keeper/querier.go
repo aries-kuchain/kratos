@@ -19,6 +19,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryDepositInfo(ctx, path[1:], req, keeper)
 		case types.QuerySingerDeposit:
 			return querySingerDeposit(ctx, path[1:], req, keeper)
+		case types.QueryDepositAddress:
+			return queryDepositAddress(ctx, path[1:], req, keeper)
 		default:
 			return nil, nil //sdk.ErrUnknownRequest("unknown bank query endpoint")
 		}
@@ -105,6 +107,26 @@ func querySingerDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, k
 
 	bz, err := codec.MarshalJSONIndent(k.cdc, allDepositInfoResponse)
 	ctx.Logger().Debug("queryValidatorOutstandingRewards:", bz, "err:", err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func queryDepositAddress(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
+	var params types.QueryDepositInfoParams
+	err = k.cdc.UnmarshalJSON(req.Data, &params)
+
+	ctx.Logger().Debug("queryDepositAddress:", params, err)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	depositAddress := k.GetDepositAddress(ctx, params.DepositID)
+
+	bz, err := codec.MarshalJSONIndent(k.cdc, depositAddress)
+	ctx.Logger().Debug("queryDepositAddress:", bz, "err:", err)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

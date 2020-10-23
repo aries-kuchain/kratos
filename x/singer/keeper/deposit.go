@@ -88,6 +88,22 @@ func (k Keeper) NewDepositBtcAddress(ctx sdk.Context, depositID string, singer A
 	return nil
 }
 
+func (k Keeper) GetDepositAddress(ctx sdk.Context, depositID string) (result []types.DepositBtcAddress) {
+	depositInfo, found := k.GetDepositInfo(ctx, depositID)
+	if !found {
+		return nil
+	}
+
+	for _, singer := range depositInfo.Singers {
+		btcAddress, found := k.GetDepositBtcAddress(ctx, depositID, singer)
+		if !found {
+			continue
+		}
+		result = append(result,btcAddress)
+	}
+	return result
+}
+
 func (k Keeper) CheckBtcAddressReady(ctx sdk.Context, depositID string) bool {
 	depositInfo, found := k.GetDepositInfo(ctx, depositID)
 	if !found {
