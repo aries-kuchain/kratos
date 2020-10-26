@@ -958,7 +958,7 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 		err = checkSingerDepositStatus(app, depositID, singerTypes.AddressReady)
 		So(err, ShouldBeNil)
-		testByte := []byte("just for test")
+		testByte := "just for test"
 		newSpv := singerTypes.NewSpvInfo(depositID, accAlice, testByte, testByte, testByte, testByte, testByte, testByte, 0, 0)
 		err = submitDepositSpv(t, wallet, app, addAlice, accAlice, newSpv, true)
 		So(err, ShouldBeNil)
@@ -1054,7 +1054,7 @@ func TestDepositHandler(t *testing.T) {
 		}
 		err = checkDepositStatus(app, depositID, depositTypes.AddressReady)
 		So(err, ShouldBeNil)
-		testByte := []byte("just for test")
+		testByte := "just for test"
 		newSpv := singerTypes.NewSpvInfo(depositID, accAlice, testByte, testByte, testByte, testByte, testByte, testByte, 0, 0)
 		err = submitDepositSpv(t, wallet, app, addAlice, accAlice, newSpv, true)
 		So(err, ShouldBeNil)
@@ -1135,7 +1135,7 @@ func TestDepositHandler(t *testing.T) {
 		}
 		err = checkDepositStatus(app, depositID, depositTypes.AddressReady)
 		So(err, ShouldBeNil)
-		testByte := []byte("just for test")
+		testByte := "just for test"
 		newSpv := singerTypes.NewSpvInfo(depositID, accAlice, testByte, testByte, testByte, testByte, testByte, testByte, 0, 0)
 		err = submitDepositSpv(t, wallet, app, addAlice, accAlice, newSpv, true)
 		So(err, ShouldBeNil)
@@ -1226,7 +1226,7 @@ func TestDepositHandler(t *testing.T) {
 		}
 		err = checkDepositStatus(app, depositID, depositTypes.AddressReady)
 		So(err, ShouldBeNil)
-		testByte := []byte("just for test")
+		testByte := "just for test"
 		newSpv := singerTypes.NewSpvInfo(depositID, accAlice, testByte, testByte, testByte, testByte, testByte, testByte, 0, 0)
 		err = submitDepositSpv(t, wallet, app, addAlice, accAlice, newSpv, true)
 		So(err, ShouldBeNil)
@@ -1313,7 +1313,7 @@ func TestDepositHandler(t *testing.T) {
 		}
 		err = checkDepositStatus(app, depositID, depositTypes.AddressReady)
 		So(err, ShouldBeNil)
-		testByte := []byte("just for test")
+		testByte := "just for test"
 		newSpv := singerTypes.NewSpvInfo(depositID, accAlice, testByte, testByte, testByte, testByte, testByte, testByte, 0, 0)
 		err = submitDepositSpv(t, wallet, app, addAlice, accAlice, newSpv, true)
 		So(err, ShouldBeNil)
@@ -1385,7 +1385,7 @@ func TestDepositHandler(t *testing.T) {
 		}
 		err = checkDepositStatus(app, depositID, depositTypes.AddressReady)
 		So(err, ShouldBeNil)
-		testByte := []byte("just for test")
+		testByte := "just for test"
 		newSpv := singerTypes.NewSpvInfo(depositID, accAlice, testByte, testByte, testByte, testByte, testByte, testByte, 0, 0)
 		err = submitDepositSpv(t, wallet, app, addAlice, accAlice, newSpv, true)
 		So(err, ShouldBeNil)
@@ -1449,7 +1449,7 @@ func TestDepositHandler(t *testing.T) {
 		}
 		err = checkDepositStatus(app, depositID, depositTypes.AddressReady)
 		So(err, ShouldBeNil)
-		testByte := []byte("just for test")
+		testByte := "just for test"
 		newSpv := singerTypes.NewSpvInfo(depositID, accAlice, testByte, testByte, testByte, testByte, testByte, testByte, 0, 0)
 		err = submitDepositSpv(t, wallet, app, addAlice, accAlice, newSpv, true)
 		So(err, ShouldBeNil)
@@ -1574,7 +1574,7 @@ func TestDepositHandler(t *testing.T) {
 		}
 		err = checkDepositStatus(app, depositID, depositTypes.AddressReady)
 		So(err, ShouldBeNil)
-		testByte := []byte("just for test")
+		testByte := "just for test"
 		newSpv := singerTypes.NewSpvInfo(depositID, accAlice, testByte, testByte, testByte, testByte, testByte, testByte, 0, 0)
 		err = submitDepositSpv(t, wallet, app, addAlice, accAlice, newSpv, true)
 		So(err, ShouldBeNil)
@@ -1639,7 +1639,7 @@ func TestDepositHandler(t *testing.T) {
 		So(err, ShouldBeNil)
 		err = checkSingerDepositStatus(app, depositID, singerTypes.AddressReady)
 		So(err, ShouldBeNil)
-		testByte := []byte("just for test")
+		testByte := "just for test"
 		newSpv := singerTypes.NewSpvInfo(depositID, accAlice, testByte, testByte, testByte, testByte, testByte, testByte, 0, 0)
 		err = submitDepositSpv(t, wallet, app, addAlice, accAlice, newSpv, true)
 		So(err, ShouldBeNil)
