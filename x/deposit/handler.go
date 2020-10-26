@@ -8,6 +8,7 @@ import (
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"strconv"
 )
 
 func NewHandler(k keeper.Keeper) msg.Handler {
@@ -251,6 +252,15 @@ func handleKuMsgJudgeDepositSpv(ctx chainTypes.Context, keeper keeper.Keeper, ms
 	if err := keeper.JudgeSpvRight(sdkCtx, msgData.DepositID, msgData.SystemAccount, msgData.SpvIsRight, msgData.FeeToSinger); err != nil {
 		return nil, err
 	}
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeJudgeSpv,
+			sdk.NewAttribute(types.AttributeKeyDepositID,msgData.DepositID),
+			sdk.NewAttribute(types.AttributeKeyRightSpv,strconv.FormatBool(msgData.SpvIsRight)),
+			sdk.NewAttribute(types.AttributeKeyFeeToSinger,strconv.FormatBool(msgData.FeeToSinger)),
+		),
+	})
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 

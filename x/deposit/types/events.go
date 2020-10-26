@@ -13,6 +13,7 @@ const (
 	EventTypeWrongSingerSpv   = "wrong_singer_deposit"
 	EventTypeClaimAberrantDeposit   = "claim_aberrant_deposit"
 	EventTypeClaimMortgageDeposit   = "claim_mortgage_deposit"
+	EventTypeJudgeSpv  = "judge_spv"
 
 
 	AttributeKeyDepositID         = "deposit_id"
@@ -21,4 +22,6 @@ const (
 	AttributeKeyAsset         = "asset"
 	AttributeKeyMinStake         = "min_stake"
 	AttributeKeyFee         = "fee"
+	AttributeKeyRightSpv         = "right_spv"
+	AttributeKeyFeeToSinger         = "fee_to_singer"
 )
