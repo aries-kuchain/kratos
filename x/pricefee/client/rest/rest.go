@@ -9,4 +9,5 @@ import (
 // RegisterRoutes registers the auth module REST routes.
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	registerQueryRoutes(cliCtx, r)
+	registerTxRoutes(cliCtx, r)
 }
