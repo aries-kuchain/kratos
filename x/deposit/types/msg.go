@@ -273,7 +273,7 @@ func NewMsgDepositClaimCoin(depositID string, owner AccountID, asset Coin, claim
 // Route should return the name of the module
 func (msg MsgDepositClaimCoin) Route() string { return RouterKey }
 
-func (msg MsgDepositClaimCoin) Type() chainTypes.Name { return chainTypes.MustName("deposittocoin") }
+func (msg MsgDepositClaimCoin) Type() chainTypes.Name { return chainTypes.MustName("depositclaimcoin") }
 
 func (msg MsgDepositClaimCoin) Sender() AccountID {
 	return msg.Owner

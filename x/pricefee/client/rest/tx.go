@@ -1,6 +1,6 @@
 package rest
 
-import(
+import (
 	"fmt"
 	"net/http"
 
@@ -11,7 +11,6 @@ import(
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
-
 )
 
 func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router) {
@@ -37,23 +36,22 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router) {
 
 type (
 	OpenFeeRequest struct {
-		BaseReq      rest.BaseReq `json:"base_req" yaml:"base_req"`
-		Owner string       `json:"owner" yaml:"owner"`
+		BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
+		Owner   string       `json:"owner" yaml:"owner"`
 	}
 	PrestoreFeeRequest struct {
-		BaseReq      rest.BaseReq `json:"base_req" yaml:"base_req"`
-		Owner string       `json:"owner" yaml:"owner"`
-		Amount string       `json:"amount" yaml:"amount"`
+		BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
+		Owner   string       `json:"owner" yaml:"owner"`
+		Amount  string       `json:"amount" yaml:"amount"`
 	}
 	SetPriceRequest struct {
-		BaseReq      rest.BaseReq `json:"base_req" yaml:"base_req"`
- 		SystemAccount string       `json:"system_account" yaml:"system_account"`
-		Base string       `json:"base" yaml:"base"`
-		Quote string       `json:"quote" yaml:"quote"`
-		Remark string       `json:"remark" yaml:"remark"`
+		BaseReq       rest.BaseReq `json:"base_req" yaml:"base_req"`
+		SystemAccount string       `json:"system_account" yaml:"system_account"`
+		Base          string       `json:"base" yaml:"base"`
+		Quote         string       `json:"quote" yaml:"quote"`
+		Remark        string       `json:"remark" yaml:"remark"`
 	}
 )
-
 
 func postOpenFeeHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +113,7 @@ func postPreStoreFeeHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
 			return
 		}
 
-		msg := types.NewKuMsgPrestoreFee(ownerAccAddress, owner,amount)
+		msg := types.NewKuMsgPrestoreFee(ownerAccAddress, owner, amount)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -153,7 +151,7 @@ func postClaimFeeHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
 			return
 		}
 
-		msg := types.NewKuMsgClaimFee(ownerAccAddress, owner,amount)
+		msg := types.NewKuMsgClaimFee(ownerAccAddress, owner, amount)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -162,7 +160,6 @@ func postClaimFeeHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
 		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
-
 
 func postSetPriceHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -198,7 +195,7 @@ func postSetPriceHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
 			return
 		}
 
-		msg := types.NewKuMsgSetPrice(systemAccAddress, systemAccount,base,quote,req.Remark)
+		msg := types.NewKuMsgSetPrice(systemAccAddress, systemAccount, base, quote, req.Remark)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
