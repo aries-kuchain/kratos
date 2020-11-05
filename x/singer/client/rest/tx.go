@@ -42,6 +42,14 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		"/singer/submitspv",
 		postSubmitSpvHandlerFn(ctx),
 	).Methods("POST")
+	r.HandleFunc(
+		"/singer/waittimeout",
+		postWaitTimeoutHandlerFn(ctx),
+	).Methods("POST")
+	r.HandleFunc(
+		"/singer/reportspvwrong",
+		postReportSpvWrongHandlerFn(ctx),
+	).Methods("POST")
 }
 
 type (
@@ -320,6 +328,70 @@ func postSubmitSpvHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
 			req.BitcoinHeaders, req.FundingOutputIndex, req.TxIndexInBlock)
 
 		msg := types.NewKuMsgSubmitSpv(submiterAccAddress, spvInfo)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+
+func postWaitTimeoutHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req SingerDepositRequest
+
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+
+		singerAccount, err := rest.NewAccountIDFromStr(req.SingerAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("singerAccount accountID error, %v", err))
+			return
+		}
+
+		singerAccAddress, err := txutil.QueryAccountAuth(cliCtx, singerAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("query account %s auth error, %v", singerAccount, err))
+			return
+		}
+
+		msg := types.NewKuMsgWaitTimeout(singerAccAddress, req.DepositID, singerAccount)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+
+func postReportSpvWrongHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req SingerDepositRequest
+
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+
+		singerAccount, err := rest.NewAccountIDFromStr(req.SingerAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("singerAccount accountID error, %v", err))
+			return
+		}
+
+		singerAccAddress, err := txutil.QueryAccountAuth(cliCtx, singerAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("query account %s auth error, %v", singerAccount, err))
+			return
+		}
+
+		msg := types.NewKuMsgReportSpvWrong(singerAccAddress, req.DepositID, singerAccount)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

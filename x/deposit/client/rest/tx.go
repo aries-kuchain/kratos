@@ -43,6 +43,30 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		"/deposit/finishdeposit",
 		postFinishDepositHandlerFn(ctx),
 	).Methods("POST")
+	r.HandleFunc(
+		"/deposit/waittimeout",
+		postDepositWaitTimeoutHandlerFn(ctx),
+	).Methods("POST")
+	r.HandleFunc(
+		"/deposit/reportspvwrong",
+		postDepositReportspvWrongHandlerFn(ctx),
+	).Methods("POST")
+	r.HandleFunc(
+		"/deposit/claimaberrantdeposit",
+		postDepositClaimAberrantHandlerFn(ctx),
+	).Methods("POST")
+	r.HandleFunc(
+		"/deposit/claimmortgage",
+		postDepositClaimMortgageHandlerFn(ctx),
+	).Methods("POST")
+	r.HandleFunc(
+		"/deposit/judgespv",
+		postDepositJudgespvWrongHandlerFn(ctx),
+	).Methods("POST")
+	r.HandleFunc(
+		"/deposit/cashreadydeposit",
+		postDepositCashReadyHandlerFn(ctx),
+	).Methods("POST")
 }
 
 type (
@@ -88,6 +112,19 @@ type (
 		Owner     string       `json:"owner" yaml:"owner"`
 		Amount    string       `json:"amount" yaml:"amount"`
 		Address   string       `json:"address" yaml:"address"`
+	}
+	DepositClaimAberrantRequest struct {
+		BaseReq   rest.BaseReq `json:"base_req" yaml:"base_req"`
+		DepositID string       `json:"deposit_id" yaml:"deposit_id"`
+		Owner     string       `json:"owner" yaml:"owner"`
+		Amount    string       `json:"amount" yaml:"amount"`
+	}
+	DepositJudgeRequest struct {
+		BaseReq       rest.BaseReq `json:"base_req" yaml:"base_req"`
+		DepositID     string       `json:"deposit_id" yaml:"deposit_id"`
+		SystemAccount string       `json:"system_account" yaml:"system_account"`
+		SpvRight      string       `json:"spv_right" yaml:"spv_right"`
+		FeeToSinger   string       `json:"fee_to_singer" yaml:"fee_to_singer"`
 	}
 )
 
@@ -339,6 +376,213 @@ func postFinishDepositHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
 		}
 
 		msg := types.NewKuMsgFinishDeposit(ownerAccAddress, req.DepositID, ownerAccount)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+
+func postDepositWaitTimeoutHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req DepositOwnerRequest
+
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+
+		ownerAccount, err := rest.NewAccountIDFromStr(req.Owner)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("from accountID error, %v", err))
+			return
+		}
+
+		ownerAccAddress, err := txutil.QueryAccountAuth(cliCtx, ownerAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("query account %s auth error, %v", ownerAccount, err))
+			return
+		}
+
+		msg := types.NewKuMsgWaitTimeout(ownerAccAddress, req.DepositID, ownerAccount)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+
+func postDepositReportspvWrongHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req DepositOwnerRequest
+
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+
+		ownerAccount, err := rest.NewAccountIDFromStr(req.Owner)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("from accountID error, %v", err))
+			return
+		}
+
+		ownerAccAddress, err := txutil.QueryAccountAuth(cliCtx, ownerAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("query account %s auth error, %v", ownerAccount, err))
+			return
+		}
+
+		msg := types.NewKuMsgReportWrongSpv(ownerAccAddress, req.DepositID, ownerAccount)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+
+func postDepositClaimAberrantHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req DepositClaimAberrantRequest
+
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+
+		ownerAccount, err := rest.NewAccountIDFromStr(req.Owner)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("ownerAccount accountID error, %v", err))
+			return
+		}
+
+		amount, err := rest.ParseCoin(req.Amount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("amount parse error, %v", err))
+			return
+		}
+
+		ownerAccAddress, err := txutil.QueryAccountAuth(cliCtx, ownerAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("query account %s auth error, %v", ownerAccount, err))
+			return
+		}
+
+		msg := types.NewKuMsgClaimAberrant(ownerAccAddress, req.DepositID, ownerAccount, amount)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+
+func postDepositClaimMortgageHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req DepositClaimAberrantRequest
+
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+
+		ownerAccount, err := rest.NewAccountIDFromStr(req.Owner)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("ownerAccount accountID error, %v", err))
+			return
+		}
+
+		amount, err := rest.ParseCoin(req.Amount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("amount parse error, %v", err))
+			return
+		}
+
+		ownerAccAddress, err := txutil.QueryAccountAuth(cliCtx, ownerAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("query account %s auth error, %v", ownerAccount, err))
+			return
+		}
+
+		msg := types.NewKuMsgClaimMortgage(ownerAccAddress, req.DepositID, ownerAccount, amount)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+
+func postDepositJudgespvWrongHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req DepositJudgeRequest
+
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+
+		systemAccount, err := rest.NewAccountIDFromStr(req.SystemAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("from accountID error, %v", err))
+			return
+		}
+
+		systemAccAddress, err := txutil.QueryAccountAuth(cliCtx, systemAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("query account %s auth error, %v", systemAccount, err))
+			return
+		}
+
+		spvRight := req.SpvRight == "1"
+		FeeToSinger := req.FeeToSinger == "1"
+
+		msg := types.NewKuMsgJudgeDepositSpv(systemAccAddress, req.DepositID, systemAccount, spvRight, FeeToSinger)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+
+func postDepositCashReadyHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req DepositOwnerRequest
+
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+
+		operatorAccount, err := rest.NewAccountIDFromStr(req.Owner)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("operator accountID error, %v", err))
+			return
+		}
+
+		operatorAccAddress, err := txutil.QueryAccountAuth(cliCtx, operatorAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("query account %s auth error, %v", operatorAccount, err))
+			return
+		}
+
+		msg := types.NewKuMsgCashReadyDeposit(operatorAccAddress, req.DepositID, operatorAccount)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
