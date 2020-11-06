@@ -9,6 +9,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"strings"
+	"github.com/cosmos/cosmos-sdk/version"
 )
 
 // GetCmdResolveName queries information about a name
@@ -202,6 +204,38 @@ func GetCmdQueryAllGrade(storeName string, cdc *codec.Codec) *cobra.Command {
 			}
 
 			return cliCtx.PrintOutput(gradeCoins)
+		},
+	}
+}
+
+
+// GetCmdQueryParams implements the params query command.
+func GetCmdQueryParams(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "params",
+		Args:  cobra.NoArgs,
+		Short: "Query the current deposit parameters information",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query values set as deposit parameters.
+
+Example:
+$ %s query deposit params
+`,
+				version.ClientName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			route := fmt.Sprintf("custom/%s/%s", storeName, types.QueryParameters)
+			bz, _, err := cliCtx.QueryWithData(route, nil)
+			if err != nil {
+				return err
+			}
+
+			var params types.Params
+			cdc.MustUnmarshalJSON(bz, &params)
+			return cliCtx.PrintOutput(params)
 		},
 	}
 }

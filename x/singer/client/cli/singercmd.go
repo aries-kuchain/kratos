@@ -79,7 +79,7 @@ func GetCmdRegisterSinger(cdc *codec.Codec) *cobra.Command {
 func GetCmdPayAccess(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pay-access [singer-account] [amount]",
-		Short: "register to be a new singer",
+		Short: "singer pay some coin for be an active singer",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -116,7 +116,7 @@ func GetCmdPayAccess(cdc *codec.Codec) *cobra.Command {
 func GetCmdActiveSinger(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "active-singer [system-account] [singer-account]",
-		Short: "register to be a new singer",
+		Short: "make a singer to be an active singer",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -153,7 +153,7 @@ func GetCmdActiveSinger(cdc *codec.Codec) *cobra.Command {
 func GetCmdPayMortgage(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pay-mortgage [singer-account] [amount]",
-		Short: "register to be a new singer",
+		Short: "singer pay some coin for mortgage",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -190,7 +190,7 @@ func GetCmdPayMortgage(cdc *codec.Codec) *cobra.Command {
 func GetCmdClaimMortgage(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "claim-mortgage [singer-account] [amount]",
-		Short: "register to be a new singer",
+		Short: "claim some coin from mortgage",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -227,7 +227,7 @@ func GetCmdClaimMortgage(cdc *codec.Codec) *cobra.Command {
 func GetCmdClaimAccess(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "claim-access [singer-account]",
-		Short: "register to be a new singer",
+		Short: "claim excess access",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -259,7 +259,7 @@ func GetCmdClaimAccess(cdc *codec.Codec) *cobra.Command {
 func GetCmdLogoutSinger(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logout-singer [singer-account]",
-		Short: "register to be a new singer",
+		Short: "make singer to Inactive for get the access coin",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -291,7 +291,7 @@ func GetCmdLogoutSinger(cdc *codec.Codec) *cobra.Command {
 func GetCmdSetAddress(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-address [deposit-id] [singer-account] [btc-address]",
-		Short: "register to be a new singer",
+		Short: "set address on deposit",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())

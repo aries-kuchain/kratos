@@ -210,7 +210,7 @@ func GetCmdSubmitSpv(cdc *codec.Codec) *cobra.Command {
 func GetCmdTransferDeposit(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "transfer-deposit [depositID] [from] [to] [memo]",
-		Short: "create a legal coin ",
+		Short: "transfer deposit to another account ",
 		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -554,7 +554,7 @@ func GetCmdCashReadyDeposit(cdc *codec.Codec) *cobra.Command {
 func GetCmdSetGrade(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-grade [systemAccount] [asset]",
-		Short: "prohibit a legal coin ",
+		Short: "set a legal coin grade",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			inBuf := bufio.NewReader(cmd.InOrStdin())

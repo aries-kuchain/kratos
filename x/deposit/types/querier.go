@@ -10,7 +10,7 @@ const (
 	QueryCashReadyDeposit                = "cashready_deposit"
 	QueryAberrantDeposit                = "aberrant_deposit"
 	QueryDepositSpv                = "deposit_spv"
-
+	QueryParameters                    = "parameters"
 )
 
 type QueryDepositParams struct {

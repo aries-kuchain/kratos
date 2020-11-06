@@ -127,7 +127,7 @@ func GetCmdClaimFee(cdc *codec.Codec) *cobra.Command {
 func GetCmdSetPrice(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-price [system-account] [base] [quote] [remark]",
-		Short: "claim some fee",
+		Short: "set price",
 		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())

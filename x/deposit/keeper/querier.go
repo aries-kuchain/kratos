@@ -28,6 +28,8 @@ func NewQuerier(k Keeper) sdk.Querier {
 			return queryAberrantDeposit(ctx, path[1:], req, k)
 		case types.QueryDepositSpv:
 			return queryDepositSpv(ctx, path[1:], req, k)
+		case types.QueryParameters:
+			return queryParameters(ctx, path[1:], req, k)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown query path: %s", path[0])
 		}
@@ -159,4 +161,15 @@ func queryDepositSpv(ctx sdk.Context, path []string, req abci.RequestQuery, k Ke
 	}
 
 	return bz, nil
+}
+
+func queryParameters(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
+	params := k.GetParams(ctx)
+
+	res, err = codec.MarshalJSONIndent(k.cdc, params)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return res, nil
 }

@@ -55,6 +55,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		GetCmdQueryDepositSpv(queryRoute, cdc),
 		GetCmdQueryDepositMortgageRatio(queryRoute, cdc),
 		GetCmdQueryAllGrade(queryRoute, cdc),
+		GetCmdQueryParams(queryRoute, cdc),
 	)
 	return txCmd
 }
