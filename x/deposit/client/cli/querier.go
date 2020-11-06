@@ -2,16 +2,12 @@ package cli
 
 import (
 	"fmt"
-	//"github.com/KuChainNetwork/kuchain/chain/client/flags"
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	singerTypes "github.com/KuChainNetwork/kuchain/x/singer/types"
-	//"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
-	//"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
-	//"strings"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
@@ -177,6 +173,35 @@ func GetCmdQueryDepositMortgageRatio(storeName string, cdc *codec.Codec) *cobra.
 				return fmt.Errorf("failed to unmarshal response: %w", err)
 			}
 			return cliCtx.PrintOutput(result)
+		},
+	}
+}
+
+func GetCmdQueryAllGrade(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "all-grade",
+		Short: "Query all grade ",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			resKVs, _, err := cliCtx.QuerySubspace(types.DepositGradeKey, storeName)
+			if err != nil {
+				return err
+			}
+
+			var gradeCoins chainTypes.Coins
+			for _, kv := range resKVs {
+				var amount chainTypes.Coin
+				err = types.Cdc().UnmarshalBinaryBare(kv.Value,&amount)
+				if err != nil {
+					return err
+				}
+
+				gradeCoins = append(gradeCoins, amount)
+			}
+
+			return cliCtx.PrintOutput(gradeCoins)
 		},
 	}
 }

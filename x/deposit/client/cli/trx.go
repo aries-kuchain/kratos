@@ -33,6 +33,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		GetCmdClaimAberrant(cdc),
 		GetCmdClaimMortgage(cdc),
 		GetCmdCashReadyDeposit(cdc),
+		GetCmdSetGrade(cdc),
 	)
 	return txCmd
 }
@@ -53,6 +54,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		GetCmdQueryAllLegalCoin(queryRoute, cdc),
 		GetCmdQueryDepositSpv(queryRoute, cdc),
 		GetCmdQueryDepositMortgageRatio(queryRoute, cdc),
+		GetCmdQueryAllGrade(queryRoute, cdc),
 	)
 	return txCmd
 }

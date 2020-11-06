@@ -24,6 +24,7 @@ var (
 	DepositInfoKey      = []byte{0x11} // prefix for each key to a singerInfo index
 	LegalDepositCoinKey = []byte{0x21}
 	DepositSpvKey       = []byte{0x31}
+	DepositGradeKey       = []byte{0x41}
 )
 
 const (
@@ -44,4 +45,12 @@ func GetDepositSpvKey(depositID string) []byte {
 
 func GetDepositSingerSpvKey(depositID string, singerAccount AccountID) []byte {
 	return append(GetDepositSpvKey(depositID), singerAccount.StoreKey()...)
+}
+
+func GetDepositGradeKey(asset Coin) []byte {
+	json,err := Coins{asset}.MarshalJSON()
+	if err != nil {
+		return DepositGradeKey
+	}
+	return append(DepositGradeKey, json...)
 }

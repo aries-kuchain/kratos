@@ -549,3 +549,41 @@ func GetCmdCashReadyDeposit(cdc *codec.Codec) *cobra.Command {
 
 	return flags.PostCommands(cmd)[0]
 }
+
+
+func GetCmdSetGrade(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-grade [systemAccount] [asset]",
+		Short: "prohibit a legal coin ",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := txutil.NewTxBuilderFromCLI(inBuf).WithTxEncoder(txutil.GetTxEncoder(cdc))
+			cliCtx := txutil.NewKuCLICtxByBuf(cdc, inBuf)
+
+			systemAccount, err := chainTypes.NewAccountIDFromStr(args[0])
+			if err != nil {
+				return sdkerrors.Wrap(err, "system account id error")
+			}
+
+			asset, err := chainTypes.ParseCoin(args[1])
+			if err != nil {
+				return sdkerrors.Wrap(err, "amount parse error")
+			}
+
+			authAccAddress, err := txutil.QueryAccountAuth(cliCtx, systemAccount)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "query account %s auth error", systemAccount)
+			}
+
+			msg := types.NewKuMsgAddGrade(authAccAddress, systemAccount, asset)
+			cliCtx = cliCtx.WithFromAccount(systemAccount)
+			if txBldr.FeePayer().Empty() {
+				txBldr = txBldr.WithPayer(args[0])
+			}
+			return txutil.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+
+	return flags.PostCommands(cmd)[0]
+}

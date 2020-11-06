@@ -5,8 +5,6 @@ import (
 	chainTypes "github.com/KuChainNetwork/kuchain/chain/types"
 	"github.com/KuChainNetwork/kuchain/x/deposit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	// "github.com/KuChainNetwork/kuchain/x/singer/external"
-	//	"fmt"
 )
 
 func (k Keeper) GetLegalCoin(ctx sdk.Context, asset Coin) (legalCoin types.LegalCoin, found bool) {
@@ -85,5 +83,48 @@ func (k Keeper) CreateLegalCoin(ctx sdk.Context, systemAccount AccountID, asset 
 	}
 	legalCoin := types.NewLegalCoin(asset, symbol)
 	k.SetLegalCoin(ctx, legalCoin)
+	return nil
+}
+
+func (k Keeper) FindGrade(ctx sdk.Context, amount chainTypes.Coin)  (found bool ) {
+	store := ctx.KVStore(k.storeKey)
+	key := types.GetDepositGradeKey(amount)
+	value := store.Get(key)
+	if value == nil {
+		return false
+	}
+	return true
+}
+
+func (k Keeper) GetAllGrade(ctx sdk.Context)  (grade chainTypes.Coins ) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.DepositGradeKey)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var amount chainTypes.Coin
+		err :=k.cdc.UnmarshalBinaryBare(iterator.Value(),&amount)
+		if err != nil {
+			continue
+		}
+		grade = append(grade,amount)
+	}
+
+	return grade
+}
+
+func (k Keeper) SetGrade(ctx sdk.Context, amount chainTypes.Coin) (err error) {
+	found := k.FindGrade(ctx,amount)
+	if found {
+		return types.ErrGradeAlreadyExist
+	}
+
+	_,found = k.GetLegalCoin(ctx,amount)
+	if  !found {
+		return types.ErrLegalCoinNotExist
+	}
+	store := ctx.KVStore(k.storeKey)
+	b := k.cdc.MustMarshalBinaryBare(amount)
+	store.Set(types.GetDepositGradeKey(amount), b)
 	return nil
 }

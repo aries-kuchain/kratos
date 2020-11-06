@@ -452,3 +452,29 @@ func (msg KuMsgCashReadyDeposit) ValidateBasic() error {
 
 	return msgData.ValidateBasic()
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------
+type KuMsgAddGrade struct {
+	chainTypes.KuMsg
+}
+
+func NewKuMsgAddGrade(auth sdk.AccAddress, systemAccountID AccountID, amount Coin) KuMsgAddGrade {
+	return KuMsgAddGrade{
+		*msg.MustNewKuMsg(
+			RouterKeyName,
+			msg.WithAuth(auth),
+			msg.WithData(Cdc(), &MsgAddGrade{
+				SystemAccount: systemAccountID,
+				Amount:        amount,
+			}),
+		),
+	}
+}
+
+func (msg KuMsgAddGrade) ValidateBasic() error {
+	msgData := MsgAddGrade{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return err
+	}
+
+	return msgData.ValidateBasic()
+}

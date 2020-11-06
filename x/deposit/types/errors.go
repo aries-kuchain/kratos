@@ -34,4 +34,6 @@ var (
 	ErrSystemNotAddress      = sdkerrors.Register(ModuleName, 28, "system account must not be an address")
 	ErrPriceDoesNotFound     = sdkerrors.Register(ModuleName, 29, "can not find price for deposit coin")
 	ErrSymbolEmpty           = sdkerrors.Register(ModuleName, 30, "symbol is empty")
+	ErrGradeAlreadyExist           = sdkerrors.Register(ModuleName, 31, "grade already exist")
+
 )

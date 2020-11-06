@@ -552,3 +552,35 @@ func (msg MsgCashReadyDeposit) ValidateBasic() error {
 	}
 	return nil
 }
+//---------------------------------------------------------------------------------
+type MsgAddGrade struct {
+	SystemAccount AccountID `json:"owner_account" yaml:"owner_account"`
+	Amount        Coin      `json:"amount" yaml:"amount"`
+}
+
+func NewMsgAddGrade(systemAccount AccountID, amount Coin) MsgAddGrade {
+	return MsgAddGrade{SystemAccount: systemAccount, Amount: amount}
+}
+
+// Route should return the name of the module
+func (msg MsgAddGrade) Route() string { return RouterKey }
+
+func (msg MsgAddGrade) Type() chainTypes.Name {
+	return chainTypes.MustName("addgrade")
+}
+
+func (msg MsgAddGrade) Sender() AccountID {
+	return msg.SystemAccount
+}
+
+func (msg MsgAddGrade) ValidateBasic() error {
+	// note that unmarshaling from bech32 ensures either empty or valid
+	if msg.SystemAccount.Empty() {
+		return ErrEmptyOwnerAccount
+	}
+
+	if !msg.Amount.Amount.IsPositive() {
+		return ErrBadAmount
+	}
+	return nil
+}

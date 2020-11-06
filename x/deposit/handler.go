@@ -44,6 +44,8 @@ func NewHandler(k keeper.Keeper) msg.Handler {
 			return handleKuMsgClaimMortgage(ctx, k, msg)
 		case types.KuMsgCashReadyDeposit:
 			return handleKuMsgCashReadyDeposit(ctx, k, msg)
+		case types.KuMsgAddGrade:
+			return handleKuMsgAddGrade(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
@@ -307,6 +309,30 @@ func handleKuMsgCashReadyDeposit(ctx chainTypes.Context, keeper keeper.Keeper, m
 	sdkCtx := ctx.Context()
 
 	if err := keeper.CashReadyDeposit(sdkCtx, msgData.DepositID); err != nil {
+		return nil, err
+	}
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+func handleKuMsgAddGrade(ctx chainTypes.Context, keeper keeper.Keeper, msg types.KuMsgAddGrade) (*sdk.Result, error) {
+	msgData := types.MsgAddGrade{}
+	if err := msg.UnmarshalData(Cdc(), &msgData); err != nil {
+		return nil, sdkerrors.Wrapf(err, "msg MsgClaimMortgage data unmarshal error")
+	}
+
+	ctx.RequireAuth(msgData.SystemAccount)
+
+	name, ok := msgData.SystemAccount.ToName()
+	if !ok {
+		return nil, types.ErrSystemNotAddress
+	}
+	if !constants.IsSystemAccount(name) {
+		return nil, types.ErrNotSystemAccount
+	}
+
+	sdkCtx := ctx.Context()
+
+	if err := keeper.SetGrade(sdkCtx,msgData.Amount); err != nil {
 		return nil, err
 	}
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
