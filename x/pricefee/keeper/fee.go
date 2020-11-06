@@ -117,9 +117,14 @@ func (k Keeper) UnLockFee(ctx sdk.Context, owner AccountID, amount sdk.Int) (tot
 }
 
 func (k Keeper) TransferFee(ctx sdk.Context, from, to AccountID, amount sdk.Int) (totalPreStoreFee sdk.Int, err error) {
+
 	feeFrom, found := k.GetFeeInfo(ctx, from)
 	if !found {
 		return sdk.ZeroInt(), types.ErrFeeInfoNotExist
+	}
+
+	if from.Eq(to) {
+		return feeFrom.LockedFee,nil
 	}
 
 	feeTo, found := k.GetFeeInfo(ctx, to)
