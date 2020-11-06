@@ -23,6 +23,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 			return queryDepositAddress(ctx, path[1:], req, keeper)
 		case types.QueryDepositSpv:
 			return queryDepositSpv(ctx, path[1:], req, keeper)
+		case types.QueryParameters:
+			return queryParameters(ctx, path[1:], req, keeper)
 		default:
 			return nil, nil //sdk.ErrUnknownRequest("unknown bank query endpoint")
 		}
@@ -154,4 +156,15 @@ func queryDepositSpv(ctx sdk.Context, path []string, req abci.RequestQuery, k Ke
 	}
 
 	return bz, nil
+}
+
+func queryParameters(ctx sdk.Context, path []string, req abci.RequestQuery, k Keeper) (res []byte, err error) {
+	params := k.GetParams(ctx)
+
+	res, err = codec.MarshalJSONIndent(k.cdc, params)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return res, nil
 }

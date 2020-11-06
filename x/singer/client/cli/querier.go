@@ -32,6 +32,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		GetCmdQueryDeposit(queryRoute, cdc),
 		GetCmdQueryDepositBtcAddress(queryRoute, cdc),
 		GetCmdQueryDepositClaimSpv(queryRoute, cdc),
+		GetCmdQueryParams(queryRoute, cdc),
 	)...)
 
 	return singerQueryCmd
@@ -220,6 +221,37 @@ func GetCmdQueryDepositClaimSpv(storeName string, cdc *codec.Codec) *cobra.Comma
 			}
 
 			return cliCtx.PrintOutput(spvInfos)
+		},
+	}
+}
+
+// GetCmdQueryParams implements the params query command.
+func GetCmdQueryParams(storeName string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "params",
+		Args:  cobra.NoArgs,
+		Short: "Query the current singer parameters information",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query values set as singer parameters.
+
+Example:
+$ %s query singer params
+`,
+				version.ClientName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			route := fmt.Sprintf("custom/%s/%s", storeName, types.QueryParameters)
+			bz, _, err := cliCtx.QueryWithData(route, nil)
+			if err != nil {
+				return err
+			}
+
+			var params types.Params
+			cdc.MustUnmarshalJSON(bz, &params)
+			return cliCtx.PrintOutput(params)
 		},
 	}
 }

@@ -9,7 +9,7 @@ const (
 	QuerySingerDeposit = "singer_deposit"
 	QueryDepositAddress = "deposit_address"
 	QueryDepositSpv = "deposit_spv"
-
+	QueryParameters                    = "parameters"
 )
 
 type QuerySingerInfoParams struct {
