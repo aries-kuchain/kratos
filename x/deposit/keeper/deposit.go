@@ -46,6 +46,12 @@ func (k Keeper) NewDepositInfo(ctx sdk.Context, ownerAccount AccountID, asset Co
 	if legalCoin.Status != types.Permint {
 		return depositId, types.ErrLegalCoinNotExist
 	}
+
+	found = k.FindGrade(ctx,asset)
+	if !found {
+		return depositId,types.ErrGradeDoesNotExist
+	}
+
 	threshold := k.Threshold(ctx)
 	quoteAmount, err := k.CalQuoteAmount(ctx, asset, Coin{Denom: external.DefaultBondDenom, Amount: sdk.NewInt(1)})
 	if err != nil {
