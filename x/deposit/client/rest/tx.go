@@ -67,6 +67,10 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		"/deposit/cashreadydeposit",
 		postDepositCashReadyHandlerFn(ctx),
 	).Methods("POST")
+	r.HandleFunc(
+		"/deposit/addgrade",
+		postAddGradeHandlerFn(ctx),
+	).Methods("POST")
 }
 
 type (
@@ -125,6 +129,11 @@ type (
 		SystemAccount string       `json:"system_account" yaml:"system_account"`
 		SpvRight      string       `json:"spv_right" yaml:"spv_right"`
 		FeeToSinger   string       `json:"fee_to_singer" yaml:"fee_to_singer"`
+	}
+	AddGradeRequest struct {
+		BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
+		SystemAccount   string       `json:"system_account" yaml:"system_account"`
+		Amount  string       `json:"amount" yaml:"amount"`
 	}
 )
 
@@ -583,6 +592,44 @@ func postDepositCashReadyHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc 
 		}
 
 		msg := types.NewKuMsgCashReadyDeposit(operatorAccAddress, req.DepositID, operatorAccount)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		txutil.WriteGenerateStdTxResponse(w, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+
+func postAddGradeHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req AddGradeRequest
+
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+
+		systemAccount, err := rest.NewAccountIDFromStr(req.SystemAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("singerAccount accountID error, %v", err))
+			return
+		}
+
+		amount, err := rest.ParseCoin(req.Amount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("amount parse error, %v", err))
+			return
+		}
+
+		systemAccAddress, err := txutil.QueryAccountAuth(cliCtx, systemAccount)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("query account %s auth error, %v", systemAccount, err))
+			return
+		}
+
+		msg := types.NewKuMsgAddGrade(systemAccAddress, systemAccount, amount)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
