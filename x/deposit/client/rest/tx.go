@@ -97,6 +97,7 @@ type (
 		MerkleProof        string       `json:"merkle_proof" yaml:"merkle_proof"`
 		TxIndexInBlock     int          `json:"tx_index_in_block" yaml:"tx_index_in_block"`
 		BitcoinHeaders     string       `json:"bit_coin_headers" yaml:"bit_coin_headers"`
+		TxID     string       `json:"tx_id" yaml:"tx_id"`
 	}
 	TransferDepositRequest struct {
 		BaseReq   rest.BaseReq `json:"base_req" yaml:"base_req"`
@@ -242,7 +243,7 @@ func postSubmitSpvHandlerFn(cliCtx txutil.KuCLIContext) http.HandlerFunc {
 		}
 		//(depositID string, spvSubminter AccountID, version, txInputVector, txOutputVector, txLockTime, merkleProof, bitcoinHeaders string, fundingOupputIndex, txIndexInBlock int) SpvInfo {
 		spvInfo := singerTypes.NewSpvInfo(req.DepositID, spvSubmiter, req.Version, req.TxInputVector, req.TxOutputVector, req.TxLockTime, req.MerkleProof,
-			req.BitcoinHeaders, req.FundingOutputIndex, req.TxIndexInBlock)
+			req.BitcoinHeaders, req.FundingOutputIndex, req.TxIndexInBlock,req.TxID)
 
 		msg := types.NewKuMsgSubmitSpv(submiterAccAddress, spvInfo)
 		if err := msg.ValidateBasic(); err != nil {

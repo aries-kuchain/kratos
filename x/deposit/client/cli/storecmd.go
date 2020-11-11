@@ -193,7 +193,7 @@ func GetCmdSubmitSpv(cdc *codec.Codec) *cobra.Command {
 			}
 
 			spvInfo := singerTypes.NewSpvInfo(args[1], spvSubmiter, paramsSpv.Version, paramsSpv.TxInputVector, paramsSpv.TxOutputVector,
-				paramsSpv.TxLockTime, paramsSpv.MerkleProof, paramsSpv.BitcoinHeaders, paramsSpv.FundingOutputIndex, paramsSpv.TxIndexInBlock,
+				paramsSpv.TxLockTime, paramsSpv.MerkleProof, paramsSpv.BitcoinHeaders, paramsSpv.FundingOutputIndex, paramsSpv.TxIndexInBlock,paramsSpv.TxID,
 			)
 			msg := types.NewKuMsgSubmitSpv(authAccAddress, spvInfo)
 			cliCtx = cliCtx.WithFromAccount(spvSubmiter)

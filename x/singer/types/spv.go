@@ -16,9 +16,10 @@ type SpvInfo struct {
 	MerkleProof        string    `json:"merkle_proof" yaml:"merkle_proof"`
 	TxIndexInBlock     int       `json:"tx_index_in_blocl" yaml:"tx_index_in_blocl"`
 	BitcoinHeaders     string    `json:"bit_coin_headers" yaml:"bit_coin_headers"`
+	TxID     string    `json:"tx_id" yaml:"tx_id"`
 }
 
-func NewSpvInfo(depositID string, spvSubminter AccountID, version, txInputVector, txOutputVector, txLockTime, merkleProof, bitcoinHeaders string, fundingOupputIndex, txIndexInBlock int) SpvInfo {
+func NewSpvInfo(depositID string, spvSubminter AccountID, version, txInputVector, txOutputVector, txLockTime, merkleProof, bitcoinHeaders string, fundingOupputIndex, txIndexInBlock int,txID string) SpvInfo {
 	return SpvInfo{
 		DepositID:          depositID,
 		SpvSubmiter:        spvSubminter,
@@ -30,6 +31,7 @@ func NewSpvInfo(depositID string, spvSubminter AccountID, version, txInputVector
 		MerkleProof:        merkleProof,
 		TxIndexInBlock:     txIndexInBlock,
 		BitcoinHeaders:     bitcoinHeaders,
+		TxID:txID,
 	}
 }
 

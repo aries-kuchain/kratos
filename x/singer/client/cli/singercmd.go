@@ -3,7 +3,6 @@ package cli
 import (
 	"bufio"
 	"github.com/KuChainNetwork/kuchain/chain/client/txutil"
-//	"github.com/KuChainNetwork/kuchain/chain/hexutil"
 	"github.com/KuChainNetwork/kuchain/x/singer/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -378,7 +377,7 @@ func GetCmdSubmitSpv(cdc *codec.Codec) *cobra.Command {
 			}
 
 			spvInfo := types.NewSpvInfo(args[1], spvSubmiter, paramsSpv.Version, paramsSpv.TxInputVector, paramsSpv.TxOutputVector,
-				paramsSpv.TxLockTime, paramsSpv.MerkleProof, paramsSpv.BitcoinHeaders, paramsSpv.FundingOutputIndex, paramsSpv.TxIndexInBlock,
+				paramsSpv.TxLockTime, paramsSpv.MerkleProof, paramsSpv.BitcoinHeaders, paramsSpv.FundingOutputIndex, paramsSpv.TxIndexInBlock,paramsSpv.TxID,
 			)
 			msg := types.NewKuMsgSubmitSpv(authAccAddress, spvInfo)
 			cliCtx = cliCtx.WithFromAccount(spvSubmiter)

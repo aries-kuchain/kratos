@@ -19,6 +19,7 @@ type (
 		MerkleProof        string `json:"merkle_proof" yaml:"merkle_proof"`
 		TxIndexInBlock     int    `json:"tx_index_in_block,string" yaml:"tx_index_in_block"`
 		BitcoinHeaders     string `json:"bit_coin_headers" yaml:"bit_coin_headers"`
+		TxID						string   `json:"tx_id" yaml:"tx_id"`
 	}
 )
 
